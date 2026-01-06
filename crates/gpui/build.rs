@@ -258,6 +258,7 @@ mod windows {
             "path_sprite",
             "underline",
             "monochrome_sprite",
+            "subpixel_sprite",
             "polychrome_sprite",
         ];
 

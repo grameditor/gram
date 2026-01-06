@@ -395,6 +395,7 @@ struct MacWindowState {
     native_window: id,
     native_view: NonNull<Object>,
     blurred_view: Option<id>,
+    background_appearance: WindowBackgroundAppearance,
     display_link: Option<DisplayLink>,
     renderer: renderer::Renderer,
     request_frame_callback: Option<Box<dyn FnMut(RequestFrameOptions)>>,
@@ -692,6 +693,7 @@ impl MacWindow {
                 native_window,
                 native_view: NonNull::new_unchecked(native_view),
                 blurred_view: None,
+                background_appearance: WindowBackgroundAppearance::Opaque,
                 display_link: None,
                 renderer: renderer::new_renderer(
                     renderer_context,
@@ -1259,6 +1261,7 @@ impl PlatformWindow for MacWindow {
 
     fn set_background_appearance(&self, background_appearance: WindowBackgroundAppearance) {
         let mut this = self.0.as_ref().lock();
+        this.background_appearance = background_appearance;
 
         let opaque = background_appearance == WindowBackgroundAppearance::Opaque;
         this.renderer.update_transparency(!opaque);
@@ -1311,6 +1314,14 @@ impl PlatformWindow for MacWindow {
                 }
             }
         }
+    }
+
+    fn background_appearance(&self) -> WindowBackgroundAppearance {
+        self.0.as_ref().lock().background_appearance
+    }
+
+    fn is_subpixel_rendering_supported(&self) -> bool {
+        false
     }
 
     fn set_edited(&mut self, edited: bool) {
