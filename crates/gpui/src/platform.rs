@@ -8,14 +8,11 @@ mod linux;
 #[cfg(target_os = "macos")]
 mod mac;
 
-#[cfg(any(
-    all(
-        any(target_os = "linux", target_os = "freebsd"),
-        any(feature = "x11", feature = "wayland")
-    ),
-    all(target_os = "macos", feature = "macos-blade")
+#[cfg(all(
+    any(target_os = "linux", target_os = "freebsd"),
+    any(feature = "wayland", feature = "x11")
 ))]
-mod blade;
+mod wgpu;
 
 #[cfg(any(test, feature = "test-support"))]
 mod test;
@@ -95,19 +92,29 @@ pub(crate) fn current_platform(headless: bool) -> Rc<dyn Platform> {
         return Rc::new(HeadlessClient::new());
     }
 
-    match guess_compositor() {
-        #[cfg(feature = "wayland")]
-        "Wayland" => Rc::new(WaylandClient::new()),
+    #[cfg(all(feature = "wayland", feature = "x11"))]
+    {
+        if std::env::var("XDG_SESSION_TYPE").ok().as_deref() == Some("wayland")
+            || std::env::var("WAYLAND_DISPLAY").is_ok()
+        {
+            return Rc::new(WaylandClient::new());
+        }
+        return Rc::new(X11Client::new().expect("Failed to initialize X11 client"));
+    }
 
-        #[cfg(feature = "x11")]
-        "X11" => Rc::new(
-            X11Client::new()
-                .context("Failed to initialize X11 client.")
-                .unwrap(),
-        ),
+    #[cfg(all(feature = "wayland", not(feature = "x11")))]
+    {
+        return Rc::new(WaylandClient::new());
+    }
 
-        "Headless" => Rc::new(HeadlessClient::new()),
-        _ => unreachable!(),
+    #[cfg(all(feature = "x11", not(feature = "wayland")))]
+    {
+        return Rc::new(X11Client::new().expect("Failed to initialize X11 client"));
+    }
+
+    #[cfg(not(any(feature = "wayland", feature = "x11")))]
+    {
+        Rc::new(HeadlessClient::new())
     }
 }
 
