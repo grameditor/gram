@@ -1137,21 +1137,27 @@ fn open_about(cx: &mut App) {
                                                 .inline_code(cx)
                                                 .size(LabelSize::XSmall),
                                         )
-                                        .child(CopyButton::new(commit).custom_on_click({
-                                            let commit = self.commit.clone();
-                                            let headline = self.headline.clone();
-                                            move |_window, cx| {
-                                                let content = match commit.as_ref() {
-                                                    Some(commit) => {
-                                                        format!("{}, Commit: {}", headline, commit)
+                                        .child(
+                                            CopyButton::new("about-commit-version", commit)
+                                                .custom_on_click({
+                                                    let commit = self.commit.clone();
+                                                    let headline = self.headline.clone();
+                                                    move |_window, cx| {
+                                                        let content = match commit.as_ref() {
+                                                            Some(commit) => {
+                                                                format!(
+                                                                    "{}, Commit: {}",
+                                                                    headline, commit
+                                                                )
+                                                            }
+                                                            None => headline.clone().into(),
+                                                        };
+                                                        cx.write_to_clipboard(
+                                                            ClipboardItem::new_string(content),
+                                                        );
                                                     }
-                                                    None => headline.clone().into(),
-                                                };
-                                                cx.write_to_clipboard(ClipboardItem::new_string(
-                                                    content,
-                                                ));
-                                            }
-                                        })),
+                                                }),
+                                        ),
                                 )
                             }),
                     )
