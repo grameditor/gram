@@ -6,6 +6,9 @@ use crate::{
     actions::{Format, FormatSelections},
     selections_collection::SelectionsCollection,
 };
+use app_actions::preview::{
+    markdown::OpenPreview as OpenMarkdownPreview, svg::OpenPreview as OpenSvgPreview,
+};
 use gpui::prelude::FluentBuilder;
 use gpui::{Context, DismissEvent, Entity, Focusable as _, Pixels, Point, Subscription, Window};
 use std::ops::Range;
@@ -213,6 +216,25 @@ pub fn deploy_context_menu(
 
         let evaluate_selection = window.is_action_available(&EvaluateSelectedText, cx);
         let run_to_cursor = window.is_action_available(&RunToCursor, cx);
+
+        let is_markdown = editor
+            .buffer()
+            .read(cx)
+            .as_singleton()
+            .and_then(|buffer| buffer.read(cx).language())
+            .is_some_and(|language| language.name().as_ref() == "Markdown");
+
+        let is_svg = editor
+            .buffer()
+            .read(cx)
+            .as_singleton()
+            .and_then(|buffer| buffer.read(cx).file())
+            .is_some_and(|file| {
+                std::path::Path::new(file.file_name(cx))
+                    .extension()
+                    .is_some_and(|ext| ext.eq_ignore_ascii_case("svg"))
+            });
+
         ui::ContextMenu::build(window, cx, |menu, _window, _cx| {
             let builder = menu
                 .on_blur_subscription(Subscription::new(|| {}))
@@ -262,6 +284,12 @@ pub fn deploy_context_menu(
                     },
                     Box::new(RevealInFileManager),
                 )
+                .when(is_markdown, |builder| {
+                    builder.action("Open Markdown Preview", Box::new(OpenMarkdownPreview))
+                })
+                .when(is_svg, |builder| {
+                    builder.action("Open SVG Preview", Box::new(OpenSvgPreview))
+                })
                 .action_disabled_when(
                     !has_reveal_target,
                     "Open in Terminal",

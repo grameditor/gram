@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add Refresh Folders command (#207) (zed#46291)
 - Add SelectInsideDelimiters and SelectAroundDelimiters actions (#217) by @subeax
 - Use patched protobuf-src for Windows support (#202) by @voltagex
+- Added a menu item in the buffer and tab right-click menu for
+  opening Markdown and SVG files in the preview tab. (zed#47821)
 
 [poll]: https://github.com/lilith/zed/commit/0334469a57a20586b28b86187028acd36559a9d3
 
