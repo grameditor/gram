@@ -4,8 +4,9 @@ use gpui::{
 };
 use language::Buffer;
 use markdown_preview::{
-    markdown_elements::ParsedMarkdown, markdown_parser::parse_markdown,
-    markdown_renderer::render_markdown_block,
+    markdown_elements::ParsedMarkdown,
+    markdown_parser::parse_markdown,
+    markdown_renderer::{MermaidState, render_markdown_block},
 };
 use ui::v_flex;
 
@@ -16,15 +17,14 @@ pub struct MarkdownView {
     image_cache: Entity<RetainAllImageCache>,
     contents: Option<ParsedMarkdown>,
     parsing_markdown_task: Option<Task<Result<()>>>,
+    mermaid_state: MermaidState,
 }
 
 impl MarkdownView {
     pub fn from(text: String, cx: &mut Context<Self>) -> Self {
         let parsed = {
             let text = text.clone();
-            cx.background_spawn(
-                async move { parse_markdown(&text.clone(), None, None).await },
-            )
+            cx.background_spawn(async move { parse_markdown(&text.clone(), None, None).await })
         };
         let task = cx.spawn(async move |markdown_view, cx| {
             let content = parsed.await;
@@ -41,6 +41,7 @@ impl MarkdownView {
             image_cache: RetainAllImageCache::new(cx),
             contents: None,
             parsing_markdown_task: Some(task),
+            mermaid_state: Default::default(),
         }
     }
 }
@@ -76,8 +77,12 @@ impl Render for MarkdownView {
             return div().into_any_element();
         };
 
-        let mut markdown_render_context =
-            markdown_preview::markdown_renderer::RenderContext::new(None, window, cx);
+        let mut markdown_render_context = markdown_preview::markdown_renderer::RenderContext::new(
+            None,
+            &self.mermaid_state,
+            window,
+            cx,
+        );
 
         v_flex()
             .image_cache(self.image_cache.clone())

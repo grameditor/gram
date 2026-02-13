@@ -149,6 +149,7 @@ impl Cell {
                     };
 
                     MarkdownCell {
+                        mermaid_state: Default::default(),
                         markdown_parsing_task,
                         image_cache: RetainAllImageCache::new(cx),
                         languages: languages.clone(),
@@ -338,6 +339,7 @@ pub struct MarkdownCell {
     image_cache: Entity<RetainAllImageCache>,
     source: String,
     parsed_markdown: Option<markdown_preview::markdown_elements::ParsedMarkdown>,
+    mermaid_state: markdown_preview::markdown_renderer::MermaidState,
     markdown_parsing_task: Task<()>,
     selected: bool,
     cell_position: Option<CellPosition>,
@@ -392,8 +394,12 @@ impl Render for MarkdownCell {
             return div();
         };
 
-        let mut markdown_render_context =
-            markdown_preview::markdown_renderer::RenderContext::new(None, window, cx);
+        let mut markdown_render_context = markdown_preview::markdown_renderer::RenderContext::new(
+            None,
+            &self.mermaid_state,
+            window,
+            cx,
+        );
 
         v_flex()
             .size_full()

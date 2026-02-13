@@ -13,7 +13,7 @@ use gpui::{
 use language::LanguageRegistry;
 use markdown_preview::markdown_elements::{Link, ParsedMarkdown, ParsedMarkdownElement};
 use markdown_preview::markdown_parser::parse_markdown;
-use markdown_preview::markdown_renderer::{RenderContext, render_markdown_block};
+use markdown_preview::markdown_renderer::{MermaidState, RenderContext, render_markdown_block};
 use markdown_preview::{
     ScrollDown, ScrollDownByItem, ScrollPageDown, ScrollPageUp, ScrollUp, ScrollUpByItem,
 };
@@ -40,6 +40,7 @@ pub(crate) struct DocumentationView {
     current: SharedString,
     back: Vec<SharedString>,
     forward: Vec<SharedString>,
+    mermaid_state: MermaidState,
     parsing_markdown_task: Option<Task<Result<()>>>,
 }
 
@@ -117,46 +118,44 @@ impl Render for DocumentationView {
                             };
 
                             let current = current.clone();
-                            let mut render_cx =
-                                RenderContext::new(Some(this.workspace.clone()), window, cx)
-                                    .with_link_clicked_callback(move |link: Link, window, cx| {
-                                        match link {
-                                            Link::Web { url } => {
-                                                open_doc_url(url.into(), window, cx)
-                                            }
-                                            Link::Path { path, .. } => {
-                                                let from = if let Some(base) =
-                                                    Path::new(&current).parent()
-                                                {
-                                                    let path = path.to_str().unwrap().to_string();
-                                                    if path.starts_with("../") {
-                                                        Path::new(".").join(
-                                                            base.parent().unwrap().join(
-                                                                path.strip_prefix("../").unwrap(),
-                                                            ),
-                                                        )
-                                                    } else if path.starts_with("./") {
-                                                        base.join(path.strip_prefix("./").unwrap())
-                                                    } else {
-                                                        base.join(path.as_str())
-                                                    }
-                                                } else {
-                                                    path
-                                                };
-
-                                                open_doc_url(
-                                                    SharedString::from(
-                                                        from.to_str().unwrap().to_string(),
-                                                    ),
-                                                    window,
-                                                    cx,
-                                                )
-                                            }
+                            let mut render_cx = RenderContext::new(
+                                Some(this.workspace.clone()),
+                                &this.mermaid_state,
+                                window,
+                                cx,
+                            )
+                            .with_link_clicked_callback(move |link: Link, window, cx| match link {
+                                Link::Web { url } => open_doc_url(url.into(), window, cx),
+                                Link::Path { path, .. } => {
+                                    let from = if let Some(base) = Path::new(&current).parent() {
+                                        let path = path.to_str().unwrap().to_string();
+                                        if path.starts_with("../") {
+                                            Path::new(".").join(
+                                                base.parent()
+                                                    .unwrap()
+                                                    .join(path.strip_prefix("../").unwrap()),
+                                            )
+                                        } else if path.starts_with("./") {
+                                            base.join(path.strip_prefix("./").unwrap())
+                                        } else {
+                                            base.join(path.as_str())
                                         }
-                                    });
+                                    } else {
+                                        path
+                                    };
+
+                                    open_doc_url(
+                                        SharedString::from(from.to_str().unwrap().to_string()),
+                                        window,
+                                        cx,
+                                    )
+                                }
+                            });
 
                             let block = contents.children.get(ix).unwrap();
                             let rendered_block = render_markdown_block(block, &mut render_cx);
+                            let selected_block = this.selected_block;
+                            let scaled_rems = render_cx.scaled_rems(1.0);
 
                             let should_apply_padding = Self::should_apply_padding_between(
                                 block,
@@ -173,11 +172,11 @@ impl Render for DocumentationView {
                                     let indicator = div()
                                         .h_full()
                                         .w(px(4.0))
-                                        .when(ix == this.selected_block, |this| {
+                                        .when(ix == selected_block, |this| {
                                             this.bg(cx.theme().colors().border)
                                         })
                                         .group_hover("markdown-block", |s| {
-                                            if ix == this.selected_block {
+                                            if ix == selected_block {
                                                 s
                                             } else {
                                                 s.bg(cx.theme().colors().border_variant)
@@ -188,11 +187,7 @@ impl Render for DocumentationView {
                                     container.child(
                                         div()
                                             .relative()
-                                            .child(
-                                                div()
-                                                    .pl(render_cx.scaled_rems(1.0))
-                                                    .child(rendered_block),
-                                            )
+                                            .child(div().pl(scaled_rems).child(rendered_block))
                                             .child(indicator.absolute().left_0().top_0()),
                                     )
                                 })
@@ -286,6 +281,7 @@ impl DocumentationView {
             current: SharedString::from(""),
             back: Vec::new(),
             forward: Vec::new(),
+            mermaid_state: Default::default(),
             parsing_markdown_task: None,
             image_cache: RetainAllImageCache::new(cx),
             contents: None,
