@@ -25,6 +25,7 @@ gram-*linux*.gz
 .perf-runs
 /assets/*licenses.*
 /crates/collab/seed.json
+/crates/gram/resources/gram.desktop
 /crates/theme/schemas/theme.json
 /crates/gram/resources/flatpak/flatpak-cargo-sources.json
 /crates/project_panel/benches/linux_repo_snapshot.txt

@@ -2,19 +2,28 @@
 
 set -euxo pipefail
 
-# Function for displaying help info
 help_info() {
   echo "
 Usage: ${0##*/} [options]
-Build a release .tar.gz for Linux.
+Build Linux packages for Gram.
+
+At least one of --tarball, --deb, or --rpm must be specified.
 
 Options:
   -h, --help     Display this help and exit.
-  --flatpak      Set GRAM_BUNDLE_TYPE=flatpak so that this can be included in system info
+  --no-build     Skip building binaries (assume they're already built).
+  --flatpak      Set GRAM_BUNDLE_TYPE=flatpak so that this can be included in system info.
+  --tarball      Build a release .tar.gz archive.
+  --deb          Build a .deb package.
+  --rpm          Build a .rpm package.
   "
 }
 
-# Parse all arguments manually
+DO_BUILD=true
+DO_TARBALL=false
+DO_DEB=false
+DO_RPM=false
+
 while [[ $# -gt 0 ]]; do
     case $1 in
         -h|--help)
@@ -23,6 +32,22 @@ while [[ $# -gt 0 ]]; do
             ;;
         --flatpak)
             export GRAM_BUNDLE_TYPE=flatpak
+            shift
+            ;;
+        --no-build)
+            DO_BUILD=false
+            shift
+            ;;
+        --tarball)
+            DO_TARBALL=true
+            shift
+            ;;
+        --deb)
+            DO_DEB=true
+            shift
+            ;;
+        --rpm)
+            DO_RPM=true
             shift
             ;;
         --)
@@ -42,6 +67,13 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Throw error if no arguments given
+if [[ "$DO_TARBALL" == "false" && "$DO_DEB" == "false" && "$DO_RPM" == "false" ]]; then
+    echo "Error: At least one of --tarball, --deb, or --rpm must be specified." >&2
+    help_info
+    exit 1
+fi
+
 export GRAM_BUNDLE=true
 
 arch=$(uname -m)
@@ -50,56 +82,49 @@ arch=$(uname -m)
 # https://github.com/zed-industries/zed/issues/24880
 currentversion="$(gcc -dumpversion)"
 requiredversion="14"
-if [ "$(printf '%s\n'  "$requiredversion" "$currentversion" | sort -V | head -n1)" = "$requiredversion" ]; then
-  echo "Handle GCC version 14+ when compiling remote server..."
-  export AWS_LC_SYS_CC=clang
-  export REMOTE_SERVER_TARGET=$arch-unknown-linux-gnu
+version_info=$(rustc --version --verbose)
+host_line=$(echo "$version_info" | grep host)
+target_triple=${host_line#*: }
+if [ "$(printf '%s\n' "$requiredversion" "$currentversion" | sort -V | head -n1)" = "$requiredversion" ]; then
+    echo "Handle GCC version 14+ when compiling remote server..."
+    export AWS_LC_SYS_CC=clang
+    export REMOTE_SERVER_TARGET=$target_triple
+fi
+
+if [[ "$DO_DEB" == "true" || "$DO_RPM" == "true" ]]; then
+    export REMOTE_SERVER_TARGET=$target_triple
 fi
 
 channel=$(<crates/gram/RELEASE_CHANNEL)
 target_dir="${CARGO_TARGET_DIR:-target}"
 
 version="$(script/get-crate-version gram)"
-# Set RELEASE_VERSION so it's compiled into GPUI and it knows about the version.
 export RELEASE_VERSION="${version}"
 
-commit=$(git rev-parse HEAD | cut -c 1-7)
-
-version_info=$(rustc --version --verbose)
-host_line=$(echo "$version_info" | grep host)
-target_triple=${host_line#*: }
 musl_triple=${target_triple%-gnu}-musl
 remote_server_triple=${REMOTE_SERVER_TARGET:-"${musl_triple}"}
-rustup_installed=false
+
 if command -v rustup >/dev/null 2>&1; then
-    rustup_installed=true
+    rustup target add "$remote_server_triple"
 fi
 
 # Generate the licenses first, so they can be baked into the binaries
 script/generate-licenses
 
-if "$rustup_installed"; then
-    rustup target add "$remote_server_triple"
-fi
-
 export CC=$(which clang)
 
-# Build binary in release mode
-export RUSTFLAGS="${RUSTFLAGS:-} -C link-args=-Wl,--disable-new-dtags,-rpath,\$ORIGIN/../lib"
-cargo build --release --target "${target_triple}" --package gram --package cli
-# Build remote_server in separate invocation to prevent feature unification from other crates
-# from influencing dynamic libraries required by it.
-if [[ "$remote_server_triple" == "$musl_triple" ]]; then
-    export RUSTFLAGS="${RUSTFLAGS:-} -C target-feature=+crt-static"
+if [ "$DO_BUILD" = "true" ]; then
+    export RUSTFLAGS="${RUSTFLAGS:-} -C link-args=-Wl,--disable-new-dtags,-rpath,\$ORIGIN/../lib"
+    cargo build --release --target "${target_triple}" --package gram --package cli
+    # Build remote_server separately to prevent feature unification from other crates
+    # from influencing dynamic libraries required by it.
+    if [[ "$remote_server_triple" == "$musl_triple" ]]; then
+        export RUSTFLAGS="${RUSTFLAGS:-} -C target-feature=+crt-static"
+    fi
+    cargo build --release --target "${remote_server_triple}" --package remote_server
 fi
-cargo build --release --target "${remote_server_triple}" --package remote_server
 
-# Strip debug symbols and save them
-objcopy --strip-debug "${target_dir}/${target_triple}/release/gram"
-objcopy --strip-debug "${target_dir}/${target_triple}/release/cli"
-objcopy --strip-debug "${target_dir}/${remote_server_triple}/release/remote_server"
-
-# Ensure that remote_server does not depend on libssl nor libcrypto, as we got rid of these deps.
+# Ensure that remote_server does not depend on libssl nor libcrypto
 if ldd "${target_dir}/${remote_server_triple}/release/remote_server" | grep -q 'libcrypto\|libssl'; then
     if [[ "$remote_server_triple" == *-musl ]]; then
         echo "Error: remote_server still depends on libssl or libcrypto" && exit 1
@@ -108,62 +133,69 @@ if ldd "${target_dir}/${remote_server_triple}/release/remote_server" | grep -q '
     fi
 fi
 
-suffix=""
-if [ "$channel" != "stable" ]; then
-  suffix="-$channel"
-fi
-
-# Move everything that should end up in the final package
-# into a temp directory.
-temp_dir=$(mktemp -d)
-gram_dir="${temp_dir}/gram$suffix.app"
-
-# Binary
-mkdir -p "${gram_dir}/bin" "${gram_dir}/libexec"
-cp "${target_dir}/${target_triple}/release/gram" "${gram_dir}/libexec/gram-editor"
-cp "${target_dir}/${target_triple}/release/cli" "${gram_dir}/bin/gram"
-
-# Libs
-find_libs() {
-    ldd ${target_dir}/${target_triple}/release/gram |\
-        cut -d' ' -f3 |\
-        grep -v '\<\(libstdc++.so\|libc.so\|libgcc_s.so\|libm.so\|libpthread.so\|libdl.so\)'
-}
-
-mkdir -p "${gram_dir}/lib"
-rm -rf "${gram_dir}/lib/*"
-cp $(find_libs) "${gram_dir}/lib"
-
-# Icons
-mkdir -p "${gram_dir}/share/icons/hicolor/512x512/apps"
-cp "crates/gram/resources/app-icon$suffix.png" "${gram_dir}/share/icons/hicolor/512x512/apps/gram.png"
-mkdir -p "${gram_dir}/share/icons/hicolor/1024x1024/apps"
-cp "crates/gram/resources/app-icon$suffix@2x.png" "${gram_dir}/share/icons/hicolor/1024x1024/apps/gram.png"
-
-# .desktop
 export DO_STARTUP_NOTIFY="true"
 export APP_CLI="gram"
 export APP_ICON="gram"
 export APP_ARGS="%U"
 if [[ "$channel" == "dev" ]]; then
-  export APP_NAME="Gram Dev"
+    export APP_NAME="Gram Dev"
 else
-  export APP_NAME="Gram"
+    export APP_NAME="Gram"
 fi
 
-mkdir -p "${gram_dir}/share/applications"
-envsubst < "crates/gram/resources/gram.desktop.in" > "${gram_dir}/share/applications/gram$suffix.desktop"
-chmod +x "${gram_dir}/share/applications/gram$suffix.desktop"
+suffix=""
+if [ "$channel" != "stable" ]; then
+    suffix="-$channel"
+fi
 
-# Copy generated licenses so they'll end up in archive too
-cp "assets/licenses.md" "${gram_dir}/licenses.md"
+# Strip debug symbols (keeps symbol table for backtraces)
+objcopy --strip-debug "${target_dir}/${target_triple}/release/gram"
+objcopy --strip-debug "${target_dir}/${target_triple}/release/cli"
+objcopy --strip-debug "${target_dir}/${remote_server_triple}/release/remote_server"
 
-# Create archive out of everything that's in the temp directory
-archive="gram-linux-${arch}.tar.gz"
+# Bundle tarball
+if [ "$DO_TARBALL" = "true" ]; then
+    temp_dir=$(mktemp -d)
+    gram_dir="${temp_dir}/gram${suffix}.app"
 
-rm -rf "${archive}"
-remove_match="gram(-[a-zA-Z0-9]+)?-linux-$(uname -m)\.tar\.gz"
-ls "${target_dir}/release" | grep -E ${remove_match} | xargs -d "\n" -I {} rm -f "${target_dir}/release/{}" || true
-tar -czvf "${target_dir}/release/$archive" -C ${temp_dir} "gram$suffix.app"
+    mkdir -p "${gram_dir}/bin" "${gram_dir}/libexec"
+    cp "${target_dir}/${target_triple}/release/gram" "${gram_dir}/libexec/gram-editor"
+    cp "${target_dir}/${target_triple}/release/cli" "${gram_dir}/bin/gram"
 
-gzip -f --stdout --best "${target_dir}/${remote_server_triple}/release/remote_server" > "${target_dir}/gram-remote-server-linux-${arch}.gz"
+    mkdir -p "${gram_dir}/lib"
+    ldd "${target_dir}/${target_triple}/release/gram" \
+        | cut -d' ' -f3 \
+        | grep -v '\<\(libstdc++.so\|libc.so\|libgcc_s.so\|libm.so\|libpthread.so\|libdl.so\)' \
+        | xargs -I{} cp {} "${gram_dir}/lib/"
+
+    mkdir -p "${gram_dir}/share/icons/hicolor/512x512/apps"
+    cp "crates/gram/resources/app-icon${suffix}.png" "${gram_dir}/share/icons/hicolor/512x512/apps/gram.png"
+    mkdir -p "${gram_dir}/share/icons/hicolor/1024x1024/apps"
+    cp "crates/gram/resources/app-icon${suffix}@2x.png" "${gram_dir}/share/icons/hicolor/1024x1024/apps/gram.png"
+
+    mkdir -p "${gram_dir}/share/applications"
+    envsubst < "crates/gram/resources/gram.desktop.in" > "${gram_dir}/share/applications/gram${suffix}.desktop"
+    chmod +x "${gram_dir}/share/applications/gram${suffix}.desktop"
+
+    cp "assets/licenses.md" "${gram_dir}/licenses.md"
+
+    archive="gram-linux-${arch}.tar.gz"
+    remove_match="gram(-[a-zA-Z0-9]+)?-linux-$(uname -m)\.tar\.gz"
+    ls "${target_dir}/release" | grep -E "${remove_match}" | xargs -d "\n" -I {} rm -f "${target_dir}/release/{}" || true
+    tar -czvf "${target_dir}/release/${archive}" -C "${temp_dir}" "gram${suffix}.app"
+
+    gzip -f --stdout --best "${target_dir}/${remote_server_triple}/release/remote_server" \
+        > "${target_dir}/gram-remote-server-linux-${arch}.gz"
+fi
+
+# Bundle .deb package
+if [ "$DO_DEB" = "true" ]; then
+    envsubst < "crates/gram/resources/gram.desktop.in" > "crates/gram/resources/gram.desktop"
+    CARGO_TARGET_DIR="${target_dir}/${target_triple}" cargo deb -p gram --no-build --compress-type xz
+fi
+
+# Bundle .rpm package
+if [ "$DO_RPM" = "true" ]; then
+    envsubst < "crates/gram/resources/gram.desktop.in" > "crates/gram/resources/gram.desktop"
+    cargo generate-rpm -p crates/gram --target-dir "${target_dir}/${target_triple}" --payload-compress zstd
+fi
