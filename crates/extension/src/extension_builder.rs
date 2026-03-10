@@ -264,7 +264,12 @@ impl ExtensionBuilder {
         } else {
             log::info!("compiling {grammar_name} parser");
             let clang_output = util::command::new_smol_command(&clang_path)
-                .args(["-fPIC", "-shared", "-Os"])
+                .args([
+                    "-fPIC",
+                    "-shared",
+                    "-Os",
+                    &format!("--target={RUST_TARGET}"),
+                ])
                 .arg(format!("-Wl,--export=tree_sitter_{grammar_name}"))
                 .arg("-o")
                 .arg(&grammar_wasm_path)
