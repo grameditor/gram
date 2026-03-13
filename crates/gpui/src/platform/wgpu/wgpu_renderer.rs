@@ -1330,7 +1330,7 @@ impl RenderingParameters {
                 * 2
             | 1;
 
-        let path_sample_count = env::var("ZED_PATH_SAMPLE_COUNT")
+        let path_sample_count = env::var("GRAM_PATH_SAMPLE_COUNT")
             .ok()
             .and_then(|v| v.parse().ok())
             .or_else(|| {
@@ -1340,20 +1340,20 @@ impl RenderingParameters {
             })
             .unwrap_or(1);
 
-        let gamma = env::var("ZED_FONTS_GAMMA")
+        let gamma = env::var("GRAM_FONTS_GAMMA")
             .ok()
             .and_then(|v| v.parse().ok())
             .unwrap_or(1.8_f32)
             .clamp(1.0, 2.2);
         let gamma_ratios = get_gamma_correction_ratios(gamma);
 
-        let grayscale_enhanced_contrast = env::var("ZED_FONTS_GRAYSCALE_ENHANCED_CONTRAST")
+        let grayscale_enhanced_contrast = env::var("GRAM_FONTS_GRAYSCALE_ENHANCED_CONTRAST")
             .ok()
             .and_then(|v| v.parse().ok())
             .unwrap_or(1.0_f32)
             .max(0.0);
 
-        let subpixel_enhanced_contrast = env::var("ZED_FONTS_SUBPIXEL_ENHANCED_CONTRAST")
+        let subpixel_enhanced_contrast = env::var("GRAM_FONTS_SUBPIXEL_ENHANCED_CONTRAST")
             .ok()
             .and_then(|v| v.parse().ok())
             .unwrap_or(0.5_f32)
