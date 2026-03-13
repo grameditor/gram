@@ -10,7 +10,6 @@ use crate::{
     WindowDecorations, WindowKind, WindowParams, X11ClientStatePtr, px,
 };
 
-use collections::FxHashSet;
 use raw_window_handle as rwh;
 use util::{ResultExt, maybe};
 use x11rb::{
