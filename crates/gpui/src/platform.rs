@@ -85,9 +85,6 @@ pub(crate) fn current_platform(headless: bool) -> Rc<dyn Platform> {
 
 #[cfg(any(target_os = "linux", target_os = "freebsd"))]
 pub(crate) fn current_platform(headless: bool) -> Rc<dyn Platform> {
-    #[cfg(feature = "x11")]
-    use anyhow::Context as _;
-
     if headless {
         return Rc::new(HeadlessClient::new());
     }
