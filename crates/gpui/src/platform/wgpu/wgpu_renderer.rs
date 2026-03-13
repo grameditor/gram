@@ -75,6 +75,7 @@ struct WgpuPipelines {
     paths: wgpu::RenderPipeline,
     underlines: wgpu::RenderPipeline,
     mono_sprites: wgpu::RenderPipeline,
+    subpixel_sprites: Option<wgpu::RenderPipeline>,
     poly_sprites: wgpu::RenderPipeline,
     #[allow(dead_code)]
     surfaces: wgpu::RenderPipeline,
@@ -604,6 +605,38 @@ impl WgpuRenderer {
             1,
         );
 
+        let subpixel_sprites = if dual_source_blending {
+            let subpixel_blend = wgpu::BlendState {
+                color: wgpu::BlendComponent {
+                    src_factor: wgpu::BlendFactor::Src1,
+                    dst_factor: wgpu::BlendFactor::OneMinusSrc1,
+                    operation: wgpu::BlendOperation::Add,
+                },
+                alpha: wgpu::BlendComponent {
+                    src_factor: wgpu::BlendFactor::One,
+                    dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
+                    operation: wgpu::BlendOperation::Add,
+                },
+            };
+
+            Some(create_pipeline(
+                "subpixel_sprites",
+                "vs_subpixel_sprite",
+                "fs_subpixel_sprite",
+                &layouts.globals_with_gamma,
+                &layouts.sprites,
+                wgpu::PrimitiveTopology::TriangleStrip,
+                &[Some(wgpu::ColorTargetState {
+                    format: surface_format,
+                    blend: Some(subpixel_blend),
+                    write_mask: wgpu::ColorWrites::COLOR,
+                })],
+                1,
+            ))
+        } else {
+            None
+        };
+
         let poly_sprites = create_pipeline(
             "poly_sprites",
             "vs_poly_sprite",
@@ -633,6 +666,7 @@ impl WgpuRenderer {
             paths,
             underlines,
             mono_sprites,
+            subpixel_sprites,
             poly_sprites,
             surfaces,
         }
@@ -1054,6 +1088,76 @@ impl WgpuRenderer {
                         pass.set_bind_group(0, &globals_with_gamma_bind_group, &[]);
                         pass.set_bind_group(1, &bind_group, &[]);
                         pass.draw(0..4, 0..sprites.len() as u32);
+                    }
+                    PrimitiveBatch::SubpixelSprites {
+                        texture_id,
+                        sprites,
+                    } => {
+                        let tex_info = self.atlas.get_texture_info(texture_id);
+                        let data = unsafe {
+                            std::slice::from_raw_parts(
+                                sprites.as_ptr() as *const u8,
+                                std::mem::size_of_val(sprites),
+                            )
+                        };
+                        let buffer = self.create_storage_buffer(data);
+                        let bind_group =
+                            self.device.create_bind_group(&wgpu::BindGroupDescriptor {
+                                label: Some("subpixel_sprites_bind_group"),
+                                layout: &self.bind_group_layouts.sprites,
+                                entries: &[
+                                    wgpu::BindGroupEntry {
+                                        binding: 0,
+                                        resource: buffer.as_entire_binding(),
+                                    },
+                                    wgpu::BindGroupEntry {
+                                        binding: 1,
+                                        resource: wgpu::BindingResource::TextureView(
+                                            &tex_info.view,
+                                        ),
+                                    },
+                                    wgpu::BindGroupEntry {
+                                        binding: 2,
+                                        resource: wgpu::BindingResource::Sampler(
+                                            &self.atlas_sampler,
+                                        ),
+                                    },
+                                ],
+                            });
+
+                        if let Some(ref pipeline) = self.pipelines.subpixel_sprites {
+                            let subpixel_gamma = GammaParams {
+                                gamma_ratios: self.rendering_params.gamma_ratios,
+                                grayscale_enhanced_contrast: self
+                                    .rendering_params
+                                    .grayscale_enhanced_contrast,
+                                subpixel_enhanced_contrast: self
+                                    .rendering_params
+                                    .subpixel_enhanced_contrast,
+                                _pad: [0.0; 2],
+                            };
+                            self.queue.write_buffer(
+                                &self.gamma_buffer,
+                                0,
+                                bytemuck::bytes_of(&subpixel_gamma),
+                            );
+
+                            pass.set_pipeline(pipeline);
+                            pass.set_bind_group(0, &globals_with_gamma_bind_group, &[]);
+                            pass.set_bind_group(1, &bind_group, &[]);
+                            pass.draw(0..4, 0..sprites.len() as u32);
+
+                            self.queue.write_buffer(
+                                &self.gamma_buffer,
+                                0,
+                                bytemuck::bytes_of(&gamma_params),
+                            );
+                        } else {
+                            pass.set_pipeline(&self.pipelines.mono_sprites);
+                            pass.set_bind_group(0, &globals_with_gamma_bind_group, &[]);
+                            pass.set_bind_group(1, &bind_group, &[]);
+                            pass.draw(0..4, 0..sprites.len() as u32);
+                        }
                     }
                     PrimitiveBatch::PolychromeSprites {
                         texture_id,

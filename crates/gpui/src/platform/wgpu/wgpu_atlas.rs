@@ -142,6 +142,7 @@ impl WgpuAtlasState {
         let size = min_size.max(&DEFAULT_ATLAS_SIZE);
         let format = match kind {
             AtlasTextureKind::Monochrome => wgpu::TextureFormat::R8Unorm,
+            AtlasTextureKind::Subpixel => wgpu::TextureFormat::Bgra8Unorm,
             AtlasTextureKind::Polychrome => wgpu::TextureFormat::Bgra8Unorm,
         };
 
@@ -246,6 +247,7 @@ impl ops::Index<AtlasTextureKind> for WgpuAtlasStorage {
     fn index(&self, kind: AtlasTextureKind) -> &Self::Output {
         match kind {
             AtlasTextureKind::Monochrome => &self.monochrome_textures,
+            AtlasTextureKind::Subpixel => &self.subpixel_textures,
             AtlasTextureKind::Polychrome => &self.polychrome_textures,
         }
     }
@@ -255,6 +257,7 @@ impl ops::IndexMut<AtlasTextureKind> for WgpuAtlasStorage {
     fn index_mut(&mut self, kind: AtlasTextureKind) -> &mut Self::Output {
         match kind {
             AtlasTextureKind::Monochrome => &mut self.monochrome_textures,
+            AtlasTextureKind::Subpixel => &mut self.subpixel_textures,
             AtlasTextureKind::Polychrome => &mut self.polychrome_textures,
         }
     }
@@ -265,6 +268,7 @@ impl ops::Index<AtlasTextureId> for WgpuAtlasStorage {
     fn index(&self, id: AtlasTextureId) -> &Self::Output {
         let textures = match id.kind {
             AtlasTextureKind::Monochrome => &self.monochrome_textures,
+            AtlasTextureKind::Subpixel => &self.subpixel_textures,
             AtlasTextureKind::Polychrome => &self.polychrome_textures,
         };
         textures[id.index as usize]
