@@ -12,13 +12,13 @@ pub struct WgpuContext {
 
 impl WgpuContext {
     pub fn new() -> anyhow::Result<Self> {
-        let device_id_filter = match std::env::var("ZED_DEVICE_ID") {
+        let device_id_filter = match std::env::var("GRAM_DEVICE_ID") {
             Ok(val) => parse_pci_id(&val)
-                .context("Failed to parse device ID from `ZED_DEVICE_ID` environment variable")
+                .context("Failed to parse device ID from `GRAM_DEVICE_ID` environment variable")
                 .log_err(),
             Err(std::env::VarError::NotPresent) => None,
             err => {
-                err.context("Failed to read value of `ZED_DEVICE_ID` environment variable")
+                err.context("Failed to read value of `GRAM_DEVICE_ID` environment variable")
                     .log_err();
                 None
             }
@@ -89,7 +89,7 @@ impl WgpuContext {
                 let info = adapter.get_info();
                 if info.device == device_id {
                     log::info!(
-                        "Found GPU matching ZED_DEVICE_ID={:#06x}: {}",
+                        "Found GPU matching GRAM_DEVICE_ID={:#06x}: {}",
                         device_id,
                         info.name
                     );
@@ -100,7 +100,7 @@ impl WgpuContext {
             }
 
             log::warn!(
-                "No GPU found matching ZED_DEVICE_ID={:#06x}. Available devices:",
+                "No GPU found matching GRAM_DEVICE_ID={:#06x}. Available devices:",
                 device_id
             );
 
