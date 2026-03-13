@@ -1675,7 +1675,7 @@ dependencies = [
  "gpui",
  "inventory",
  "parking_lot",
- "strum 0.27.2",
+ "strum",
  "theme",
 ]
 
@@ -2789,7 +2789,7 @@ dependencies = [
  "optfield",
  "proc-macro2",
  "quote",
- "strum 0.27.2",
+ "strum",
  "syn 2.0.115",
 ]
 
@@ -3339,7 +3339,7 @@ dependencies = [
  "serde",
  "settings",
  "smallvec",
- "strum 0.27.2",
+ "strum",
  "theme",
  "ui",
  "util",
@@ -4156,7 +4156,7 @@ dependencies = [
  "serde_json",
  "settings",
  "smol",
- "strum 0.27.2",
+ "strum",
  "theme",
  "time",
  "time_format",
@@ -4346,7 +4346,7 @@ dependencies = [
  "lyon",
  "media",
  "metal 0.29.0",
- "naga 25.0.1",
+ "naga",
  "num_cpus",
  "objc",
  "objc2",
@@ -4375,7 +4375,7 @@ dependencies = [
  "smol",
  "spin 0.10.0",
  "stacksafe",
- "strum 0.27.2",
+ "strum",
  "sum_tree",
  "swash",
  "taffy",
@@ -4911,7 +4911,7 @@ name = "icons"
 version = "0.1.0"
 dependencies = [
  "serde",
- "strum 0.27.2",
+ "strum",
 ]
 
 [[package]]
@@ -6607,30 +6607,6 @@ name = "multimap"
 version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e5ce46fe64a9d73be07dcbe690a38ce1b293be448fd8ce1e6c1b8062c9f72c6a"
-
-[[package]]
-name = "naga"
-version = "25.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2b977c445f26e49757f9aca3631c3b8b836942cb278d69a92e7b80d3b24da632"
-dependencies = [
- "arrayvec",
- "bit-set",
- "bitflags 2.11.0",
- "cfg_aliases 0.2.1",
- "codespan-reporting",
- "half",
- "hashbrown 0.15.5",
- "hexf-parse",
- "indexmap",
- "log",
- "num-traits",
- "once_cell",
- "rustc-hash 1.1.0",
- "strum 0.26.3",
- "thiserror 2.0.18",
- "unicode-ident",
-]
 
 [[package]]
 name = "naga"
@@ -9341,7 +9317,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
- "strum 0.27.2",
+ "strum",
  "tracing",
  "util",
  "zlog",
@@ -10030,7 +10006,7 @@ dependencies = [
  "settings_json",
  "settings_macros",
  "smallvec",
- "strum 0.27.2",
+ "strum",
  "unindent",
  "util",
  "zlog",
@@ -10109,7 +10085,7 @@ dependencies = [
  "serde",
  "session",
  "settings",
- "strum 0.27.2",
+ "strum",
  "theme",
  "title_bar",
  "ui",
@@ -10547,7 +10523,7 @@ dependencies = [
  "settings",
  "simplelog",
  "story",
- "strum 0.27.2",
+ "strum",
  "theme",
  "title_bar",
  "ui",
@@ -10611,33 +10587,11 @@ checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
 
 [[package]]
 name = "strum"
-version = "0.26.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8fec0f0aef304996cf250b31b5a10dee7980c85da9d759361292b8bca5a18f06"
-dependencies = [
- "strum_macros 0.26.4",
-]
-
-[[package]]
-name = "strum"
 version = "0.27.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "af23d6f6c1a224baef9d3f61e287d2761385a5b88fdab4eb4c6f11aeb54c4bcf"
 dependencies = [
- "strum_macros 0.27.2",
-]
-
-[[package]]
-name = "strum_macros"
-version = "0.26.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c6bee85a5a24955dc440386795aa378cd9cf82acd5f764469152d2270e581be"
-dependencies = [
- "heck 0.5.0",
- "proc-macro2",
- "quote",
- "rustversion",
- "syn 2.0.115",
+ "strum_macros",
 ]
 
 [[package]]
@@ -11157,7 +11111,7 @@ dependencies = [
  "serde_json",
  "serde_json_lenient",
  "settings",
- "strum 0.27.2",
+ "strum",
  "thiserror 2.0.18",
  "util",
  "uuid",
@@ -11189,7 +11143,7 @@ dependencies = [
  "serde_json",
  "serde_json_lenient",
  "simplelog",
- "strum 0.27.2",
+ "strum",
  "theme",
  "vscode_theme",
 ]
@@ -12142,7 +12096,7 @@ dependencies = [
  "settings",
  "smallvec",
  "story",
- "strum 0.27.2",
+ "strum",
  "theme",
  "ui_macros",
  "util",
@@ -13284,7 +13238,7 @@ dependencies = [
  "hashbrown 0.16.1",
  "js-sys",
  "log",
- "naga 28.0.0",
+ "naga",
  "parking_lot",
  "portable-atomic",
  "profiling",
@@ -13315,7 +13269,7 @@ dependencies = [
  "hashbrown 0.16.1",
  "indexmap",
  "log",
- "naga 28.0.0",
+ "naga",
  "once_cell",
  "parking_lot",
  "portable-atomic",
@@ -13385,7 +13339,7 @@ dependencies = [
  "libloading",
  "log",
  "metal 0.33.0",
- "naga 28.0.0",
+ "naga",
  "ndk-sys",
  "objc",
  "once_cell",
@@ -14387,7 +14341,7 @@ dependencies = [
  "settings",
  "smallvec",
  "sqlez",
- "strum 0.27.2",
+ "strum",
  "task",
  "tempfile",
  "theme",
