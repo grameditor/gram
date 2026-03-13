@@ -190,3 +190,39 @@ osx_url_schemes = ["gram"]
 
 [package.metadata.cargo-machete]
 ignored = ["profiling", "zstd"]
+
+[package.metadata.deb]
+name = "gram"
+maintainer = "Kristoffer Grönlund <k@ziran.se>"
+copyright = "2026, Kristoffer Grönlund"
+license-file = ["../../LICENSE-GPL", "0"]
+depends = "$auto"
+section = "editors"
+priority = "optional"
+
+extended-description = """\
+A code editor for humanoid apes and grumpy toads. \
+Gram is a fork of the Zed editor."""
+assets = [
+    ["target/release/gram", "usr/libexec/gram-editor", "755"],
+    ["target/release/cli", "usr/bin/gram", "755"],
+    ["target/release/remote_server", "usr/libexec/gram-remote-server", "755"],
+    ["resources/gram.desktop", "usr/share/applications/app.liten.gram.desktop", "644"],
+    ["resources/app-icon.png", "usr/share/icons/hicolor/512x512/apps/gram.png", "644"],
+    ["resources/app-icon@2x.png", "usr/share/icons/hicolor/1024x1024/apps/gram.png", "644"],
+    ["../../assets/licenses.md", "usr/share/doc/gram/licenses.md", "644"],
+]
+
+[package.metadata.generate-rpm]
+name = "gram"
+summary = "A code editor for humanoid apes and grumpy toads"
+url = "https://gram.liten.app"
+assets = [
+    { source = "target/release/gram", dest = "/usr/libexec/gram-editor", mode = "755" },
+    { source = "target/release/cli", dest = "/usr/bin/gram", mode = "755" },
+    { source = "target/release/remote_server", dest = "/usr/libexec/gram-remote-server", mode = "755" },
+    { source = "resources/gram.desktop", dest = "/usr/share/applications/app.liten.Gram.desktop", mode = "644" },
+    { source = "resources/app-icon.png", dest = "/usr/share/icons/hicolor/512x512/apps/gram.png", mode = "644" },
+    { source = "resources/app-icon@2x.png", dest = "/usr/share/icons/hicolor/1024x1024/apps/gram.png", mode = "644" },
+    { source = "assets/licenses.md", dest = "/usr/share/doc/gram/licenses.md", mode = "644", doc = true },
+]
