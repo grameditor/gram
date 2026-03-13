@@ -75,7 +75,6 @@ struct WgpuPipelines {
     paths: wgpu::RenderPipeline,
     underlines: wgpu::RenderPipeline,
     mono_sprites: wgpu::RenderPipeline,
-    subpixel_sprites: Option<wgpu::RenderPipeline>,
     poly_sprites: wgpu::RenderPipeline,
     #[allow(dead_code)]
     surfaces: wgpu::RenderPipeline,
@@ -605,38 +604,6 @@ impl WgpuRenderer {
             1,
         );
 
-        let subpixel_sprites = if dual_source_blending {
-            let subpixel_blend = wgpu::BlendState {
-                color: wgpu::BlendComponent {
-                    src_factor: wgpu::BlendFactor::Src1,
-                    dst_factor: wgpu::BlendFactor::OneMinusSrc1,
-                    operation: wgpu::BlendOperation::Add,
-                },
-                alpha: wgpu::BlendComponent {
-                    src_factor: wgpu::BlendFactor::One,
-                    dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
-                    operation: wgpu::BlendOperation::Add,
-                },
-            };
-
-            Some(create_pipeline(
-                "subpixel_sprites",
-                "vs_subpixel_sprite",
-                "fs_subpixel_sprite",
-                &layouts.globals_with_gamma,
-                &layouts.sprites,
-                wgpu::PrimitiveTopology::TriangleStrip,
-                &[Some(wgpu::ColorTargetState {
-                    format: surface_format,
-                    blend: Some(subpixel_blend),
-                    write_mask: wgpu::ColorWrites::COLOR,
-                })],
-                1,
-            ))
-        } else {
-            None
-        };
-
         let poly_sprites = create_pipeline(
             "poly_sprites",
             "vs_poly_sprite",
@@ -666,7 +633,6 @@ impl WgpuRenderer {
             paths,
             underlines,
             mono_sprites,
-            subpixel_sprites,
             poly_sprites,
             surfaces,
         }
