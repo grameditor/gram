@@ -124,37 +124,6 @@ pub(crate) fn current_platform(_headless: bool) -> Rc<dyn Platform> {
     )
 }
 
-/// Return which compositor we're guessing we'll use.
-/// Does not attempt to connect to the given compositor
-#[cfg(any(target_os = "linux", target_os = "freebsd"))]
-#[inline]
-pub fn guess_compositor() -> &'static str {
-    if std::env::var_os("GRAM_HEADLESS").is_some() {
-        return "Headless";
-    }
-
-    #[cfg(feature = "wayland")]
-    let wayland_display = std::env::var_os("WAYLAND_DISPLAY");
-    #[cfg(not(feature = "wayland"))]
-    let wayland_display: Option<std::ffi::OsString> = None;
-
-    #[cfg(feature = "x11")]
-    let x11_display = std::env::var_os("DISPLAY");
-    #[cfg(not(feature = "x11"))]
-    let x11_display: Option<std::ffi::OsString> = None;
-
-    let use_wayland = wayland_display.is_some_and(|display| !display.is_empty());
-    let use_x11 = x11_display.is_some_and(|display| !display.is_empty());
-
-    if use_wayland {
-        "Wayland"
-    } else if use_x11 {
-        "X11"
-    } else {
-        "Headless"
-    }
-}
-
 pub(crate) trait Platform: 'static {
     fn background_executor(&self) -> BackgroundExecutor;
     fn foreground_executor(&self) -> ForegroundExecutor;
