@@ -6,6 +6,24 @@ See the platform-specific instructions for building Gram from source:
 - [Linux](./development/linux.md)
 - [Windows](./development/windows.md)
 
+## System Requirements
+
+Rust is notoriously memory hungry, and Gram is a huge Rust project. The minimum
+requirement for compiling the project seems to be somewhere around 16GB of RAM,
+and at least 12GB available for compilation.
+
+Linking is the part of the process which takes the most RAM, and alternative
+linkers may offer better performance and lower RAM usage. Check the platform
+specific instructions for more details on compiling with an alternative linker
+like `wild` or `mold`.
+
+If you have a lot of CPU cores, Rust will try to use all of them and may
+require even more RAM as a consequence. You can limit the level of concurrency
+by setting the `CARGO_BUILD_JOBS` environment variable. For example, if you have
+16 CPU cores available, Cargo will run up to 16 jobs in parallel. By setting
+`CARGO_BUILD_JOBS=8` you can reduce RAM usage by only running up to 8 jobs in
+parallel.
+
 ## Keychain access
 
 Gram stores secrets in the system keychain.
