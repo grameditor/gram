@@ -4,7 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 shopt -s extglob
 
-script/bundle-linux --flatpak
+script/bundle-linux --flatpak --tarball
 archive_match="gram(-[a-zA-Z0-9]+)?-linux-$(uname -m)\.tar\.gz"
 archive=$(ls "target/release" | grep -E ${archive_match})
 channel=$(<crates/gram/RELEASE_CHANNEL)
