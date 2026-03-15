@@ -71,6 +71,7 @@ inspector_ui.workspace = true
 install_cli.workspace = true
 journal.workspace = true
 json_schema_store.workspace = true
+kdl.workspace = true
 keymap_editor.workspace = true
 language.workspace = true
 language_extension.workspace = true
@@ -146,7 +147,6 @@ app_env_vars.workspace = true
 zlog.workspace = true
 zlog_settings.workspace = true
 chrono.workspace = true
-kdl = "6.5.0"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 windows.workspace = true
