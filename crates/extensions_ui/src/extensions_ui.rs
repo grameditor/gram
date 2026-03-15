@@ -285,7 +285,7 @@ pub struct ExtensionsPage {
     is_fetching_extensions: bool,
     fetch_failed: bool,
     remote_extension_entries: Vec<ExtensionMetadata>,
-    dev_extension_entries: Vec<Arc<ExtensionManifest>>,
+    extension_entries: Vec<Arc<ExtensionManifest>>,
     filtered_remote_extension_indices: Vec<usize>,
     query_editor: Entity<Editor>,
     query_contains_error: bool,
@@ -344,7 +344,7 @@ impl ExtensionsPage {
                 list: scroll_handle,
                 is_fetching_extensions: false,
                 fetch_failed: false,
-                dev_extension_entries: Vec::new(),
+                extension_entries: Vec::new(),
                 filtered_remote_extension_indices: Vec::new(),
                 remote_extension_entries: Vec::new(),
                 query_contains_error: false,
@@ -423,7 +423,7 @@ impl ExtensionsPage {
 
             this.update(cx, |this, cx| {
                 cx.notify();
-                this.dev_extension_entries = extensions;
+                this.extension_entries = extensions;
                 this.is_fetching_extensions = false;
                 this.fetch_failed = false;
                 this.filter_extension_entries(cx);
@@ -547,15 +547,15 @@ impl ExtensionsPage {
         _: &mut Window,
         cx: &mut Context<Self>,
     ) -> Vec<ExtensionCard> {
-        let dev_extension_entries_len = self.dev_extension_entries.len();
+        let extension_entries_len = self.extension_entries.len();
         range
             .map(|ix| {
-                if ix < dev_extension_entries_len {
-                    let extension = &self.dev_extension_entries[ix];
-                    self.render_dev_extension(extension, cx)
+                if ix < extension_entries_len {
+                    let extension = &self.extension_entries[ix];
+                    self.render_extension(extension, cx)
                 } else {
                     let extension_ix =
-                        self.filtered_remote_extension_indices[ix - dev_extension_entries_len];
+                        self.filtered_remote_extension_indices[ix - extension_entries_len];
                     let extension = &self.remote_extension_entries[extension_ix];
                     self.render_remote_extension(extension, cx)
                 }
@@ -563,7 +563,7 @@ impl ExtensionsPage {
             .collect()
     }
 
-    fn render_dev_extension(
+    fn render_extension(
         &self,
         extension: &ExtensionManifest,
         cx: &mut Context<Self>,
@@ -1444,7 +1444,7 @@ impl Render for ExtensionsPage {
             .child(self.render_feature_upsells(cx))
             .child(v_flex().px_4().size_full().overflow_y_hidden().map(|this| {
                 let count =
-                    self.filtered_remote_extension_indices.len() + self.dev_extension_entries.len();
+                    self.filtered_remote_extension_indices.len() + self.extension_entries.len();
 
                 if count == 0 {
                     this.child(self.render_empty_state(cx)).into_any_element()
