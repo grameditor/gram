@@ -102,7 +102,7 @@ To generate a clean log file for debugging graphics issues, run:
 
 ```sh
 truncate -s 0 ~/.local/share/gram/logs/Gram.log # Clear the log file
-GRAM_LOG=blade_graphics=info gram .
+GRAM_LOG=wgpu=info gram .
 cat ~/.local/share/gram/logs/Gram.log
 # copy the output
 ```
@@ -110,7 +110,7 @@ cat ~/.local/share/gram/logs/Gram.log
 Or, if you have the Gram cli setup, you can do
 
 ```sh
-GRAM_LOG=blade_graphics=info /path/to/gram/cli --foreground .
+GRAM_LOG=wgpu=info /path/to/gram/cli --foreground .
 # copy the output
 ```
 
@@ -213,7 +213,7 @@ Replace `192` with your desired DPI value. This affects the system globally and 
 
 ### Font rendering parameters
 
-When using Blade rendering (Linux platforms and self-compiled builds with the Blade renderer enabled), Gram reads `GRAM_FONTS_GAMMA` and `GRAM_FONTS_GRAYSCALE_ENHANCED_CONTRAST` environment variables for the values to use for font rendering.
+On Linux, the `GRAM_FONTS_GAMMA` and `GRAM_FONTS_GRAYSCALE_ENHANCED_CONTRAST` environment variables are read for the values to use for font rendering.
 
 `GRAM_FONTS_GAMMA` corresponds to [getgamma](https://learn.microsoft.com/en-us/windows/win32/api/dwrite/nf-dwrite-idwriterenderingparams-getgamma) values.
 Allowed range [1.0, 2.2], other values are clipped.
