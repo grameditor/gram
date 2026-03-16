@@ -206,7 +206,6 @@ Gram is a fork of the Zed editor."""
 assets = [
     ["target/release/gram", "usr/libexec/gram-editor", "755"],
     ["target/release/cli", "usr/bin/gram", "755"],
-    ["target/release/remote_server", "usr/libexec/gram-remote-server", "755"],
     ["resources/gram.desktop", "usr/share/applications/app.liten.gram.desktop", "644"],
     ["resources/app-icon.png", "usr/share/icons/hicolor/512x512/apps/gram.png", "644"],
     ["resources/app-icon@2x.png", "usr/share/icons/hicolor/1024x1024/apps/gram.png", "644"],
@@ -220,7 +219,6 @@ url = "https://gram.liten.app"
 assets = [
     { source = "target/release/gram", dest = "/usr/libexec/gram-editor", mode = "755" },
     { source = "target/release/cli", dest = "/usr/bin/gram", mode = "755" },
-    { source = "target/release/remote_server", dest = "/usr/libexec/gram-remote-server", mode = "755" },
     { source = "resources/gram.desktop", dest = "/usr/share/applications/app.liten.Gram.desktop", mode = "644" },
     { source = "resources/app-icon.png", dest = "/usr/share/icons/hicolor/512x512/apps/gram.png", mode = "644" },
     { source = "resources/app-icon@2x.png", dest = "/usr/share/icons/hicolor/1024x1024/apps/gram.png", mode = "644" },

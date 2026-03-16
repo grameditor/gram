@@ -10,18 +10,22 @@ Build Linux packages for Gram.
 At least one of --tarball, --deb, or --rpm must be specified.
 
 Options:
-  -h, --help     Display this help and exit.
-  --no-build     Skip building binaries (assume they're already built).
-  --flatpak      Set GRAM_BUNDLE_TYPE=flatpak so that this can be included in system info.
-  --tarball      Build a release .tar.gz archive.
-  --deb          Build a .deb package.
-  --rpm          Build a .rpm package.
+  -h, --help          Display this help and exit.
+  --no-build          Skip building binaries (assume they're already built).
+  --no-build-remote   Skip building the `remote_server` binary
+  --flatpak           Set GRAM_BUNDLE_TYPE=flatpak so that this can be included in system info.
+  --tarball           Build a release .tar.gz archive.
+  --deb               Build a .deb package.
+  --rpm               Build a .rpm package.
+  --appimage          Build an AppImage.
   "
 }
 
 DO_BUILD=true
+BUILD_REMOTE=true
 DO_TARBALL=false
 DO_DEB=false
+DO_APPIMAGE=true
 DO_RPM=false
 
 while [[ $# -gt 0 ]]; do
@@ -34,8 +38,17 @@ while [[ $# -gt 0 ]]; do
             export GRAM_BUNDLE_TYPE=flatpak
             shift
             ;;
+        --appimage)
+            export DO_APPIMAGE=true
+            export DO_DEB=true
+            shift
+            ;;
         --no-build)
             DO_BUILD=false
+            shift
+            ;;
+        --no-build-remote)
+            BUILD_REMOTE=false
             shift
             ;;
         --tarball)
@@ -68,10 +81,30 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Throw error if no arguments given
-if [[ "$DO_TARBALL" == "false" && "$DO_DEB" == "false" && "$DO_RPM" == "false" ]]; then
-    echo "Error: At least one of --tarball, --deb, or --rpm must be specified." >&2
+if [[ "$DO_TARBALL" == "false" && "$DO_DEB" == "false" && "$DO_RPM" == "false" && "$DO_APPIMAGE" == "false" ]]; then
+    echo "Error: At least one of --tarball, --deb, --appimage or --rpm must be specified." >&2
     help_info
     exit 1
+fi
+
+# Check if cargo-deb is installed
+if [ "${DO_DEB}" == "true" ]; then
+    cargo deb --help > /dev/null 2>&1 || (echo "cargo-deb is not installed" && exit 1)
+fi
+
+# Check if cargo-generate-rpm is installed
+if [ "${DO_RPM}" == "true" ]; then
+    cargo generate-rpm --help > /dev/null 2>&1 || (echo "cargo-generate-rpm is not installed" && exit 1)
+fi
+
+# Check if pkg2appimage (https://github.com/AppImageCommunity/pkg2appimage) is installed
+if [ "${DO_APPIMAGE}" == "true" ]; then
+    export gram_dir=$(pwd)
+    PKG2APPIMAGE_CMD="${PKG2APPIMAGE_PATH:-$(command -v pkg2appimage || true)}"
+    if [ -z "${PKG2APPIMAGE_CMD}" ]; then
+        echo "Error: pkg2appimage not found. Set PKG2APPIMAGE_PATH or install pkg2appimage from here: https://github.com/AppImageCommunity/pkg2appimage" >&2
+        exit 1
+    fi
 fi
 
 export GRAM_BUNDLE=true
@@ -84,14 +117,10 @@ currentversion="$(gcc -dumpversion)"
 requiredversion="14"
 version_info=$(rustc --version --verbose)
 host_line=$(echo "$version_info" | grep host)
-target_triple=${host_line#*: }
+export target_triple=${host_line#*: }
 if [ "$(printf '%s\n' "$requiredversion" "$currentversion" | sort -V | head -n1)" = "$requiredversion" ]; then
     echo "Handle GCC version 14+ when compiling remote server..."
     export AWS_LC_SYS_CC=clang
-    export REMOTE_SERVER_TARGET=$target_triple
-fi
-
-if [[ "$DO_DEB" == "true" || "$DO_RPM" == "true" ]]; then
     export REMOTE_SERVER_TARGET=$target_triple
 fi
 
@@ -121,7 +150,9 @@ if [ "$DO_BUILD" = "true" ]; then
     if [[ "$remote_server_triple" == "$musl_triple" ]]; then
         export RUSTFLAGS="${RUSTFLAGS:-} -C target-feature=+crt-static"
     fi
-    cargo build --release --target "${remote_server_triple}" --package remote_server
+    if [ "$BUILD_REMOTE" = "true" ]; then
+        cargo build --release --target "${remote_server_triple}" --package remote_server
+    fi
 fi
 
 # Ensure that remote_server does not depend on libssl nor libcrypto
@@ -151,7 +182,9 @@ fi
 # Strip debug symbols (keeps symbol table for backtraces)
 objcopy --strip-debug "${target_dir}/${target_triple}/release/gram"
 objcopy --strip-debug "${target_dir}/${target_triple}/release/cli"
-objcopy --strip-debug "${target_dir}/${remote_server_triple}/release/remote_server"
+if [ -f "${target_dir}/${remote_server_triple}/release/remote_server" ]; then
+    objcopy --strip-debug "${target_dir}/${remote_server_triple}/release/remote_server"
+fi
 
 # Bundle tarball
 if [ "$DO_TARBALL" = "true" ]; then
@@ -184,14 +217,25 @@ if [ "$DO_TARBALL" = "true" ]; then
     ls "${target_dir}/release" | grep -E "${remove_match}" | xargs -d "\n" -I {} rm -f "${target_dir}/release/{}" || true
     tar -czvf "${target_dir}/release/${archive}" -C "${temp_dir}" "gram${suffix}.app"
 
-    gzip -f --stdout --best "${target_dir}/${remote_server_triple}/release/remote_server" \
-        > "${target_dir}/gram-remote-server-linux-${arch}.gz"
+    if [ "$BUILD_REMOTE" = "true" ]; then
+        gzip -f --stdout --best "${target_dir}/${remote_server_triple}/release/remote_server" \
+            > "${target_dir}/gram-remote-server-linux-${arch}.gz"
+    fi
 fi
 
 # Bundle .deb package
 if [ "$DO_DEB" = "true" ]; then
     envsubst < "crates/gram/resources/gram.desktop.in" > "crates/gram/resources/gram.desktop"
     CARGO_TARGET_DIR="${target_dir}/${target_triple}" cargo deb -p gram --no-build --compress-type xz
+
+    # Bundle AppImage from .deb package
+    if [ "$DO_APPIMAGE" = "true" ]; then
+        envsubst < "crates/gram/resources/appimage/recipe.yaml.in" > "/tmp/recipe.yaml"
+        $PKG2APPIMAGE_CMD "/tmp/recipe.yaml"
+        mkdir -p target/${target_triple}/AppImage
+        mv out/Gram*.AppImage -t target/${target_triple}/AppImage/
+        rm -r out gram
+    fi
 fi
 
 # Bundle .rpm package
