@@ -6191,8 +6191,8 @@ impl Render for ProjectPanel {
                 )
                 .child(
                     h_flex()
-                        .w_1_2()
                         .gap_2()
+                        .justify_center()
                         .child(Divider::horizontal())
                         .child(Label::new("or").size(LabelSize::XSmall).color(Color::Muted))
                         .child(Divider::horizontal()),
