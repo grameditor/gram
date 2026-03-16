@@ -116,7 +116,6 @@ Gram has two main binaries:
 - Set the environment variable `GRAM_NO_BUNDLED_UNINSTALL` to something like
   "Use flatpak to uninstall" so that the CLI uninstall command doesn't try to
   run the uninstallation script.
-- Make sure to update the contents of the `crates/gram/RELEASE_CHANNEL` file to 'stable' with no newline. This will cause Gram to use the credentials manager to remember a user's login.
 
 ### Other things to note
 
