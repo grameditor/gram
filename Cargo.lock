@@ -6061,6 +6061,7 @@ dependencies = [
  "pretty_assertions",
  "pulldown-cmark",
  "settings",
+ "stacksafe",
  "theme",
  "ui",
  "urlencoding",
