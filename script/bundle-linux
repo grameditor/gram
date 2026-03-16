@@ -25,7 +25,7 @@ DO_BUILD=true
 BUILD_REMOTE=true
 DO_TARBALL=false
 DO_DEB=false
-DO_APPIMAGE=true
+DO_APPIMAGE=false
 DO_RPM=false
 
 while [[ $# -gt 0 ]]; do
