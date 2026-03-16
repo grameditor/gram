@@ -1,6 +1,6 @@
 # XML
 
-XML support is available through the [XML extension](https://github.com/sweetppro/zed-xml/).
+XML syntax highlighting is supported natively.
 
 - Tree-sitter: [tree-sitter-grammars/tree-sitter-xml](https://github.com/tree-sitter-grammars/tree-sitter-xml)
 
