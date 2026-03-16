@@ -100,6 +100,7 @@ pub fn init(languages: Arc<LanguageRegistry>, fs: Arc<dyn Fs>, node: NodeRuntime
         ("toml", tree_sitter_toml::LANGUAGE),
         ("tsx", tree_sitter_typescript::LANGUAGE_TSX),
         ("typescript", tree_sitter_typescript::LANGUAGE_TYPESCRIPT),
+        ("xml", tree_sitter_xml::LANGUAGE_XML),
         ("yaml", tree_sitter_yaml::LANGUAGE),
         ("zig", tree_sitter_zig::LANGUAGE),
         ("gitcommit", tree_sitter_gitcommit::LANGUAGE),
@@ -308,6 +309,11 @@ pub fn init(languages: Arc<LanguageRegistry>, fs: Arc<dyn Fs>, node: NodeRuntime
         },
         LanguageInfo {
             name: "regex",
+            adapters: vec![],
+            ..Default::default()
+        },
+        LanguageInfo {
+            name: "xml",
             adapters: vec![],
             ..Default::default()
         },
