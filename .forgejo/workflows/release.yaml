@@ -19,7 +19,7 @@ jobs:
       - name: download wasi-sdk
         run: ./script/download-wasi-sdk
       - name: bundle-linux
-        run: ./script/bundle-linux
+        run: ./script/bundle-linux --tarball
 
       - name: Set artifact name
         id: set_artifact_name
