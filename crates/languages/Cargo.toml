@@ -40,6 +40,7 @@ load-grammars = [
     "tree-sitter-sql",
     "tree-sitter-toml",
     "tree-sitter-typescript",
+    "tree-sitter-xml",
     "tree-sitter-yaml",
     "tree-sitter-zig",
 ]
@@ -112,6 +113,7 @@ tree-sitter-scheme = { workspace = true, optional = true }
 tree-sitter-sql = { workspace = true, optional = true }
 tree-sitter-toml = { workspace = true, optional = true }
 tree-sitter-typescript = { workspace = true, optional = true }
+tree-sitter-xml = { workspace = true, optional = true }
 tree-sitter-yaml = { workspace = true, optional = true }
 tree-sitter-zig = { workspace = true, optional = true }
 url.workspace = true
@@ -137,6 +139,7 @@ tree-sitter-sql.workspace = true
 tree-sitter-scheme.workspace = true
 tree-sitter-toml.workspace = true
 tree-sitter-typescript.workspace = true
+tree-sitter-xml.workspace = true
 tree-sitter-zig.workspace = true
 tree-sitter.workspace = true
 unindent.workspace = true
