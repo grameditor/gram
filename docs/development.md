@@ -24,33 +24,6 @@ by setting the `CARGO_BUILD_JOBS` environment variable. For example, if you have
 `CARGO_BUILD_JOBS=8` you can reduce RAM usage by only running up to 8 jobs in
 parallel.
 
-## Keychain access
-
-Gram stores secrets in the system keychain.
-
-However, when running a development build of Gram on macOS (and perhaps other
-platforms) trying to access the keychain results in a lot of keychain prompts
-that require entering your password over and over.
-
-On macOS this is caused by the development build not having a stable identity.
-Even if you choose the "Always Allow" option, the OS will still prompt you for
-your password again the next time something changes in the binary.
-
-This quickly becomes annoying and impedes development speed.
-
-That is why, by default, when running a development build of Gram an alternative
-credential provider is used in order to bypass the system keychain.
-
-> Note: This is **only** the case for development builds. For all non-development
-> release channels the system keychain is always used.
-
-If you need to test something out using the real system keychain in a
-development build, run Gram with the following environment variable set:
-
-```
-GRAM_DEVELOPMENT_USE_KEYCHAIN=1
-```
-
 ## Performance Measurements
 
 Gram includes a frame time measurement system that can be used to profile how long it takes to render each frame. This is particularly useful when comparing rendering performance between different versions or when optimizing frame rendering code.

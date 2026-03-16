@@ -125,17 +125,6 @@ These features are provided by XDG desktop portals, specifically:
 
 Some window managers, such as `Hyprland`, don't provide a file picker by default. See [this list](https://wiki.archlinux.org/title/XDG_Desktop_Portal#List_of_backends_and_interfaces) as a starting point for alternatives.
 
-### Gram isn't remembering my API keys
-
-### Gram isn't remembering my login
-
-These feature also requires XDG desktop portals, specifically:
-
-- `org.freedesktop.portal.Secret` or
-- `org.freedesktop.Secrets`
-
-Gram needs a place to securely store secrets such as your Gram login cookie or your OpenAI API Keys and we use a system provided keychain to do this. Examples of packages that provide this are `gnome-keyring`, `KWallet` and `keepassxc` among others.
-
 ### Could not start inotify
 
 Gram relies on inotify to watch your filesystem for changes. If you cannot start inotify then Gram will not work reliably.
