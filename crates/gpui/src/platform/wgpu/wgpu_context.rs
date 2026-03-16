@@ -24,11 +24,12 @@ impl WgpuContext {
             }
         };
 
-        let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor {
+        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
             backends: wgpu::Backends::VULKAN | wgpu::Backends::GL,
             flags: wgpu::InstanceFlags::default(),
             backend_options: wgpu::BackendOptions::default(),
             memory_budget_thresholds: wgpu::MemoryBudgetThresholds::default(),
+            display: None,
         });
 
         let adapter = smol::block_on(Self::select_adapter(&instance, device_id_filter))?;
@@ -53,10 +54,12 @@ impl WgpuContext {
             );
         }
 
+        let required_limits = wgpu::Limits::default().using_resolution(adapter.limits());
+
         let (device, queue) = smol::block_on(adapter.request_device(&wgpu::DeviceDescriptor {
             label: Some("gpui_device"),
             required_features,
-            required_limits: wgpu::Limits::default(),
+            required_limits,
             memory_hints: wgpu::MemoryHints::MemoryUsage,
             trace: wgpu::Trace::Off,
             experimental_features: wgpu::ExperimentalFeatures::disabled(),

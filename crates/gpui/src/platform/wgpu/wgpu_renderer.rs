@@ -132,7 +132,7 @@ impl WgpuRenderer {
             .map_err(|e| anyhow::anyhow!("Failed to get display handle: {e}"))?;
 
         let target = wgpu::SurfaceTargetUnsafe::RawHandle {
-            raw_display_handle: display_handle.as_raw(),
+            raw_display_handle: Some(display_handle.as_raw()),
             raw_window_handle: window_handle.as_raw(),
         };
 
@@ -479,7 +479,7 @@ impl WgpuRenderer {
                                sample_count: u32| {
             let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some(&format!("{name}_layout")),
-                bind_group_layouts: &[globals_layout, data_layout],
+                bind_group_layouts: &[Some(globals_layout), Some(data_layout)],
                 immediate_size: 0,
             });
 
