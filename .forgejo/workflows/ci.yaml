@@ -26,7 +26,9 @@ jobs:
         run: curl -LsSf https://get.nexte.st/latest/linux | tar zxf - -C ~/.cargo/bin
       - name: install linux dependencies
         run: ./script/linux
+      - name: install cargo-about
+        run: cargo install cargo-about@0.8.2
       - name: download wasi-sdk
         run: ./script/download-wasi-sdk
       - run: cargo nextest run --workspace --success-output never --show-progress none
-      - run: ./script/bundle-linux --tarball
+      - run: ./script/bundle-linux --tarball --no-build-remote
