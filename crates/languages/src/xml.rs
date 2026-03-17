@@ -77,9 +77,10 @@ impl LspInstaller for XmlLspAdapter {
             other => return Err(anyhow!("unsupported architecture: {}", other)),
         };
 
-        if Self::OS_NAME != "osx" && arch != "x86_64" {
+        let os_name = Self::OS_NAME;
+        if os_name != "osx" && arch == "aarch64" {
             anyhow::bail!(
-                "Lemminx does not provide prebuilt binaries for {arch} to fetch from GitHub. Consider installing the binary manually."
+                "Lemminx does not provide prebuilt {arch}-binaries for {os_name} to fetch from GitHub. Consider installing the binary manually."
             )
         }
 
