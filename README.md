@@ -64,6 +64,14 @@ Install it using `paru` or another AUR helper of your choice:
 paru -S gram-bin
 ```
 
+### Mac (homebrew)
+
+On Mac OS, Gram can be installed using [Homebrew](https://brew.sh):
+
+```sh
+brew install --cask gram
+```
+
 ## Building from Source
 
 Make sure you have Rust installed (via rustup, preferably).

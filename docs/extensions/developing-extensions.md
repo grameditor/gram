@@ -13,7 +13,8 @@ Extensions are able to provide the following features to Gram:
 
 Before starting to develop an extension for Gram, be sure to [install Rust via rustup](https://www.rust-lang.org/tools/install).
 
-> Rust must be installed via rustup. If you have Rust installed via homebrew or otherwise, installing extensions will not work.
+Note: If you have installed rustup via [Homebrew](https://brew.sh), you may need
+to run `rustup-init` for the command to work properly.
 
 When developing an extension, you can use it in Gram by installing it:
 
