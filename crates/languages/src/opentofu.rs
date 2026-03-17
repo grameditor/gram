@@ -6,9 +6,9 @@ use http_client::github_download::download_server_binary;
 use language::{LanguageServerName, LspAdapter, LspAdapterDelegate, LspInstaller, Toolchain};
 use lsp::LanguageServerBinary;
 use std::path::PathBuf;
-use util::fs::make_file_executable;
+use util::fs::{make_file_executable, remove_matching};
 
-use crate::helpers::{find_cached_server_binary, verify_metadata, write_metadata};
+use crate::helpers::{find_cached_server_binary, verify_metadata, with_exe, write_metadata};
 
 pub struct OpenTofuLspAdapter;
 
@@ -65,11 +65,11 @@ impl LspInstaller for OpenTofuLspAdapter {
         let arch = match std::env::consts::ARCH {
             "aarch64" => "arm64",
             "x86_64" => "x86_64",
-            "x86" => "x86",
+            "x86" => "i386",
             other => return Err(anyhow!("unsupported architecture: {}", other)),
         };
 
-        let asset_name = format!("tofu-ls_{}_{}.gz", Self::OS_NAME, arch);
+        let asset_name = format!("tofu-ls_{}_{}.tar.gz", Self::OS_NAME, arch);
 
         let asset = release
             .assets
@@ -96,15 +96,16 @@ impl LspInstaller for OpenTofuLspAdapter {
             digest: expected_digest,
         } = version;
 
-        let path = container_dir.join(format!("tofu-ls-{version_name}"));
+        let destination_path = container_dir.join(format!("tofu-ls-{version_name}"));
+        let server_path = destination_path.join(with_exe("tofu-ls"));
 
         let binary = LanguageServerBinary {
-            path: path.clone(),
+            path: server_path.clone(),
             env: None,
             arguments: vec!["serve".into()],
         };
 
-        if verify_metadata(&path, &path, &expected_digest, delegate).await {
+        if verify_metadata(&destination_path, &server_path, &expected_digest, delegate).await {
             return Ok(binary);
         }
 
@@ -112,13 +113,14 @@ impl LspInstaller for OpenTofuLspAdapter {
             &*delegate.http_client(),
             &url,
             expected_digest.as_deref(),
-            &path,
-            AssetKind::Gz,
+            &destination_path,
+            AssetKind::TarGz,
         )
         .await?;
 
-        make_file_executable(&path).await?;
-        write_metadata(&path, expected_digest).await?;
+        make_file_executable(&server_path).await?;
+        remove_matching(&container_dir, |path| path != destination_path).await;
+        write_metadata(&destination_path, expected_digest).await?;
 
         Ok(binary)
     }
@@ -129,7 +131,7 @@ impl LspInstaller for OpenTofuLspAdapter {
         _: &dyn LspAdapterDelegate,
     ) -> Option<LanguageServerBinary> {
         match find_cached_server_binary(&container_dir, Some("tofu-ls-"), async |path| {
-            Some(path.clone())
+            Some(path.join(with_exe("tofu-ls")))
         })
         .await
         {
