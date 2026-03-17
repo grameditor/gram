@@ -4,6 +4,7 @@ set -euo pipefail
 
 build_flag="--release"
 target_dir="release"
+do_build=true
 open_result=false
 local_install=false
 can_code_sign=false
@@ -45,9 +46,10 @@ Options:
   "
 }
 
-while getopts 'dloih' flag
+while getopts 'bdloih' flag
 do
     case "${flag}" in
+        b) do_build=false;;
         o) open_result=true;;
         d)
             export CARGO_INCREMENTAL=true
@@ -75,7 +77,10 @@ popd
 export GRAM_BUNDLE=true
 
 cargo_bundle_version=$(cargo -q bundle --help 2>&1 | head -n 1 || echo "")
-cargo install cargo-bundle --git https://github.com/zed-industries/cargo-bundle.git --branch zed-deploy
+
+if [[ "$do_build" = "true" ]]; then
+  cargo install cargo-bundle --git https://github.com/zed-industries/cargo-bundle.git --branch zed-deploy
+fi
 
 # Deal with versions of macOS that don't include libstdc++ headers
 export CXXFLAGS="-stdlib=libc++"
@@ -97,17 +102,21 @@ else
     exit 1
 fi
 
-# Generate the licenses first, so they can be baked into the binaries
-script/generate-licenses
+if [[ "$do_build" = "true" ]]; then
 
-rustup target add $target_triple
+  # Generate the licenses first, so they can be baked into the binaries
+  script/generate-licenses
 
-echo "Compiling gram binaries"
-cargo build ${build_flag} --package gram --package cli --target $target_triple
-# Build remote_server in separate invocation to prevent feature unification from other crates
-# from influencing dynamic libraries required by it.
-echo "Compiling remote_server for $target_triple"
-cargo build ${build_flag} --package remote_server --target $target_triple
+  rustup target add $target_triple
+
+  echo "Compiling gram binaries"
+  cargo build ${build_flag} --package gram --package cli --target $target_triple
+  # Build remote_server in separate invocation to prevent feature unification from other crates
+  # from influencing dynamic libraries required by it.
+  echo "Compiling remote_server for $target_triple"
+  cargo build ${build_flag} --package remote_server --target $target_triple
+
+fi
 
 echo "Creating application bundle"
 pushd crates/gram
