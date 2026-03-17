@@ -45,6 +45,7 @@ impl WgpuContext {
             .contains(wgpu::Features::DUAL_SOURCE_BLENDING);
 
         let mut required_features = wgpu::Features::empty();
+        required_features |= adapter.features();
         if dual_source_blending_available {
             required_features |= wgpu::Features::DUAL_SOURCE_BLENDING;
         } else {
@@ -54,7 +55,9 @@ impl WgpuContext {
             );
         }
 
-        let required_limits = wgpu::Limits::default().using_resolution(adapter.limits());
+        let required_limits = wgpu::Limits::downlevel_defaults()
+            .using_resolution(adapter.limits())
+            .using_alignment(adapter.limits());
 
         let (device, queue) = smol::block_on(adapter.request_device(&wgpu::DeviceDescriptor {
             label: Some("gpui_device"),
