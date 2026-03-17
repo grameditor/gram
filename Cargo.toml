@@ -325,12 +325,18 @@ zlog_settings = { path = "crates/zlog_settings" }
 # External crates
 #
 
+# Keep these in sync
+naga = { version = "28.0", features = ["wgsl-in"] }
+wgpu = "28.0"
+
 aho-corasick = "1.1"
 alacritty_terminal = { git = "https://github.com/zed-industries/alacritty", rev = "936aee8761a17affc84ab418ae21306c27c26221" }
 any_vec = "0.14"
 anyhow = "1.0.86"
 arrayvec = { version = "0.7.4", features = ["serde"] }
-ashpd = { version = "0.12.1", default-features = false, features = ["async-std"] }
+ashpd = { version = "0.12.1", default-features = false, features = [
+    "async-std",
+] }
 async-compat = "0.2.1"
 async-compression = { version = "0.4", features = ["gzip", "futures-io"] }
 async-dispatcher = "0.1"
@@ -347,9 +353,6 @@ backtrace = "0.3"
 base64 = "0.22"
 bincode = "1.2.1"
 bitflags = "2.6.0"
-blade-graphics = { version = "0.7.0" }
-blade-macros = { version = "0.3.0" }
-blade-util = { version = "0.3.0" }
 brotli = "8.0.2"
 bytes = "1.0"
 cargo_metadata = "0.19"
@@ -420,7 +423,6 @@ markup5ever_rcdom = "0.3.0"
 metal = "0.29"
 minidumper = "0.8"
 moka = { version = "0.12.10", features = ["sync"] }
-naga = { version = "25.0", features = ["wgsl-in"] }
 nanoid = "0.4"
 nbformat = "1.0.0"
 nix = "0.29"
@@ -450,7 +452,7 @@ objc2-foundation = { version = "=0.3.1", default-features = false, features = [
     "NSUndoManager",
     "NSValue",
     "objc2-core-foundation",
-    "std"
+    "std",
 ] }
 open = "5.0.0"
 ordered-float = "2.1.1"
@@ -543,7 +545,11 @@ tiny_http = "0.8"
 tokio = { version = "1" }
 tokio-tungstenite = { version = "0.26", features = ["__rustls-tls"] }
 toml = "0.8"
-toml_edit = { version = "0.22", default-features = false, features = ["display", "parse", "serde"] }
+toml_edit = { version = "0.22", default-features = false, features = [
+    "display",
+    "parse",
+    "serde",
+] }
 tower-http = "0.4.4"
 tree-sitter = { version = "0.26", features = ["wasm"] }
 tree-sitter-bash = "0.25.1"

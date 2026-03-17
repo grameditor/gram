@@ -1,3 +1,4 @@
+enable dual_source_blending;
 /* Functions useful for debugging:
 
 // A heat map color for debugging (blue -> cyan -> green -> yellow -> red).
@@ -46,7 +47,17 @@ fn enhance_contrast(alpha: f32, k: f32) -> f32 {
     return alpha * (k + 1.0) / (alpha * k + 1.0);
 }
 
+fn enhance_contrast3(alpha: vec3<f32>, k: f32) -> vec3<f32> {
+    return alpha * (k + 1.0) / (alpha * k + 1.0);
+}
+
 fn apply_alpha_correction(a: f32, b: f32, g: vec4<f32>) -> f32 {
+    let brightness_adjustment = g.x * b + g.y;
+    let correction = brightness_adjustment * a + (g.z * b + g.w);
+    return a + a * (1.0 - a) * correction;
+}
+
+fn apply_alpha_correction3(a: vec3<f32>, b: vec3<f32>, g: vec4<f32>) -> vec3<f32> {
     let brightness_adjustment = g.x * b + g.y;
     let correction = brightness_adjustment * a + (g.z * b + g.w);
     return a + a * (1.0 - a) * correction;
@@ -60,17 +71,30 @@ fn apply_contrast_and_gamma_correction(sample: f32, color: vec3<f32>, enhanced_c
     return apply_alpha_correction(contrasted, brightness, gamma_ratios);
 }
 
+fn apply_contrast_and_gamma_correction3(sample: vec3<f32>, color: vec3<f32>, enhanced_contrast_factor: f32, gamma_ratios: vec4<f32>) -> vec3<f32> {
+    let enhanced_contrast = light_on_dark_contrast(enhanced_contrast_factor, color);
+
+    let contrasted = enhance_contrast3(sample, enhanced_contrast);
+    return apply_alpha_correction3(contrasted, color, gamma_ratios);
+}
+
 struct GlobalParams {
     viewport_size: vec2<f32>,
     premultiplied_alpha: u32,
     pad: u32,
 }
 
-var<uniform> globals: GlobalParams;
-var<uniform> gamma_ratios: vec4<f32>;
-var<uniform> grayscale_enhanced_contrast: f32;
-var t_sprite: texture_2d<f32>;
-var s_sprite: sampler;
+struct GammaParams {
+    gamma_ratios: vec4<f32>,
+    grayscale_enhanced_contrast: f32,
+    subpixel_enhanced_contrast: f32,
+    pad: vec2<f32>,
+}
+
+@group(0) @binding(0) var<uniform> globals: GlobalParams;
+@group(0) @binding(1) var<uniform> gamma_params: GammaParams;
+@group(1) @binding(1) var t_sprite: texture_2d<f32>;
+@group(1) @binding(2) var s_sprite: sampler;
 
 const M_PI_F: f32 = 3.1415926;
 const GRAYSCALE_FACTORS: vec3<f32> = vec3<f32>(0.2126, 0.7152, 0.0722);
@@ -488,7 +512,7 @@ struct Quad {
     corner_radii: Corners,
     border_widths: Edges,
 }
-var<storage, read> b_quads: array<Quad>;
+@group(1) @binding(0) var<storage, read> b_quads: array<Quad>;
 
 struct QuadVarying {
     @builtin(position) position: vec4<f32>,
@@ -918,7 +942,7 @@ struct Shadow {
     content_mask: Bounds,
     color: Hsla,
 }
-var<storage, read> b_shadows: array<Shadow>;
+@group(1) @binding(0) var<storage, read> b_shadows: array<Shadow>;
 
 struct ShadowVarying {
     @builtin(position) position: vec4<f32>,
@@ -990,7 +1014,7 @@ struct PathRasterizationVertex {
     bounds: Bounds,
 }
 
-var<storage, read> b_path_vertices: array<PathRasterizationVertex>;
+@group(1) @binding(0) var<storage, read> b_path_vertices: array<PathRasterizationVertex>;
 
 struct PathRasterizationVarying {
     @builtin(position) position: vec4<f32>,
@@ -1050,7 +1074,7 @@ fn fs_path_rasterization(input: PathRasterizationVarying) -> @location(0) vec4<f
 struct PathSprite {
     bounds: Bounds,
 }
-var<storage, read> b_path_sprites: array<PathSprite>;
+@group(1) @binding(0) var<storage, read> b_path_sprites: array<PathSprite>;
 
 struct PathVarying {
     @builtin(position) position: vec4<f32>,
@@ -1091,7 +1115,7 @@ struct Underline {
     thickness: f32,
     wavy: u32,
 }
-var<storage, read> b_underlines: array<Underline>;
+@group(1) @binding(0) var<storage, read> b_underlines: array<Underline>;
 
 struct UnderlineVarying {
     @builtin(position) position: vec4<f32>,
@@ -1157,7 +1181,7 @@ struct MonochromeSprite {
     tile: AtlasTile,
     transformation: TransformationMatrix,
 }
-var<storage, read> b_mono_sprites: array<MonochromeSprite>;
+@group(1) @binding(0) var<storage, read> b_mono_sprites: array<MonochromeSprite>;
 
 struct MonoSpriteVarying {
     @builtin(position) position: vec4<f32>,
@@ -1183,14 +1207,13 @@ fn vs_mono_sprite(@builtin(vertex_index) vertex_id: u32, @builtin(instance_index
 @fragment
 fn fs_mono_sprite(input: MonoSpriteVarying) -> @location(0) vec4<f32> {
     let sample = textureSample(t_sprite, s_sprite, input.tile_position).r;
-    let alpha_corrected = apply_contrast_and_gamma_correction(sample, input.color.rgb, grayscale_enhanced_contrast, gamma_ratios);
+    let alpha_corrected = apply_contrast_and_gamma_correction(sample, input.color.rgb, gamma_params.grayscale_enhanced_contrast, gamma_params.gamma_ratios);
 
     // Alpha clip after using the derivatives.
     if (any(input.clip_distances < vec4<f32>(0.0))) {
         return vec4<f32>(0.0);
     }
 
-    // convert to srgb space as the rest of the code (output swapchain) expects that
     return blend_color(input.color, alpha_corrected);
 }
 
@@ -1206,7 +1229,7 @@ struct PolychromeSprite {
     corner_radii: Corners,
     tile: AtlasTile,
 }
-var<storage, read> b_poly_sprites: array<PolychromeSprite>;
+@group(1) @binding(0) var<storage, read> b_poly_sprites: array<PolychromeSprite>;
 
 struct PolySpriteVarying {
     @builtin(position) position: vec4<f32>,
@@ -1254,10 +1277,10 @@ struct SurfaceParams {
     content_mask: Bounds,
 }
 
-var<uniform> surface_locals: SurfaceParams;
-var t_y: texture_2d<f32>;
-var t_cb_cr: texture_2d<f32>;
-var s_surface: sampler;
+@group(1) @binding(0) var<uniform> surface_locals: SurfaceParams;
+@group(1) @binding(1) var t_y: texture_2d<f32>;
+@group(1) @binding(2) var t_cb_cr: texture_2d<f32>;
+@group(1) @binding(3) var s_surface: sampler;
 
 const ycbcr_to_RGB = mat4x4<f32>(
     vec4<f32>( 1.0000f,  1.0000f,  1.0000f, 0.0),
@@ -1296,4 +1319,58 @@ fn fs_surface(input: SurfaceVarying) -> @location(0) vec4<f32> {
         1.0);
 
     return ycbcr_to_RGB * y_cb_cr;
+}
+
+// --- subpixel sprites --- //
+
+struct SubpixelSprite {
+    order: u32,
+    pad: u32,
+    bounds: Bounds,
+    content_mask: Bounds,
+    color: Hsla,
+    tile: AtlasTile,
+    transformation: TransformationMatrix,
+}
+@group(1) @binding(0) var<storage, read> b_subpixel_sprites: array<SubpixelSprite>;
+
+struct SubpixelSpriteOutput {
+    @builtin(position) position: vec4<f32>,
+    @location(0) tile_position: vec2<f32>,
+    @location(1) @interpolate(flat) color: vec4<f32>,
+    @location(3) clip_distances: vec4<f32>,
+}
+
+struct SubpixelSpriteFragmentOutput {
+    @location(0) @blend_src(0) foreground: vec4<f32>,
+    @location(0) @blend_src(1) alpha: vec4<f32>,
+}
+
+@vertex
+fn vs_subpixel_sprite(@builtin(vertex_index) vertex_id: u32, @builtin(instance_index) instance_id: u32) -> SubpixelSpriteOutput {
+    let unit_vertex = vec2<f32>(f32(vertex_id & 1u), 0.5 * f32(vertex_id & 2u));
+    let sprite = b_subpixel_sprites[instance_id];
+
+    var out = SubpixelSpriteOutput();
+    out.position = to_device_position_transformed(unit_vertex, sprite.bounds, sprite.transformation);
+    out.tile_position = to_tile_position(unit_vertex, sprite.tile);
+    out.color = hsla_to_rgba(sprite.color);
+    out.clip_distances = distance_from_clip_rect_transformed(unit_vertex, sprite.bounds, sprite.content_mask, sprite.transformation);
+    return out;
+}
+
+@fragment
+fn fs_subpixel_sprite(input: SubpixelSpriteOutput) -> SubpixelSpriteFragmentOutput {
+    let sample = textureSample(t_sprite, s_sprite, input.tile_position).rgb;
+    let alpha_corrected = apply_contrast_and_gamma_correction3(sample, input.color.rgb, gamma_params.subpixel_enhanced_contrast, gamma_params.gamma_ratios);
+
+    // Alpha clip after using the derivatives.
+    if (any(input.clip_distances < vec4<f32>(0.0))) {
+        return SubpixelSpriteFragmentOutput(vec4<f32>(0.0), vec4<f32>(0.0));
+    }
+
+    var out = SubpixelSpriteFragmentOutput();
+    out.foreground = vec4<f32>(input.color.rgb, 1.0);
+    out.alpha = vec4<f32>(input.color.a * alpha_corrected, 1.0);
+    return out;
 }
