@@ -116,7 +116,8 @@ code editor integrate with technology that I find distasteful?
 Thinking is a feature. Generative LLM technology is not.
 
 Another selling point of Zed is "multiplayer editing" and built-in
-collaboration.
+"collaboration", meaning integrated audio/video chat with a proprietary server
+component, subscriptions and end user license agreements.
 
 I don't want it. In fact, I think these are bad features to put in a code
 editor. In my team, we use different operating systems, different editors and
