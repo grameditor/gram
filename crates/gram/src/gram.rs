@@ -4406,7 +4406,6 @@ mod tests {
                 "branches",
                 "buffer_search",
                 "cli",
-                "client",
                 "command_palette",
                 "console",
                 "debug_panel",
