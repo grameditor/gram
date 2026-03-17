@@ -21,14 +21,7 @@ use cocoa::{
         NSArray, NSAutoreleasePool, NSBundle, NSInteger, NSProcessInfo, NSString, NSUInteger, NSURL,
     },
 };
-use core_foundation::{
-    base::{CFRelease, CFType, CFTypeRef, OSStatus, TCFType},
-    boolean::CFBoolean,
-    data::CFData,
-    dictionary::{CFDictionary, CFDictionaryRef, CFMutableDictionary},
-    runloop::CFRunLoopRun,
-    string::{CFString, CFStringRef},
-};
+use core_foundation::{ base::CFRelease, runloop::CFRunLoopRun, string::CFStringRef};
 use ctor::ctor;
 use futures::channel::oneshot;
 use itertools::Itertools;
@@ -1233,29 +1226,4 @@ unsafe extern "C" {
     pub(super) static kTISPropertyUnicodeKeyLayoutData: CFStringRef;
     pub(super) static kTISPropertyInputSourceID: CFStringRef;
     pub(super) static kTISPropertyLocalizedName: CFStringRef;
-}
-
-mod security {
-    #![allow(non_upper_case_globals)]
-    use super::*;
-
-    #[link(name = "Security", kind = "framework")]
-    unsafe extern "C" {
-        pub static kSecClass: CFStringRef;
-        pub static kSecClassInternetPassword: CFStringRef;
-        pub static kSecAttrServer: CFStringRef;
-        pub static kSecAttrAccount: CFStringRef;
-        pub static kSecValueData: CFStringRef;
-        pub static kSecReturnAttributes: CFStringRef;
-        pub static kSecReturnData: CFStringRef;
-
-        pub fn SecItemAdd(attributes: CFDictionaryRef, result: *mut CFTypeRef) -> OSStatus;
-        pub fn SecItemUpdate(query: CFDictionaryRef, attributes: CFDictionaryRef) -> OSStatus;
-        pub fn SecItemDelete(query: CFDictionaryRef) -> OSStatus;
-        pub fn SecItemCopyMatching(query: CFDictionaryRef, result: *mut CFTypeRef) -> OSStatus;
-    }
-
-    pub const errSecSuccess: OSStatus = 0;
-    pub const errSecUserCanceled: OSStatus = -128;
-    pub const errSecItemNotFound: OSStatus = -25300;
 }
