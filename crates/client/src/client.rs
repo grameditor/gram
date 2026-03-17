@@ -6,7 +6,7 @@ pub mod user;
 use anyhow::{Context as _, Result};
 use async_tungstenite::tungstenite::{error::Error as WebsocketError, http::StatusCode};
 use futures::{FutureExt, Stream, TryFutureExt as _, future::BoxFuture};
-use gpui::{App, AsyncApp, Entity, Global, Task, WeakEntity, actions};
+use gpui::{App, AsyncApp, Entity, Global, Task, WeakEntity};
 use http_client::{HttpClientWithUrl, read_proxy_from_env};
 use parking_lot::RwLock;
 use postage::watch;
@@ -61,18 +61,6 @@ pub const INITIAL_RECONNECTION_DELAY: Duration = Duration::from_millis(500);
 pub const MAX_RECONNECTION_DELAY: Duration = Duration::from_secs(30);
 pub const CONNECTION_TIMEOUT: Duration = Duration::from_secs(20);
 
-actions!(
-    client,
-    [
-        /// Signs in to Gram account.
-        SignIn,
-        /// Signs out of Gram account.
-        SignOut,
-        /// Reconnects to the collaboration server.
-        Reconnect
-    ]
-);
-
 #[derive(Deserialize, RegisterSetting)]
 pub struct ClientSettings {
     pub server_url: String,
@@ -125,32 +113,7 @@ impl Settings for ProxySettings {
     }
 }
 
-pub fn init(client: &Arc<Client>, cx: &mut App) {
-    let client = Arc::downgrade(client);
-    cx.on_action({
-        let client = client.clone();
-        move |_: &SignIn, _cx| {
-            if let Some(_) = client.upgrade() {}
-        }
-    })
-    .on_action({
-        let client = client.clone();
-        move |_: &SignOut, _cx| {
-            if let Some(_client) = client.upgrade() {}
-        }
-    })
-    .on_action({
-        let client = client;
-        move |_: &Reconnect, cx| {
-            if let Some(client) = client.upgrade() {
-                cx.spawn(async move |cx| {
-                    client.reconnect(cx);
-                })
-                .detach();
-            }
-        }
-    });
-}
+pub fn init(_client: &Arc<Client>, _cx: &mut App) {}
 
 struct GlobalClient(Arc<Client>);
 
