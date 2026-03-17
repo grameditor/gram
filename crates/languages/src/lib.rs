@@ -39,6 +39,7 @@ mod tailwindcss;
 mod toml;
 mod typescript;
 mod vtsls;
+mod xml;
 mod yaml;
 mod zig;
 
@@ -142,6 +143,7 @@ pub fn init(languages: Arc<LanguageRegistry>, fs: Arc<dyn Fs>, node: NodeRuntime
         fs.clone(),
     ));
     let vtsls_adapter = Arc::new(vtsls::VtslsLspAdapter::new(node.clone(), fs.clone()));
+    let xml_lsp_adapter = Arc::new(xml::XmlLspAdapter);
     let yaml_lsp_adapter = Arc::new(yaml::YamlLspAdapter::new(node));
     let zig_lsp_adapter = Arc::new(zig::ZigLspAdapter);
     let zig_context_provider = Arc::new(zig::zig_task_context());
@@ -314,7 +316,7 @@ pub fn init(languages: Arc<LanguageRegistry>, fs: Arc<dyn Fs>, node: NodeRuntime
         },
         LanguageInfo {
             name: "xml",
-            adapters: vec![],
+            adapters: vec![xml_lsp_adapter],
             ..Default::default()
         },
         LanguageInfo {
