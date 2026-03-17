@@ -19,9 +19,9 @@ pub enum BorderPosition {
 /// let callout = Callout::new()
 ///     .severity(Severity::Warning)
 ///     .icon(IconName::Warning)
-///     .title("Be aware of your subscription!")
-///     .description("Your subscription is about to expire. Renew now!")
-///     .actions_slot(Button::new("renew", "Renew Now"));
+///     .title("Installing Language Extensions")
+///     .description("Installing Wasm extensions requires rustup to be installed.")
+///     .actions_slot(Button::new("got-it", "Got it"));
 /// ```
 ///
 #[derive(IntoElement, RegisterComponent)]
@@ -221,7 +221,7 @@ impl Component for Callout {
 
     fn description() -> Option<&'static str> {
         Some(
-            "Used to display a callout for situations where the user needs to know some information, and likely make a decision. This might be a thread running out of tokens, or running out of prompts on a plan and needing to upgrade.",
+            "Used to display a callout for situations where the user needs to know some information, and likely make a decision.",
         )
     }
 
@@ -239,7 +239,7 @@ impl Component for Callout {
                 "Simple with Title Only",
                 Callout::new()
                     .icon(IconName::Info)
-                    .title("System maintenance scheduled for tonight")
+                    .title("Installing Wasm extensions require rustup to be installed.")
                     .actions_slot(single_action())
                     .into_any_element(),
             )
@@ -260,8 +260,8 @@ impl Component for Callout {
                 "Error with Multiple Actions",
                 Callout::new()
                     .icon(IconName::Close)
-                    .title("Thread reached the token limit")
-                    .description("Start a new thread from a summary to continue the conversation.")
+                    .title("WASI SDK Installation")
+                    .description("Compatible cargo installation found. Install WASI SDK or WASI sysroot to build Wasm extension?")
                     .actions_slot(multiple_actions())
                     .into_any_element(),
             )
@@ -269,9 +269,9 @@ impl Component for Callout {
             single_example(
                 "Multi-line Description",
                 Callout::new()
-                    .icon(IconName::Sparkle)
-                    .title("Upgrade to Pro")
-                    .description("• Unlimited threads\n• Priority support\n• Advanced analytics")
+                    .icon(IconName::ServerCrash)
+                    .title("There is no subscription")
+                    .description("Gram is\n- Open Source\n- Community-maintained\n- Free as in speech AND beer")
                     .actions_slot(multiple_actions())
                     .into_any_element(),
             )
@@ -281,25 +281,12 @@ impl Component for Callout {
                 Callout::new()
                     .severity(Severity::Error)
                     .icon(IconName::XCircle)
-                    .title("Very Long API Error Description")
+                    .title("Don't be fooled")
                     .description_slot(
                         v_flex().gap_1().children(
                             [
-                                "You exceeded your current quota.",
+                                "Your current quota is limited only by your imagination.",
                                 "For more information, visit the docs.",
-                                "Error details:",
-                                "• Quota exceeded for metric",
-                                "• Limit: 0",
-                                "• Model: gemini-3-pro",
-                                "Please retry in 26.33s.",
-                                "Additional details:",
-                                "- Request ID: abc123def456",
-                                "- Timestamp: 2024-01-15T10:30:00Z",
-                                "- Region: us-central1",
-                                "- Service: generativelanguage.googleapis.com",
-                                "- Error Code: RESOURCE_EXHAUSTED",
-                                "- Retry After: 26s",
-                                "This error occurs when you have exceeded your API quota.",
                             ]
                             .into_iter()
                             .map(|t| Label::new(t).size(LabelSize::Small).color(Color::Muted)),

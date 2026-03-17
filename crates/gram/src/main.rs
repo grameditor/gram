@@ -185,7 +185,7 @@ pub fn main() {
         return;
     }
 
-    // `gram --nc` Makes gram operate in nc/netcat mode for use with MCP
+    // `gram --nc` Makes gram operate in nc/netcat mode
     if let Some(socket) = &args.nc {
         match nc::main(socket) {
             Ok(()) => return,
@@ -1210,8 +1210,8 @@ struct Args {
     #[arg(long)]
     system_specs: bool,
 
-    /// Used for the MCP Server, to remove the need for netcat as a dependency,
-    /// by having Gram act like netcat communicating over a Unix socket.
+    /// Used to remove the need for netcat as a dependency by having Gram act like netcat
+    /// communicating over a Unix socket.
     #[arg(long, hide = true)]
     nc: Option<String>,
 
