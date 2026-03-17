@@ -20,13 +20,15 @@ Usage: ${0##*/} [options] [BUNDLE]
 Install Gram on Linux from a tar bundle.
 
 Options:
-  -h, --help       Display this help and exit.
-  --build          Build the tar bundle before installation.
-  --prefix PREFIX Install into PREFIX (default ~/.local).
+  -h, --help          Display this help and exit.
+  --build             Build the tar bundle before installation.
+  --build-remote      Build the `remote_server` binary
+  --prefix PREFIX     Install into PREFIX (default ~/.local).
   "
 }
 
-GRAM_BUILD_TARBALL=no
+GRAM_BUILD_TARBALL=false
+GRAM_BUILD_REMOTE=false
 GRAM_INSTALL_PREFIX="$HOME/.local"
 GRAM_BUNDLE_FILE=""
 
@@ -38,6 +40,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --build)
             GRAM_BUILD_TARBALL=true
+            shift
+            ;;
+        --build-remote)
+            GRAM_BUILD_REMOTE=true
             shift
             ;;
         --prefix)
@@ -76,7 +82,12 @@ arch="$(echo $target_triple | awk -F - '{print $1}')"
 target_dir="${CARGO_TARGET_DIR:-target}"
 
 if [[ "$GRAM_BUILD_TARBALL" = "true" ]]; then
-  ./script/bundle-linux --tarball
+  no_build_flag=""
+  if [ "$GRAM_BUILD_REMOTE" = false ]; then
+    no_build_flag="--no-build-remote"
+  fi
+
+  ./script/bundle-linux --tarball $no_build_flag
   GRAM_BUNDLE_FILE="${target_dir}/release/gram-linux-$arch.tar.gz"
 elif [ "$GRAM_BUNDLE_FILE" = "" ]; then
   GRAM_BUNDLE_FILE="gram-linux-$arch-$version.tar.gz"
