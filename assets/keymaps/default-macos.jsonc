@@ -1033,8 +1033,10 @@
       "up": "markdown::ScrollUp",
       "down": "markdown::ScrollDown",
       "alt-up": "markdown::ScrollUpByItem",
-      "alt-down": "markdown::ScrollDownByItem"
-    }
+      "alt-down": "markdown::ScrollDownByItem",
+      "cmd-up": "markdown::ScrollToTop",
+      "cmd-down": "markdown::ScrollToBottom",
+    },
   },
   {
     "context": "KeymapEditor",
