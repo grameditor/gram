@@ -10,39 +10,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add AUR installation instructions to README (#38) by @nerdyslacker
+- Add Gleam theme by Danielle Maywood
+- Add XML language server lemminx (#121) by @theDoctor
+- Add XML treesitter support (#116) by @theDoctor
+- Add appimage build option to bundle-linux (#114) by @theDoctor
 - Add binary aur install instructions to README (#53) by @bananas
+- Add default empty rustfmt config (#92) by @fzzr
 - Add perl-Time-Piece to linux script (#1) by @LHolten
+- Add remove trailing whitespace action (#81)
+- Add subpixel text rendering, switch from blade to wgpu (#103) by @selfisekai
+- Add zlib-ng-compat-static as dependency for Fedora build (#62) by @voidedgin
+- Build and package for windows (#74) by @sparx
 - Built in language support for OpenTofu (#33) by @theDoctor
-- Make number types in general editable
 - Options to adjust client side decoration rounding/shadow (#20)
 - Support /path/to/file.txt(ln, col) style paths in terminal (#75)
-- Add Gleam theme by Danielle Maywood
 
 ### Fixed
 
 - Updated documentation
 - Wasm is not an acronym
-- Add zlib-ng-compat-static as dependency for Fedora build (#62) by @voidedgin
+- Bind vim/helix keys even if base keymap is None (#117)
+- Cleanup remaining screen-capture code (#80) by @selfisekai
 - Documentation around installing extensions. (#23) by @edwardloveall
+- Enable the uninstall extension button (#32)
 - Extend icon theme docs with enable settings (#6) by @Petrosz007
+- Fetch newest release automatically (#83) by @scadu
 - Fix LSP github download logic for pre-release (#67) by @Petrosz007
 - Fix Supertab not performing word completion
 - Fix `block_comment` and `documentation_comment` for Rust (#24) by @fzzr
+- Fix download of tofu-ls for opentofu lsp support (#122)
+- Fix empty project panel "or" divider (#109)
+- Fix extensions being installed to tmp dir (#26)
+- Fix menubar keyboard navigation (#119) by @aylamz
 - Fix superhtml LSP (#56) by @Petrosz007
+- Fix the lua-language-server asset name when downloading from github (#78)
 - Fixed package name for cmake for Gentoo packages (#28) by @stepanov
+- Fixed typos in README (#19) by @GulfSugar
 - Fixes compilation issue on aarch64-linux (#61) by @voidedgin
 - Highlight that Rust in required to install some extensions (#34) by @ash-sykes
 - Make UI and Buffer Font match. (#69) by @voidedgin
 - Modify single instance port numbers to not clash with Zed (#10)
-- Fixed typos in README (#19) by @GulfSugar
-- extensions: Use system clang, if it supports the wasm target (#64) by @selfisekai
-- Enable the uninstall extension button (#32)
-- Fix extensions being installed to tmp dir (#26)
+- Remove more old sign-in code (#123) by @tjk
+- Remove unused credentials code (#110)
+- Use system clang, if it supports the wasm target (#64) by @selfisekai
 
 ### Changed
 
+- Allow for CARGO_TARGET_DIR in install.sh (#118) by @tjk
 - Bump crash-handler to 0.7 (#39) by @selfisekai
 - Update wild to 0.8.0 (#63) by @voidedgin
+- (see [codeberg.org/GramEditor/gram](https://codeberg.org/GramEditor/gram) for
+  complete list of changes)
 
 ## [1.0.0] - 2026-03-01
 
