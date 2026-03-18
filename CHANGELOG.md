@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Built in language support for OpenTofu (#33) by @theDoctor
 - Options to adjust client side decoration rounding/shadow (#20)
 - Support /path/to/file.txt(ln, col) style paths in terminal (#75)
+- Improved feedback when extension installation fails
 
 ### Fixed
 
@@ -53,9 +54,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove more old sign-in code (#123) by @tjk
 - Remove unused credentials code (#110)
 - Use system clang, if it supports the wasm target (#64) by @selfisekai
+- docs: fix a few links (#125) by @tjk
+- docs: remove mention of old feedback window (#126) by @tjk
+- extensions: Set correct target for grammar (#84) by @selfisekai
 
 ### Changed
 
+- Move GLSL extension into [separate
+  repo](https://codeberg.org/GramEditor/glsl-extension)
+- Move Protobuf extension into [separate
+  repo](https://codeberg.org/GramEditor/proto-extension)
 - Allow for CARGO_TARGET_DIR in install.sh (#118) by @tjk
 - Bump crash-handler to 0.7 (#39) by @selfisekai
 - Update wild to 0.8.0 (#63) by @voidedgin
