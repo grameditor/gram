@@ -108,7 +108,7 @@ const EXTENSION_URL: &[(&str, &str)] = &[
         "git-firefly",
         "https://github.com/zed-extensions/git_firefly",
     ),
-    ("glsl", "TODO"),
+    ("glsl", "https://codeberg.org/GramEditor/glsl-extension"),
     ("graphql", "https://github.com/11bit/zed-extension-graphql"),
     ("graphviz", "https://github.com/gabeins/zed-graphviz"),
     ("haskell", "https://github.com/zed-extensions/haskell"),

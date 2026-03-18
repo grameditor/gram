@@ -14747,13 +14747,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "zed_glsl"
-version = "0.1.0"
-dependencies = [
- "zed_extension_api",
-]
-
-[[package]]
 name = "zed_test_extension"
 version = "0.1.0"
 dependencies = [

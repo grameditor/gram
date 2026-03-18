@@ -88,7 +88,7 @@ repository = "https://github.com/gleam-lang/zed-gleam"
 [extensions.glsl]
 name ="glsl"
 ids=["vert", "frag"]
-repository = ""
+repository = "https://codeberg.org/GramEditor/glsl-extension"
 
 [extensions.graphql]
 name ="graphql"
