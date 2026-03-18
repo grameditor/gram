@@ -1,6 +1,6 @@
 # Completions
 
-"Code Completions" provided by Language Servers (LSPs) automatically installed by Gram or via [Gram Language Extensions](languages.md).
+"Code Completions" provided by Language Servers (LSPs) automatically installed by Gram or via [Gram Language Extensions](./languages.md).
 
 ## Language Server Code Completions {#code-completions}
 
