@@ -137,11 +137,25 @@ impl Workspace {
 
         self.show_notification(NotificationId::unique::<PortalError>(), cx, |cx| {
             cx.new(|cx| {
-                ErrorMessagePrompt::new(err.to_string(), cx).with_link_button(
-                    "See docs",
-                    "gram://docs/linux#i-cant-open-any-files",
-                )
+                ErrorMessagePrompt::new(err.to_string(), cx)
+                    .with_link_button("See docs", "gram://docs/i-cant-open-any-files")
             })
+        });
+    }
+
+    pub fn show_error_with_link<S>(
+        &mut self,
+        err: S,
+        link_text: S,
+        link_url: S,
+        cx: &mut Context<Self>,
+    ) where
+        S: Into<SharedString>,
+    {
+        struct PortalError;
+
+        self.show_notification(NotificationId::unique::<PortalError>(), cx, |cx| {
+            cx.new(|cx| ErrorMessagePrompt::new(err, cx).with_link_button(link_text, link_url))
         });
     }
 

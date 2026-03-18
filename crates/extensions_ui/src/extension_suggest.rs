@@ -3,13 +3,14 @@ use std::sync::{Arc, OnceLock};
 
 use db::kvp::KEY_VALUE_STORE;
 use editor::Editor;
-use extension_host::ExtensionStore;
 use gpui::{AppContext as _, Context, Entity, SharedString, Window};
 use language::Buffer;
 use ui::prelude::*;
 use util::rel_path::RelPath;
 use workspace::notifications::simple_message_notification::MessageNotification;
 use workspace::{Workspace, notifications::NotificationId};
+
+use crate::InstallExtensionFromGit;
 
 const SUGGESTIONS_BY_EXTENSION_ID: &[(&str, &[&str])] = &[
     ("ada", &["ada"]),
@@ -28,7 +29,6 @@ const SUGGESTIONS_BY_EXTENSION_ID: &[(&str, &[&str])] = &[
     ("elisp", &["el"]),
     ("elixir", &["ex", "exs", "heex"]),
     ("elm", &["elm"]),
-    ("erlang", &["erl", "hrl"]),
     ("fish", &["fish"]),
     ("fortran", &["f90", "f95", "f03", "f", "for"]),
     ("fsharp", &["fs", "fsi", "fsx"]),
@@ -45,20 +45,17 @@ const SUGGESTIONS_BY_EXTENSION_ID: &[(&str, &[&str])] = &[
             "git-rebase-todo",
         ],
     ),
-    ("gleam", &["gleam"]),
     ("glsl", &["vert", "frag"]),
     ("graphql", &["gql", "graphql"]),
     ("graphviz", &["dot"]),
     ("haskell", &["hs"]),
     ("haxe", &["hx", "hxml"]),
-    ("html", &["htm", "html", "shtml"]),
     ("java", &["java"]),
     ("jai", &["jai"]),
     ("justfile", &["justfile"]),
     ("kotlin", &["kt"]),
     ("latex", &["tex"]),
     ("log", &["log"]),
-    ("lua", &["lua"]),
     ("make", &["Makefile"]),
     ("nim", &["nim"]),
     ("nix", &["nix"]),
@@ -74,22 +71,17 @@ const SUGGESTIONS_BY_EXTENSION_ID: &[(&str, &[&str])] = &[
     ("rescript", &["res", "resi"]),
     ("rst", &["rst"]),
     ("ruby", &["rb", "erb"]),
-    ("scheme", &["scm"]),
     ("scss", &["scss"]),
-    ("sql", &["sql"]),
     ("squirrel", &["nut"]),
     ("svelte", &["svelte"]),
     ("swift", &["swift"]),
     ("templ", &["templ"]),
     ("terraform", &["tf", "tfvars", "hcl"]),
-    ("toml", &["Cargo.lock", "toml"]),
     ("typst", &["typ"]),
     ("uiua", &["ua"]),
     ("vue", &["vue"]),
     ("wgsl", &["wgsl"]),
     ("wit", &["wit"]),
-    ("xml", &["xml", "svg"]),
-    ("zig", &["zig"]),
 ];
 
 const EXTENSION_URL: &[(&str, &str)] = &[
@@ -109,7 +101,6 @@ const EXTENSION_URL: &[(&str, &str)] = &[
     ("elisp", "https://github.com/JosephTLyons/zed-elisp"),
     ("elixir", "https://github.com/zed-extensions/elixir"),
     ("elm", "https://github.com/zed-extensions/elm"),
-    ("erlang", "https://github.com/zed-extensions/erlang"),
     ("fish", "https://github.com/hasit/zed-fish"),
     ("fortran", "https://github.com/Xavier-Maruff/zed-fortran"),
     ("fsharp", "https://github.com/nathanjcollins/zed-fsharp"),
@@ -117,20 +108,17 @@ const EXTENSION_URL: &[(&str, &str)] = &[
         "git-firefly",
         "https://github.com/zed-extensions/git_firefly",
     ),
-    ("gleam", "https://github.com/gleam-lang/zed-gleam"),
     ("glsl", "TODO"),
     ("graphql", "https://github.com/11bit/zed-extension-graphql"),
     ("graphviz", "https://github.com/gabeins/zed-graphviz"),
     ("haskell", "https://github.com/zed-extensions/haskell"),
     ("haxe", "https://github.com/Frixuu/Zed-Haxe"),
-    ("html", "TODO"),
     ("java", "https://github.com/zed-extensions/java"),
     ("jai", "https://github.com/seg4lt/zed-jai"),
     ("justfile", "https://github.com/jackTabsCode/zed-just"),
     ("kotlin", "https://github.com/zed-extensions/kotlin"),
     ("latex", "https://github.com/rzukic/zed-latex"),
     ("log", "https://github.com/zed-extensions/log"),
-    ("lua", "https://github.com/zed-extensions/lua"),
     ("luau", "https://github.com/4teapo/zed-luau"),
     ("make", "https://github.com/caius/zed-make"),
     ("nim", "https://github.com/foxoman/zed-nim"),
@@ -147,7 +135,6 @@ const EXTENSION_URL: &[(&str, &str)] = &[
     ("rescript", "https://github.com/humaans/rescript-zed"),
     ("rst", "https://github.com/elmarco/zed-rst"),
     ("ruby", "https://github.com/zed-extensions/ruby"),
-    ("scheme", "https://github.com/zed-extensions/scheme"),
     ("scss", "https://github.com/bajrangCoder/zed-scss"),
     ("sql", "https://github.com/zed-extensions/sql"),
     ("squirrel", "https://github.com/mnshdw/squirrel-lsp-zed"),
@@ -155,14 +142,11 @@ const EXTENSION_URL: &[(&str, &str)] = &[
     ("swift", "https://github.com/zed-extensions/swift"),
     ("templ", "https://github.com/makifdb/zed-templ"),
     ("terraform", "https://github.com/zed-extensions/terraform"),
-    ("toml", "https://github.com/zed-extensions/toml"),
     ("typst", "https://github.com/weethet/typst.zed"),
     ("uiua", "https://github.com/zed-extensions/uiua"),
     ("vue", "https://github.com/zed-extensions/vue"),
     ("wgsl", "https://github.com/luan/zed-wgsl"),
     ("wit", "https://github.com/valentinegb/zed-wit"),
-    ("xml", "https://github.com/sweetppro/zed-xml"),
-    ("zig", "https://github.com/zed-extensions/zig"),
 ];
 
 fn suggested_extensions() -> &'static HashMap<&'static str, Arc<str>> {
@@ -289,14 +273,14 @@ pub(crate) fn suggest(buffer: Entity<Buffer>, window: &mut Window, cx: &mut Cont
                 .primary_message("Install")
                 .primary_icon(IconName::Check)
                 .primary_icon_color(Color::Success)
-                .primary_on_click({
-                    move |_window, cx| {
-                        let extension_store = ExtensionStore::global(cx);
-                        extension_store.update(cx, move |store, cx| {
-                            store.install_dev_extension_from_url(url.into(), cx);
-                        });
+                .primary_on_click(
+                    move |window, cx| {
+                        window.dispatch_action(
+                            Box::new(InstallExtensionFromGit { url: url.into() }),
+                            cx,
+                        );
                     }
-                })
+                )
                 .secondary_message("No")
                 .secondary_icon(IconName::Close)
                 .secondary_icon_color(Color::Error)
@@ -321,20 +305,6 @@ mod tests {
     #[test]
     pub fn test_suggested_extension() {
         assert_eq!(
-            suggested_extension(rel_path("Cargo.toml")),
-            Some(SuggestedExtension {
-                extension_id: "toml".into(),
-                file_name_or_extension: "toml".into()
-            })
-        );
-        assert_eq!(
-            suggested_extension(rel_path("Cargo.lock")),
-            Some(SuggestedExtension {
-                extension_id: "toml".into(),
-                file_name_or_extension: "Cargo.lock".into()
-            })
-        );
-        assert_eq!(
             suggested_extension(rel_path("Dockerfile")),
             Some(SuggestedExtension {
                 extension_id: "dockerfile".into(),
@@ -346,13 +316,6 @@ mod tests {
             Some(SuggestedExtension {
                 extension_id: "git-firefly".into(),
                 file_name_or_extension: ".gitignore".into()
-            })
-        );
-        assert_eq!(
-            suggested_extension(rel_path("a/b/c/d/test.gleam")),
-            Some(SuggestedExtension {
-                extension_id: "gleam".into(),
-                file_name_or_extension: "gleam".into()
             })
         );
     }

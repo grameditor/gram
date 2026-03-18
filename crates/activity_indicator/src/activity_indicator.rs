@@ -646,17 +646,17 @@ impl ActivityIndicator {
         {
             let (message, icon, rotate) = match operation {
                 ExtensionOperation::Install => (
-                    format!("Installing {extension_id} extension…"),
+                    format!("Installing extension: {extension_id}…"),
                     IconName::LoadCircle,
                     true,
                 ),
                 ExtensionOperation::Upgrade => (
-                    format!("Updating {extension_id} extension…"),
+                    format!("Updating extension: {extension_id}…"),
                     IconName::Download,
                     false,
                 ),
                 ExtensionOperation::Remove => (
-                    format!("Removing {extension_id} extension…"),
+                    format!("Removing extension: {extension_id}…"),
                     IconName::LoadCircle,
                     true,
                 ),

@@ -114,27 +114,6 @@ GRAM_LOG=wgpu=info /path/to/gram/cli --foreground .
 # copy the output
 ```
 
-### I can't open any files
-
-### Clicking links isn't working
-
-These features are provided by XDG desktop portals, specifically:
-
-- `org.freedesktop.portal.FileChooser`
-- `org.freedesktop.portal.OpenURI`
-
-Some window managers, such as `Hyprland`, don't provide a file picker by default. See [this list](https://wiki.archlinux.org/title/XDG_Desktop_Portal#List_of_backends_and_interfaces) as a starting point for alternatives.
-
-### Could not start inotify
-
-Gram relies on inotify to watch your filesystem for changes. If you cannot start inotify then Gram will not work reliably.
-
-If you are seeing "too many open files" then first try `sysctl fs.inotify`.
-
-- You should see that max_user_instances is 128 or higher (you can change the limit with `sudo sysctl fs.inotify.max_user_instances=1024`). Gram needs only 1 inotify instance.
-- You should see that `max_user_watches` is 8000 or higher (you can change the limit with `sudo sysctl fs.inotify.max_user_watches=64000`). Gram needs one watch per directory in all your open projects + one per git repository + a handful more for settings, themes, keymaps, extensions.
-
-It is also possible that you are running out of file descriptors. You can check the limits with `ulimit` and update them by editing `/etc/security/limits.conf`.
 
 ### Forcing X11 scale factor
 
