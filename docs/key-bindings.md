@@ -286,4 +286,4 @@ For example, `ctrl-n` creates a new tab in Gram on Linux. If you want to send `c
 ### Task Key bindings
 
 You can also bind keys to launch Gram Tasks defined in your `tasks.jsonc`.
-See the [tasks documentation](tasks.md#custom-keybindings-for-tasks) for more.
+See the [tasks documentation](./tasks.md#custom-keybindings-for-tasks) for more.
