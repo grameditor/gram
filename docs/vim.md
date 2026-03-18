@@ -278,7 +278,6 @@ These ex commands open Gram's various panels and windows.
 | Open the git panel           | `:G[it]`         |
 | Open the debug panel         | `:D[ebug]`       |
 | Open the notifications panel | `:No[tif]`       |
-| Open the feedback window     | `:fe[edback]`    |
 | Open the diagnostics window  | `:cl[ist]`       |
 | Open the terminal            | `:te[rm]`        |
 | Open the extensions window   | `:Ext[ensions]`  |
