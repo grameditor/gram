@@ -178,7 +178,7 @@ repository = "https://github.com/zed-extensions/prisma"
 [extensions.proto]
 name ="proto"
 ids=["proto"]
-repository = ""
+repository = "https://codeberg.org/GramEditor/proto-extension"
 
 [extensions.purescript]
 name ="purescript"

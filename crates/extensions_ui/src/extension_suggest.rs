@@ -128,7 +128,7 @@ const EXTENSION_URL: &[(&str, &str)] = &[
     ("php", "https://github.com/zed-extensions/php"),
     ("powershell", "https://github.com/wingyplus/zed-powershell"),
     ("prisma", "https://github.com/zed-extensions/prisma"),
-    ("proto", "TODO"),
+    ("proto", "https://codeberg.org/GramEditor/proto-extension"),
     ("purescript", "https://github.com/zed-extensions/purescript"),
     ("r", "https://github.com/ocsmit/zed-r"),
     ("racket", "https://github.com/zed-extensions/racket"),

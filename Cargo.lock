@@ -4564,13 +4564,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "gram_proto"
-version = "0.2.3"
-dependencies = [
- "zed_extension_api",
-]
-
-[[package]]
 name = "grid"
 version = "0.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

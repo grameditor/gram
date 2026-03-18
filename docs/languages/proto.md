@@ -1,14 +1,14 @@
 # Proto
 
-Proto/proto3 (Protocol Buffers definition language) support is available through the [Proto extension](https://github.com/zed-industries/zed/tree/main/extensions/proto).
+Proto/proto3 (Protocol Buffers definition language) support is available through the [Proto extension](https://codeberg.org/GramEditor/proto-extension).
 
 - Tree-sitter: [coder3101/tree-sitter-proto](https://github.com/coder3101/tree-sitter-proto)
 - Language Servers: [protobuf-language-server](https://github.com/lasorda/protobuf-language-server)
 
-<!--
-TBD: Clarify which language server(s) to use / Feature support.
-
 ## Setup
+
+There are two available language server implementations for Protobuf: Pick one
+and follow the installation instructions below.
 
 ### Install protobuf-language-server
 
@@ -76,4 +76,3 @@ Or you can have gram directly invoke `clang-format` by specifying it as a format
     },
   }
 ```
--->
