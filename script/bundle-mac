@@ -282,16 +282,10 @@ function sign_binary() {
 
 cp target/${target_triple}/${target_dir}/gram "${app_path}/Contents/MacOS/gram"
 cp target/${target_triple}/${target_dir}/cli "${app_path}/Contents/MacOS/cli"
+cp -r crates/gram/resources/AppIcon.icon "${app_path}/Contents/Resources/"
+
 sign_app_binaries
 
 sign_binary "target/$target_triple/release/remote_server"
 echo "target/gram-remote-server-macos-$arch_suffix"
-
-# echo "Building remote server for Linux x86_64"
-# RUSTFLAGS="-C target-feature=+crt-static" cargo zigbuild \
-#   --package remote_server \
-#   --target-dir target/remote_server-linux-x86_64 \
-#   --target "unknown-linux-gnu"
-# sign_binary "target/remote-server-linux-x86_64"
-# echo "target/gram-remote-server-macos-$arch_suffix"
 
