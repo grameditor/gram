@@ -45,6 +45,7 @@ const WASI_SDK_ASSET_NAME: Option<&str> = if cfg!(all(target_os = "macos", targe
 } else {
     None
 };
+const WASI_SDK_SYSROOT_NAME: &str = "wasi-sysroot-25.0.tar.gz";
 
 pub struct ExtensionBuilder {
     cache_dir: PathBuf,
@@ -223,6 +224,22 @@ impl ExtensionBuilder {
         Ok(())
     }
 
+    fn find_wasi_sysroot(&self) -> Result<PathBuf> {
+        let wasi_sdk_sysroot = self
+            .cache_dir
+            .join("wasi-sdk")
+            .join("share")
+            .join("wasi-sysroot");
+        let wasi_sysroot = self.cache_dir.join("wasi-sysroot");
+        if wasi_sdk_sysroot.is_dir() {
+            return Ok(wasi_sdk_sysroot);
+        } else if wasi_sysroot.is_dir() {
+            return Ok(wasi_sysroot);
+        } else {
+            anyhow::bail!("No WASI sysroot found");
+        }
+    }
+
     async fn compile_grammar(
         &self,
         extension_dir: &Path,
@@ -263,6 +280,7 @@ impl ExtensionBuilder {
             );
         } else {
             log::info!("compiling {grammar_name} parser");
+            let wasi_sysroot_dir = self.find_wasi_sysroot()?;
             let clang_output = util::command::new_smol_command(&clang_path)
                 .args([
                     "-fPIC",
@@ -275,6 +293,8 @@ impl ExtensionBuilder {
                 .arg(&grammar_wasm_path)
                 .arg("-I")
                 .arg(&src_path)
+                .arg("--sysroot")
+                .arg(&wasi_sysroot_dir)
                 .arg(&parser_path)
                 .args(scanner_path.exists().then_some(scanner_path))
                 .output()
@@ -435,7 +455,12 @@ impl ExtensionBuilder {
                 .await
                 .is_ok_and(|o| o.status.success())
             {
-                return Ok(system_clang);
+                match self.install_wasi_sysroot_if_needed().await {
+                    Ok(..) => return Ok(system_clang),
+                    Err(err) => {
+                        log::error!("failed to get wasi sysroot: {err:?}");
+                    }
+                }
             }
         }
 
@@ -506,6 +531,55 @@ impl ExtensionBuilder {
         fs::remove_dir_all(&tar_out_dir).ok();
 
         Ok(clang_path)
+    }
+
+    async fn install_wasi_sysroot_if_needed(&self) -> Result<()> {
+        let url = format!("{WASI_SDK_URL}{WASI_SDK_SYSROOT_NAME}");
+        let wasi_sysroot_dir = self.cache_dir.join("wasi-sysroot");
+        let mut response = self.http.get(&url, AsyncBody::default(), true).await?;
+        // Write the response to a temporary file
+        let tar_gz_path = self.cache_dir.join(WASI_SDK_SYSROOT_NAME);
+        let mut tar_gz_file =
+            fs::File::create(&tar_gz_path).context("failed to create temporary tar.gz file")?;
+        let response_body = response.body_mut();
+        let mut body_bytes = Vec::new();
+        response_body.read_to_end(&mut body_bytes).await?;
+        std::io::Write::write_all(&mut tar_gz_file, &body_bytes)?;
+        drop(tar_gz_file);
+
+        let tar_out_dir = self.cache_dir.join("wasi-sysroot-temp");
+        log::info!("un-tarring wasi-sdk to {}", tar_out_dir.display());
+
+        // Shell out to tar to extract the archive
+        let tar_output = util::command::new_smol_command("tar")
+            .arg("-xzf")
+            .arg(&tar_gz_path)
+            .arg("-C")
+            .arg(&tar_out_dir)
+            .output()
+            .await
+            .context("failed to run tar")?;
+
+        if !tar_output.status.success() {
+            bail!(
+                "failed to extract wasi-sysroot archive: {}",
+                String::from_utf8_lossy(&tar_output.stderr)
+            );
+        }
+
+        log::info!("finished downloading wasi-sysroot");
+
+        // Clean up the temporary tar.gz file
+        fs::remove_file(&tar_gz_path).ok();
+
+        let inner_dir = fs::read_dir(&tar_out_dir)?
+            .next()
+            .context("no content")?
+            .context("failed to read contents of extracted wasi archive directory")?
+            .path();
+        fs::rename(&inner_dir, &wasi_sysroot_dir).context("failed to move extracted wasi dir")?;
+        fs::remove_dir_all(&tar_out_dir).ok();
+        Ok(())
     }
 
     // This was adapted from:
