@@ -57,6 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - docs: fix a few links (#125) by @tjk
 - docs: remove mention of old feedback window (#126) by @tjk
 - extensions: Set correct target for grammar (#84) by @selfisekai
+- Don't install WASI SDK if compatible clang is found (#41)
 
 ### Changed
 
