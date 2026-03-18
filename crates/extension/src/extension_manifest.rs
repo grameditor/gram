@@ -190,31 +190,30 @@ pub struct DebugLocatorManifestEntry {}
 
 impl ExtensionManifest {
     pub async fn load(fs: Arc<dyn Fs>, extension_dir: &Path) -> Result<Self> {
-        let extension_name = extension_dir
-            .file_name()
-            .and_then(OsStr::to_str)
-            .context("invalid extension name")?;
-
         let extension_manifest_path = extension_dir.join("extension.toml");
         if fs.is_file(&extension_manifest_path).await {
             let manifest_content = fs.load(&extension_manifest_path).await.with_context(|| {
-                format!("loading {extension_name} extension.toml, {extension_manifest_path:?}")
+                format!("loading extension manifest from {extension_manifest_path:?}")
             })?;
             toml::from_str(&manifest_content).map_err(|err| {
-                anyhow!("Invalid extension.toml for extension {extension_name}:\n{err}")
+                anyhow!("Invalid extension manifest {extension_manifest_path:?}:\n{err}")
             })
         } else if let extension_manifest_path = extension_manifest_path.with_extension("json")
             && fs.is_file(&extension_manifest_path).await
         {
             let manifest_content = fs.load(&extension_manifest_path).await.with_context(|| {
-                format!("loading {extension_name} extension.json, {extension_manifest_path:?}")
+                format!("loading extension manifest from {extension_manifest_path:?}")
             })?;
+            let extension_name = extension_dir
+                .file_name()
+                .and_then(OsStr::to_str)
+                .context("invalid extension name")?;
 
             serde_json::from_str::<OldExtensionManifest>(&manifest_content)
-                .with_context(|| format!("invalid extension.json for extension {extension_name}"))
+                .with_context(|| format!("invalid extension manifest: {extension_manifest_path:?}"))
                 .map(|manifest_json| manifest_from_old_manifest(manifest_json, extension_name))
         } else {
-            anyhow::bail!("No extension manifest found for extension {extension_name}")
+            anyhow::bail!("No extension manifest found at {extension_manifest_path:?}")
         }
     }
 }

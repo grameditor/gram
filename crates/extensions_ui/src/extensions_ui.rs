@@ -7,6 +7,7 @@ use collections::{BTreeMap, BTreeSet};
 use editor::{Editor, EditorElement, EditorStyle};
 use extension_host::{ExtensionManifest, ExtensionOperation, ExtensionStore};
 use fuzzy::{StringMatchCandidate, match_strings};
+use git2::Repository;
 use gpui::{
     Action, App, ClipboardItem, Context, Corner, DismissEvent, Entity, EventEmitter, Flatten,
     FocusHandle, Focusable, InteractiveElement, KeyContext, ParentElement, Point, Render, Styled,
@@ -15,7 +16,10 @@ use gpui::{
 use menu;
 use num_format::{Locale, ToFormattedString};
 use project::DirectoryLister;
+use schemars::JsonSchema;
+use serde::Deserialize;
 use settings::{Settings, SettingsContent};
+use std::path::PathBuf;
 use std::sync::OnceLock;
 use std::time::Duration;
 use std::{ops::Range, sync::Arc};
@@ -43,6 +47,24 @@ actions!(
         InstallExtensionFromUrl,
     ]
 );
+
+/// Install an extension from a local path
+#[derive(PartialEq, Clone, Debug, Deserialize, JsonSchema, Action)]
+#[action(namespace = gram)]
+#[serde(deny_unknown_fields)]
+pub struct InstallExtensionFromLocalPath {
+    /// A local path to an extension
+    pub path: String,
+}
+
+/// Install an extension from a git repository
+#[derive(PartialEq, Clone, Debug, Deserialize, JsonSchema, Action)]
+#[action(namespace = gram)]
+#[serde(deny_unknown_fields)]
+pub struct InstallExtensionFromGit {
+    /// A git https url
+    pub url: String,
+}
 
 pub fn init(cx: &mut App) {
     cx.observe_new(move |workspace: &mut Workspace, window, cx| {
@@ -104,7 +126,6 @@ pub fn init(cx: &mut App) {
             )
             .register_action(
                 move |workspace, _: &InstallExtensionFromFolder, window, cx| {
-                    let store = ExtensionStore::global(cx);
                     let prompt = workspace.prompt_for_open_path(
                         gpui::PathPromptOptions {
                             files: false,
@@ -119,24 +140,120 @@ pub fn init(cx: &mut App) {
                         window,
                         cx,
                     );
-
                     let workspace_handle = cx.entity().downgrade();
                     window
                         .spawn(cx, async move |cx| {
-                            let extension_path =
-                                match Flatten::flatten(prompt.await.map_err(|e| e.into())) {
-                                    Ok(Some(mut paths)) => paths.pop()?,
-                                    Ok(None) => return None,
-                                    Err(err) => {
-                                        workspace_handle
-                                            .update(cx, |workspace, cx| {
-                                                workspace.show_portal_error(err.to_string(), cx);
-                                            })
-                                            .ok();
-                                        return None;
+                            let path = match Flatten::flatten(prompt.await.map_err(|e| e.into())) {
+                                Ok(Some(mut paths)) => match paths.pop() {
+                                    Some(path) => path,
+                                    None => return,
+                                },
+                                Ok(None) => return,
+                                Err(err) => {
+                                    workspace_handle
+                                        .update(cx, |workspace, cx| {
+                                            workspace.show_portal_error(err.to_string(), cx);
+                                        })
+                                        .ok();
+                                    return;
+                                }
+                            };
+                            let Some(path) = path.into_os_string().into_string().ok() else {
+                                return;
+                            };
+                            cx.update(|window, cx| {
+                                window.dispatch_action(
+                                    Box::new(InstallExtensionFromLocalPath { path }),
+                                    cx,
+                                );
+                            })
+                            .ok();
+                        })
+                        .detach();
+                },
+            )
+            .register_action(move |workspace, _: &InstallExtensionFromUrl, window, cx| {
+                workspace.toggle_modal(window, cx, |window, cx| GitCloneModal::show(window, cx));
+            })
+            .register_action(
+                move |workspace, action: &InstallExtensionFromGit, window, cx| {
+                    let url = action.url.clone();
+                    workspace
+                        .with_local_workspace(window, cx, move |workspace, window, cx| {
+                            let file_stem = match url.split('/').next_back() {
+                                Some(tail) => {
+                                    if let Some(stripped) = tail.strip_suffix(".git") {
+                                        stripped
+                                    } else {
+                                        tail
                                     }
-                                };
-
+                                }
+                                None => {
+                                    workspace.show_error_with_link(
+                                        "Invalid Git URL format: Could not split on /",
+                                        "Learn more",
+                                        "gram://docs/extensions/installing-extensions",
+                                        cx,
+                                    );
+                                    return;
+                                }
+                            };
+                            let temp_dir = match tempfile::TempDir::with_suffix(file_stem) {
+                                Ok(temp_dir) => temp_dir,
+                                Err(err) => {
+                                    workspace.show_error_with_link(
+                                        SharedString::from(format!(
+                                            "Failed to create temporary directory:\n{err:#}"
+                                        )),
+                                        "Learn more".into(),
+                                        "gram://docs/extensions/installing-extensions".into(),
+                                        cx,
+                                    );
+                                    return;
+                                }
+                            };
+                            let repo = match Repository::clone(url.as_str(), temp_dir.keep()) {
+                                Ok(repo) => repo,
+                                Err(err) => {
+                                    workspace.show_error_with_link(
+                                        SharedString::from(format!(
+                                            "Failed to clone Git repository:\n{err:#}"
+                                        )),
+                                        "Learn more".into(),
+                                        "gram://docs/extensions/installing-extensions".into(),
+                                        cx,
+                                    );
+                                    return;
+                                }
+                            };
+                            let path = match repo.workdir().and_then(|path| path.to_str()) {
+                                Some(path) => path.to_string(),
+                                None => {
+                                    workspace.show_error_with_link(
+                                        "Failed to clone Git repository: No workdir found",
+                                        "Learn more",
+                                        "gram://docs/extensions/installing-extensions",
+                                        cx,
+                                    );
+                                    return;
+                                }
+                            };
+                            log::info!("path={path}");
+                            window.dispatch_action(
+                                Box::new(InstallExtensionFromLocalPath { path }),
+                                cx,
+                            );
+                        })
+                        .detach();
+                },
+            )
+            .register_action(
+                move |_workspace, action: &InstallExtensionFromLocalPath, window, cx| {
+                    let store = ExtensionStore::global(cx);
+                    let extension_path = PathBuf::from(&action.path);
+                    let workspace_handle = cx.entity().downgrade();
+                    window
+                        .spawn(cx, async move |cx| {
                             let install_task = store
                                 .update(cx, |store, cx| {
                                     store.install_dev_extension(extension_path, cx)
@@ -146,16 +263,16 @@ pub fn init(cx: &mut App) {
                             match install_task.await {
                                 Ok(_) => {}
                                 Err(err) => {
-                                    log::error!("Failed to install dev extension(144): {:?}", err);
+                                    log::error!("Failed to install extension: {:?}", err);
                                     workspace_handle
                                         .update(cx, |workspace, cx| {
-                                            workspace.show_error(
-                                                // NOTE: using `anyhow::context` here ends up not printing
-                                                // the error
-                                                &format!(
-                                                    "Failed to install dev extension(150): {}",
-                                                    err
-                                                ),
+                                            workspace.show_error_with_link(
+                                                SharedString::from(format!(
+                                                    "Failed to install extension:\n{err:#}"
+                                                )),
+                                                "Learn more".into(),
+                                                "gram://docs/extensions/installing-extensions"
+                                                    .into(),
                                                 cx,
                                             );
                                         })
@@ -167,19 +284,7 @@ pub fn init(cx: &mut App) {
                         })
                         .detach();
                 },
-            )
-            .register_action(move |workspace, _: &InstallExtensionFromUrl, window, cx| {
-                let existing = workspace
-                    .active_pane()
-                    .read(cx)
-                    .items()
-                    .find_map(|item| item.downcast::<ExtensionsPage>());
-                if let Some(page) = existing {
-                    workspace.toggle_modal(window, cx, |window, cx| {
-                        GitCloneModal::show(page, window, cx)
-                    });
-                }
-            });
+            );
 
         cx.subscribe_in(workspace.project(), window, |_, _, event, window, cx| {
             if let project::Event::LanguageNotFound(buffer) = event {
@@ -1488,13 +1593,12 @@ impl Item for ExtensionsPage {
 }
 
 struct GitCloneModal {
-    page: Entity<ExtensionsPage>,
     repo_input: Entity<Editor>,
     focus_handle: FocusHandle,
 }
 
 impl GitCloneModal {
-    pub fn show(page: Entity<ExtensionsPage>, window: &mut Window, cx: &mut Context<Self>) -> Self {
+    pub fn show(window: &mut Window, cx: &mut Context<Self>) -> Self {
         let repo_input = cx.new(|cx| {
             let mut editor = Editor::single_line(window, cx);
             editor.set_placeholder_text("Enter repository URL…", window, cx);
@@ -1505,7 +1609,6 @@ impl GitCloneModal {
         window.focus(&focus_handle, cx);
 
         Self {
-            page,
             repo_input,
             focus_handle,
         }
@@ -1577,15 +1680,12 @@ impl Render for GitCloneModal {
             .on_action(cx.listener(|_, _: &menu::Cancel, _, cx| {
                 cx.emit(DismissEvent);
             }))
-            .on_action(cx.listener(|this, _: &menu::Confirm, _window, cx| {
-                let repo = this.repo_input.read(cx).text(cx);
-                this.page.update(cx, |_page, cx| {
-                    log::info!("install_extension_from_repo: {:?}", repo);
-                    let extension_store = ExtensionStore::global(cx);
-                    extension_store.update(cx, move |store, cx| {
-                        store.install_dev_extension_from_url(repo, cx);
-                    });
-                });
+            .on_action(cx.listener(|this, _: &menu::Confirm, window, cx| {
+                let url = this.repo_input.read(cx).text(cx);
+                window.dispatch_action(
+                    Box::new(InstallExtensionFromGit { url }),
+                    cx,
+                );
                 cx.emit(DismissEvent);
             }))
     }

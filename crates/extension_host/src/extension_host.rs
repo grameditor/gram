@@ -23,7 +23,6 @@ use futures::{
     },
     select_biased,
 };
-use git2::Repository;
 use gpui::{
     App, AppContext as _, AsyncApp, Context, Entity, EventEmitter, Global, Task, WeakEntity,
     actions,
@@ -576,35 +575,6 @@ impl ExtensionStore {
 
             anyhow::Ok(())
         })
-    }
-
-    pub fn install_dev_extension_from_url(&mut self, url: String, cx: &mut Context<Self>) {
-        cx.spawn(async move |this, cx| {
-            let tail = url
-                .split('/')
-                .next_back()
-                .ok_or(anyhow!("failed to split url on /"))?;
-            let file_stem = if let Some(stripped) = tail.strip_suffix(".git") {
-                stripped
-            } else {
-                tail
-            };
-            let temp_dir =
-                tempfile::TempDir::with_suffix(file_stem).context("extension installation")?;
-            let repo = Repository::clone(url.as_str(), temp_dir.keep())
-                .context("extension git repo clone")?;
-            let path = repo
-                .workdir()
-                .ok_or(anyhow!("No workdir for repository"))?
-                .to_path_buf();
-            log::info!("path= {:?}", path);
-            this.update(cx, |this, cx| {
-                this.install_dev_extension(path, cx).detach_and_log_err(cx);
-                cx.notify();
-            })?;
-            anyhow::Ok(())
-        })
-        .detach_and_log_err(cx);
     }
 
     pub fn install_dev_extension(
