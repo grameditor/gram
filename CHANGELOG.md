@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Options to adjust client side decoration rounding/shadow (#20)
 - Support /path/to/file.txt(ln, col) style paths in terminal (#75)
 - Improved feedback when extension installation fails (#37)
+- Add new app icons by @kramo (#49)
 
 ### Fixed
 
