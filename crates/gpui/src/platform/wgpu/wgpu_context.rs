@@ -45,7 +45,6 @@ impl WgpuContext {
             .contains(wgpu::Features::DUAL_SOURCE_BLENDING);
 
         let mut required_features = wgpu::Features::empty();
-        required_features |= adapter.features();
         if dual_source_blending_available {
             required_features |= wgpu::Features::DUAL_SOURCE_BLENDING;
         } else {
@@ -64,6 +63,8 @@ impl WgpuContext {
             required_features,
             required_limits,
             memory_hints: wgpu::MemoryHints::MemoryUsage,
+            trace: wgpu::Trace::Off,
+            experimental_features: wgpu::ExperimentalFeatures::disabled(),
         }))
         .map_err(|e| anyhow::anyhow!("Failed to create wgpu device: {e}"))?;
 
