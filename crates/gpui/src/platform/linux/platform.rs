@@ -84,7 +84,7 @@ impl<T> ResultExt for anyhow::Result<T> {
                     Ok(Ok(_)) => {}
                 }
 
-                panic!("{msg}");
+                panic!("{msg}: {e:?}");
             }
         }
     }
