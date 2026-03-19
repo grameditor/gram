@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use patched protobuf-src for Windows support (#202) by @voltagex
 - Added a menu item in the buffer and tab right-click menu for
   opening Markdown and SVG files in the preview tab. (zed#47821)
+- Add ability to rename terminal tabs (zed#45800)
+- Add Mermaid diagram support to Markdown preview (zed#49064)
+- Add ScrollToTop and ScrollToBottom actions in Markdown preview (zed#50460)
 
 [poll]: https://github.com/lilith/zed/commit/0334469a57a20586b28b86187028acd36559a9d3
 
@@ -53,6 +56,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix out-of-bounds indexing when diff bases contain CRLF (zed#52605)
 - Fix alt keybindings capturing altgr input (Mac) (#206)
 - Minor fixes to the build scripts to allow a clean build on Chimera Linux (#205) by @jmc
+- Fix dollar sign rendering in Markdown preview (zed#50440)
+- Prevent stack overflows in Markdown parsing (zed#51637)
+- Fix Markdown preview not re-rendering on external change (zed#50583)
+- Fix table wrapping behaviour in Markdown preview (zed#50839)
 
 ### Changed
 
