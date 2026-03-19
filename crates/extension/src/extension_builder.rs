@@ -548,6 +548,9 @@ impl ExtensionBuilder {
         drop(tar_gz_file);
 
         let tar_out_dir = self.cache_dir.join("wasi-sysroot-temp");
+        fs::remove_dir_all(&wasi_sysroot_dir).ok();
+        fs::remove_dir_all(&tar_out_dir).ok();
+        fs::create_dir_all(&tar_out_dir).context("failed to create extraction directory")?;
         log::info!("un-tarring wasi-sdk to {}", tar_out_dir.display());
 
         // Shell out to tar to extract the archive
