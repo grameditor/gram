@@ -198,6 +198,7 @@ function sign_app_binaries() {
         # sequence of codesign commands modeled after this example: https://developer.apple.com/forums/thread/701514
         /usr/bin/codesign --deep --force --timestamp --options runtime --sign "$APPLE_SIGNING_KEY" "${app_path}/Contents/MacOS/cli" -v
         /usr/bin/codesign --deep --force --timestamp --options runtime --sign "$APPLE_SIGNING_KEY" "${app_path}/Contents/MacOS/git" -v
+        /usr/bin/codesign --deep --force --timestamp --options runtime --sign "$APPLE_SIGNING_KEY" "${app_path}/Contents/Resources/Assets.car" -v
         /usr/bin/codesign --deep --force --timestamp --options runtime --entitlements crates/gram/resources/gram.entitlements --sign "$APPLE_SIGNING_KEY" "${app_path}/Contents/MacOS/gram" -v
         /usr/bin/codesign --force --timestamp --options runtime --entitlements crates/gram/resources/gram.entitlements --sign "$APPLE_SIGNING_KEY" "${app_path}" -v
     else
@@ -282,7 +283,11 @@ function sign_binary() {
 
 cp target/${target_triple}/${target_dir}/gram "${app_path}/Contents/MacOS/gram"
 cp target/${target_triple}/${target_dir}/cli "${app_path}/Contents/MacOS/cli"
-cp -r crates/gram/resources/AppIcon.icon "${app_path}/Contents/Resources/"
+./script/mac-icon-to-car
+cp -r target/Assets.car "${app_path}/Contents/Resources/Assets.car"
+plist_file="target/${target_triple}/${target_dir}/dmg/Gram.app/Contents/Info.plist"
+sed 's|  \<key\>CFBundleIconFile\</key\>|  <key>CFBundleIconName</key>\n  <string>AppIcon</string>\n  <key>CFBundleIconFile</key>|' <"$plist_file" >"$plist_file".tmp
+mv "$plist_file".tmp "$plist_file"
 
 sign_app_binaries
 
