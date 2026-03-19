@@ -816,13 +816,23 @@ impl WgpuRenderer {
         self.atlas.before_frame();
 
         let frame = match self.surface.get_current_texture() {
-            Ok(frame) => frame,
-            Err(wgpu::SurfaceError::Lost | wgpu::SurfaceError::Outdated) => {
+            wgpu::CurrentSurfaceTexture::Success(frame) => frame,
+            wgpu::CurrentSurfaceTexture::Timeout | wgpu::CurrentSurfaceTexture::Occluded => {
+                /* skip frame */
+                return;
+            }
+            wgpu::CurrentSurfaceTexture::Outdated | wgpu::CurrentSurfaceTexture::Suboptimal(..) => {
+                /* reconfigure surface */
                 self.surface.configure(&self.device, &self.surface_config);
                 return;
             }
-            Err(e) => {
-                log::error!("Failed to acquire surface texture: {e}");
+            wgpu::CurrentSurfaceTexture::Lost => {
+                /* reconfigure surface, or recreate device if device lost */
+                self.surface.configure(&self.device, &self.surface_config);
+                return;
+            }
+            wgpu::CurrentSurfaceTexture::Validation => {
+                log::error!("Failed to acquire surface texture: Validation error");
                 return;
             }
         };
