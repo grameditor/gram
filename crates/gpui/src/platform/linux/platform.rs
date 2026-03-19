@@ -61,24 +61,28 @@ impl<T> ResultExt for anyhow::Result<T> {
                 use ashpd::desktop::notification::{Notification, NotificationProxy, Priority};
                 use futures::executor::block_on;
 
-                let proxy = block_on(NotificationProxy::new()).expect(msg);
-
                 let notification_id = "app.liten.Oops";
-                block_on(
-                    proxy.add_notification(
-                        notification_id,
-                        Notification::new("Gram failed to launch")
-                            .body(Some(
-                                format!("{e:?}. See docs/linux.md for troubleshooting steps.")
-                                    .as_str(),
-                            ))
-                            .priority(Priority::High)
-                            .icon(ashpd::desktop::Icon::with_names(&[
-                                "dialog-question-symbolic",
-                            ])),
-                    ),
-                )
-                .expect(msg);
+                match block_on(NotificationProxy::new()).map(|proxy| {
+                    block_on(
+                        proxy.add_notification(
+                            notification_id,
+                            Notification::new("Gram failed to launch")
+                                .body(Some(
+                                    format!("{e:?}. See docs/linux.md for troubleshooting steps.")
+                                        .as_str(),
+                                ))
+                                .priority(Priority::High)
+                                .icon(ashpd::desktop::Icon::with_names(&[
+                                    "dialog-question-symbolic",
+                                ])),
+                        ),
+                    )
+                }) {
+                    Ok(Err(e)) | Err(e) => {
+                        log::error!("Failed to notify_err: {e}");
+                    }
+                    Ok(Ok(_)) => {}
+                }
 
                 panic!("{msg}");
             }
