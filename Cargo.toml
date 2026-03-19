@@ -324,8 +324,8 @@ zlog_settings = { path = "crates/zlog_settings" }
 #
 
 # Keep these in sync
-naga = { git = "https://github.com/gfx-rs/wgpu", rev = "62c2f5da97c1aef44109dabc069d09429a845fef", features = ["wgsl-in"] }
-wgpu = { git = "https://github.com/gfx-rs/wgpu", rev = "62c2f5da97c1aef44109dabc069d09429a845fef" }
+naga = { version = "29.0.0", features = ["wgsl-in"] }
+wgpu = "29.0.0"
 
 aho-corasick = "1.1"
 alacritty_terminal = { git = "https://github.com/zed-industries/alacritty", rev = "936aee8761a17affc84ab418ae21306c27c26221" }

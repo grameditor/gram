@@ -64,8 +64,6 @@ impl WgpuContext {
             required_features,
             required_limits,
             memory_hints: wgpu::MemoryHints::MemoryUsage,
-            trace: wgpu::Trace::Off,
-            experimental_features: wgpu::ExperimentalFeatures::disabled(),
         }))
         .map_err(|e| anyhow::anyhow!("Failed to create wgpu device: {e}"))?;
 
