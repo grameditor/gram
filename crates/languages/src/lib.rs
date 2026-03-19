@@ -107,6 +107,7 @@ pub fn init(languages: Arc<LanguageRegistry>, fs: Arc<dyn Fs>, node: NodeRuntime
         ("gitcommit", tree_sitter_gitcommit::LANGUAGE),
     ]);
 
+    let bash_lsp_adapter = Arc::new(bash::BashLspAdapter::new(node.clone()));
     let c_lsp_adapter = Arc::new(c::CLspAdapter);
     let css_lsp_adapter = Arc::new(css::CssLspAdapter::new(node.clone()));
     let eslint_adapter = Arc::new(eslint::EsLintLspAdapter::new(node.clone()));
@@ -151,6 +152,7 @@ pub fn init(languages: Arc<LanguageRegistry>, fs: Arc<dyn Fs>, node: NodeRuntime
     let built_in_languages = [
         LanguageInfo {
             name: "bash",
+            adapters: vec![bash_lsp_adapter],
             context: Some(Arc::new(bash::bash_task_context())),
             ..Default::default()
         },

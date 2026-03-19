@@ -1,5 +1,149 @@
+use anyhow::Result;
+use async_trait::async_trait;
+use gpui::AsyncApp;
+use language::{LspAdapter, LspAdapterDelegate, LspInstaller, Toolchain};
+use lsp::{LanguageServerBinary, LanguageServerName};
+use node_runtime::{NodeRuntime, VersionStrategy};
 use project::ContextProviderWithTasks;
+use std::ffi::OsString;
+use std::path::{Path, PathBuf};
 use task::{TaskTemplate, TaskTemplates, VariableName};
+use util::{ResultExt, maybe};
+
+const SERVER_PATH: &str = "node_modules/bash-language-server/out/";
+
+pub struct BashLspAdapter {
+    node: NodeRuntime,
+}
+
+fn server_binary_arguments(server_path: &Path) -> Vec<OsString> {
+    vec![server_path.join("cli.js").into(), "start".into()]
+}
+
+impl BashLspAdapter {
+    const SERVER_NAME: LanguageServerName = LanguageServerName::new_static("bash-language-server");
+    const PACKAGE_NAME: &str = "bash-language-server";
+    pub fn new(node: NodeRuntime) -> Self {
+        BashLspAdapter { node }
+    }
+}
+
+impl LspInstaller for BashLspAdapter {
+    type BinaryVersion = String;
+
+    async fn fetch_latest_server_version(
+        &self,
+        _: &dyn LspAdapterDelegate,
+        _: bool,
+        _: &mut AsyncApp,
+    ) -> Result<String> {
+        self.node
+            .npm_package_latest_version("bash-language-server")
+            .await
+    }
+
+    async fn check_if_user_installed(
+        &self,
+        delegate: &dyn LspAdapterDelegate,
+        _: Option<Toolchain>,
+        _: &AsyncApp,
+    ) -> Option<LanguageServerBinary> {
+        let path = delegate.which(Self::SERVER_NAME.as_ref()).await?;
+        let env = delegate.shell_env().await;
+
+        Some(LanguageServerBinary {
+            path,
+            env: Some(env),
+            arguments: vec!["start".into()],
+        })
+    }
+
+    async fn fetch_server_binary(
+        &self,
+        latest_version: String,
+        container_dir: PathBuf,
+        _: &dyn LspAdapterDelegate,
+    ) -> Result<LanguageServerBinary> {
+        let server_path = container_dir.join(SERVER_PATH);
+
+        self.node
+            .npm_install_packages(
+                &container_dir,
+                &[(Self::PACKAGE_NAME, latest_version.as_str())],
+            )
+            .await?;
+
+        Ok(LanguageServerBinary {
+            path: self.node.binary_path().await?,
+            env: None,
+            arguments: server_binary_arguments(&server_path),
+        })
+    }
+
+    async fn check_if_version_installed(
+        &self,
+        version: &String,
+        container_dir: &PathBuf,
+        _: &dyn LspAdapterDelegate,
+    ) -> Option<LanguageServerBinary> {
+        let server_path = container_dir.join(SERVER_PATH);
+
+        let should_install_language_server = self
+            .node
+            .should_install_npm_package(
+                Self::PACKAGE_NAME,
+                &server_path,
+                container_dir,
+                VersionStrategy::Latest(version),
+            )
+            .await;
+
+        if should_install_language_server {
+            None
+        } else {
+            Some(LanguageServerBinary {
+                path: self.node.binary_path().await.ok()?,
+                env: None,
+                arguments: server_binary_arguments(&server_path),
+            })
+        }
+    }
+
+    async fn cached_server_binary(
+        &self,
+        container_dir: PathBuf,
+        _: &dyn LspAdapterDelegate,
+    ) -> Option<LanguageServerBinary> {
+        get_cached_server_binary(container_dir, &self.node).await
+    }
+}
+
+async fn get_cached_server_binary(
+    container_dir: PathBuf,
+    node: &NodeRuntime,
+) -> Option<LanguageServerBinary> {
+    maybe!(async {
+        let server_path = container_dir.join(SERVER_PATH);
+        anyhow::ensure!(
+            server_path.exists(),
+            "missing executable in directory {server_path:?}"
+        );
+        Ok(LanguageServerBinary {
+            path: node.binary_path().await?,
+            env: None,
+            arguments: server_binary_arguments(&server_path),
+        })
+    })
+    .await
+    .log_err()
+}
+
+#[async_trait(?Send)]
+impl LspAdapter for BashLspAdapter {
+    fn name(&self) -> LanguageServerName {
+        Self::SERVER_NAME
+    }
+}
 
 pub(super) fn bash_task_context() -> ContextProviderWithTasks {
     ContextProviderWithTasks::new(TaskTemplates(vec![
