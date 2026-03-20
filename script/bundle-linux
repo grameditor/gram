@@ -145,8 +145,10 @@ fi
 # Generate the licenses first, so they can be baked into the binaries
 script/generate-licenses
 
-CC=$(which clang)
-export CC
+if [ -z "$CC" ] && command -v clang &>/dev/null; then
+  CC=${CC:+$(which clang)}
+  export CC
+fi
 
 if [ "$DO_BUILD" = "true" ]; then
     RUSTFLAGS="${RUSTFLAGS:-} -C link-args=-Wl,--disable-new-dtags,-rpath,\$ORIGIN/../lib"
@@ -155,8 +157,11 @@ if [ "$DO_BUILD" = "true" ]; then
     # Build remote_server separately to prevent feature unification from other crates
     # from influencing dynamic libraries required by it.
     if [[ "$remote_server_triple" == "$musl_triple" ]]; then
-        RUSTFLAGS="${RUSTFLAGS:-} -C target-feature=+crt-static"
-        export RUSTFLAGS
+      RUSTFLAGS="${RUSTFLAGS:-} -C target-feature=+crt-static"
+      if command -v mold &> /dev/null; then
+        RUSTFLAGS="${RUSTFLAGS} -C linker=clang -C link-arg=-fuse-ld=mold"
+      fi
+      export RUSTFLAGS
     fi
     if [ "$BUILD_REMOTE" = "true" ]; then
         cargo build --release --target "${remote_server_triple}" --package remote_server
@@ -188,8 +193,12 @@ if [ "$channel" != "stable" ]; then
 fi
 
 # Strip debug symbols (keeps symbol table for backtraces)
-objcopy --strip-debug "${target_dir}/${target_triple}/release/gram"
-objcopy --strip-debug "${target_dir}/${target_triple}/release/cli"
+if [ -f "${target_dir}/${target_triple}/release/gram" ]; then
+  objcopy --strip-debug "${target_dir}/${target_triple}/release/gram"
+fi
+if [ -f "${target_dir}/${target_triple}/release/cli" ]; then
+  objcopy --strip-debug "${target_dir}/${target_triple}/release/cli"
+fi
 if [ -f "${target_dir}/${remote_server_triple}/release/remote_server" ]; then
     objcopy --strip-debug "${target_dir}/${remote_server_triple}/release/remote_server"
 fi
