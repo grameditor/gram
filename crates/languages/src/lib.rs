@@ -29,6 +29,7 @@ mod helpers;
 mod html;
 mod json;
 mod lua;
+mod nix;
 mod odin;
 mod opentofu;
 mod package_json;
@@ -88,6 +89,7 @@ pub fn init(languages: Arc<LanguageRegistry>, fs: Arc<dyn Fs>, node: NodeRuntime
         ("json", tree_sitter_json::LANGUAGE),
         ("jsonc", tree_sitter_json::LANGUAGE),
         ("lua", tree_sitter_lua::LANGUAGE),
+        ("nix", tree_sitter_nix::LANGUAGE),
         ("markdown", tree_sitter_md::LANGUAGE),
         ("markdown-inline", tree_sitter_md::INLINE_LANGUAGE),
         ("odin", tree_sitter_odin::LANGUAGE),
@@ -123,6 +125,8 @@ pub fn init(languages: Arc<LanguageRegistry>, fs: Arc<dyn Fs>, node: NodeRuntime
     let json_lsp_adapter = Arc::new(json::JsonLspAdapter::new(languages.clone(), node.clone()));
     let node_version_lsp_adapter = Arc::new(json::NodeVersionAdapter);
     let lua_lsp_adapter = Arc::new(lua::LuaLspAdapter);
+    let nil_lsp_adapter = Arc::new(nix::NilLspAdapter);
+    let nixd_lsp_adapter = Arc::new(nix::NixdLspAdapter);
     let odin_lsp_adapter = Arc::new(odin::OdinLspAdapter);
     let odin_context_provider = Arc::new(odin::odin_task_context());
     let opentofu_lsp_adapter = Arc::new(opentofu::OpenTofuLspAdapter);
@@ -231,6 +235,11 @@ pub fn init(languages: Arc<LanguageRegistry>, fs: Arc<dyn Fs>, node: NodeRuntime
         LanguageInfo {
             name: "lua",
             adapters: vec![lua_lsp_adapter],
+            ..Default::default()
+        },
+        LanguageInfo {
+            name: "nix",
+            adapters: vec![nil_lsp_adapter, nixd_lsp_adapter],
             ..Default::default()
         },
         LanguageInfo {
