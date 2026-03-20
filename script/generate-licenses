@@ -7,7 +7,8 @@ OUTPUT_FILE="${1:-$(pwd)/assets/licenses.md}"
 TEMPLATE_FILE="script/licenses/template.md.hbs"
 
 fail_on_stderr() {
-    local tmpfile=$(mktemp)
+    tmpfile=$(mktemp)
+    local tmpfile
     "$@" 2> >(tee "$tmpfile" >&2)
     local rc=$?
     [ -s "$tmpfile" ] && rc=1
@@ -26,9 +27,9 @@ echo -n "" >"$OUTPUT_FILE"
 
     echo -e "\n# ###### LANGUAGE LICENSES ######\n"
     for d in crates/languages/src/*; do
-      if [ -f crates/languages/src/$d/LICENSE ]; then
-        cat crates/languages/src/$d/LICENSE
-      fi
+        if [ -f crates/languages/src/"$d"/LICENSE ]; then
+            cat crates/languages/src/"$d"/LICENSE
+        fi
     done
 
     echo -e "\n# ###### CODE LICENSES ######\n"

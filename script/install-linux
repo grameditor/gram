@@ -3,12 +3,12 @@
 set -euxo pipefail
 
 if [[ $# -gt 0 ]]; then
-  echo "
+    echo "
   Usage: ${0##*/}
   Builds and installs gram onto your system into ~/.local, making it available as ~/.local/bin/gram.
 
   Before running this you should ensure you have all the build dependencies installed with `./script/linux`.
   "
-  exit 1
+    exit 1
 fi
 script/install.sh --build

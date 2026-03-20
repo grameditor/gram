@@ -25,16 +25,16 @@ can_code_sign=false
 # the signing key using:
 # security find-identity -p codesigning
 if [[ -f ~/.local.secrets ]]; then
-  . ~/.local.secrets
-  export APPLE_ID
-  export APPLE_PASSWORD_GRAM
-  export APPLE_TEAM_ID
-  export APPLE_SIGNING_KEY
+    . "$HOME/.local.secrets"
+    export APPLE_ID
+    export APPLE_PASSWORD_GRAM
+    export APPLE_TEAM_ID
+    export APPLE_SIGNING_KEY
 fi
 
 # Function for displaying help info
 help_info() {
-  echo "
+    echo "
 Usage: ${0##*/} [options] [architecture=host]
 Build the application bundle for macOS.
 
@@ -46,27 +46,30 @@ Options:
   "
 }
 
-while getopts 'bdloih' flag
-do
+while getopts 'bdloih' flag; do
     case "${flag}" in
-        b) do_build=false;;
-        o) open_result=true;;
-        d)
-            export CARGO_INCREMENTAL=true
-            export CARGO_BUNDLE_SKIP_BUILD=true
-            build_flag="";
-            target_dir="debug"
-            ;;
-        i) local_install=true;;
-        h)
-           help_info
-           exit 0
-           ;;
+    b) do_build=false ;;
+    o) open_result=true ;;
+    d)
+        export CARGO_INCREMENTAL=true
+        export CARGO_BUNDLE_SKIP_BUILD=true
+        build_flag=""
+        target_dir="debug"
+        ;;
+    i) local_install=true ;;
+    h)
+        help_info
+        exit 0
+        ;;
+    *)
+        echo "Error: Unexpected argument: $1" >&2
+        help_info
+        exit 1
+        ;;
     esac
 done
 
-shift $((OPTIND-1))
-
+shift $((OPTIND - 1))
 
 # Get release channel
 pushd crates/gram
@@ -79,7 +82,7 @@ export GRAM_BUNDLE=true
 cargo_bundle_version=$(cargo -q bundle --help 2>&1 | head -n 1 || echo "")
 
 if [[ "$do_build" = "true" ]]; then
-  cargo install cargo-bundle --git https://github.com/zed-industries/cargo-bundle.git --branch zed-deploy
+    cargo install cargo-bundle --git https://github.com/zed-industries/cargo-bundle.git --branch zed-deploy
 fi
 
 # Deal with versions of macOS that don't include libstdc++ headers
@@ -104,17 +107,17 @@ fi
 
 if [[ "$do_build" = "true" ]]; then
 
-  # Generate the licenses first, so they can be baked into the binaries
-  script/generate-licenses
+    # Generate the licenses first, so they can be baked into the binaries
+    script/generate-licenses
 
-  rustup target add $target_triple
+    rustup target add "$target_triple"
 
-  echo "Compiling gram binaries"
-  cargo build ${build_flag} --package gram --package cli --target $target_triple
-  # Build remote_server in separate invocation to prevent feature unification from other crates
-  # from influencing dynamic libraries required by it.
-  echo "Compiling remote_server for $target_triple"
-  cargo build ${build_flag} --package remote_server --target $target_triple
+    echo "Compiling gram binaries"
+    cargo build ${build_flag} --package gram --package cli --target "$target_triple"
+    # Build remote_server in separate invocation to prevent feature unification from other crates
+    # from influencing dynamic libraries required by it.
+    echo "Compiling remote_server for $target_triple"
+    cargo build ${build_flag} --package remote_server --target "$target_triple"
 
 fi
 
@@ -126,7 +129,7 @@ sed \
     "s/package.metadata.bundle-${channel}/package.metadata.bundle/" \
     Cargo.toml
 
-app_path=$(cargo bundle ${build_flag} --target $target_triple --select-workspace-root | xargs)
+app_path=$(cargo bundle ${build_flag} --target "$target_triple" --select-workspace-root | xargs)
 
 mv Cargo.toml.backup Cargo.toml
 popd
@@ -146,12 +149,12 @@ function download_and_unpack() {
 
     temp_dir=$(mktemp -d)
 
-    if ! command -v curl &> /dev/null; then
+    if ! command -v curl &>/dev/null; then
         echo "curl is not installed. Please install curl to continue."
         exit 1
     fi
 
-    curl --silent --fail --location "$url" | tar -xvz -C "$temp_dir" -f - $path_to_unpack
+    curl --silent --fail --location "$url" | tar -xvz -C "$temp_dir" -f - "$path_to_unpack"
 
     mv "$temp_dir/$path_to_unpack" "$target_path"
 
@@ -166,16 +169,16 @@ function download_git() {
     pushd "$tmp_dir"
 
     case "$architecture" in
-        aarch64-apple-darwin)
-            download_and_unpack "https://github.com/desktop/dugite-native/releases/download/${GIT_VERSION}/dugite-native-${GIT_VERSION}-${GIT_VERSION_SHA}-macOS-arm64.tar.gz" bin/git ./git
-            ;;
-        x86_64-apple-darwin)
-            download_and_unpack "https://github.com/desktop/dugite-native/releases/download/${GIT_VERSION}/dugite-native-${GIT_VERSION}-${GIT_VERSION_SHA}-macOS-x64.tar.gz" bin/git ./git
-            ;;
-        *)
-            echo "Unsupported architecture: $architecture"
-            exit 1
-            ;;
+    aarch64-apple-darwin)
+        download_and_unpack "https://github.com/desktop/dugite-native/releases/download/${GIT_VERSION}/dugite-native-${GIT_VERSION}-${GIT_VERSION_SHA}-macOS-arm64.tar.gz" bin/git ./git
+        ;;
+    x86_64-apple-darwin)
+        download_and_unpack "https://github.com/desktop/dugite-native/releases/download/${GIT_VERSION}/dugite-native-${GIT_VERSION}-${GIT_VERSION_SHA}-macOS-x64.tar.gz" bin/git ./git
+        ;;
+    *)
+        echo "Unsupported architecture: $architecture"
+        exit 1
+        ;;
     esac
 
     popd
@@ -191,7 +194,7 @@ function sign_app_binaries() {
     echo "Downloading git binary"
     download_git "${target_triple}" "${app_path}/Contents/MacOS/git"
 
-    cp crates/gram/contents/$channel/embedded.provisionprofile "${app_path}/Contents/"
+    cp crates/gram/contents/"$channel"/embedded.provisionprofile "${app_path}/Contents/"
 
     if [[ $can_code_sign = true ]]; then
         echo "Code signing binaries"
@@ -212,9 +215,9 @@ function sign_app_binaries() {
         # - create a PR and tag it with the `run-bundling` label, and download the .dmg file from there.
         # - create your own signing key, and update signing key references to your own team ID
         # then comment out this line.
-        cat crates/gram/resources/gram.entitlements | sed '/com.apple.developer.associated-domains/,+1d' > "${app_path}/Contents/Resources/gram.entitlements"
+        cat crates/gram/resources/gram.entitlements | sed '/com.apple.developer.associated-domains/,+1d' >"${app_path}/Contents/Resources/gram.entitlements"
 
-        codesign --force --deep --entitlements "${app_path}/Contents/Resources/gram.entitlements" --sign ${APPLE_SIGNING_KEY} "${app_path}" -v
+        codesign --force --deep --entitlements "${app_path}/Contents/Resources/gram.entitlements" --sign "${APPLE_SIGNING_KEY}" "${app_path}" -v
     fi
 
     bundle_name=$(basename "$app_path")
@@ -243,13 +246,13 @@ function sign_app_binaries() {
         dmg_file_path="${dmg_target_directory}/Gram-${arch_suffix}.dmg"
         xcode_bin_dir_path="$(xcode-select -p)/usr/bin"
 
-        rm -rf ${dmg_source_directory}
-        mkdir -p ${dmg_source_directory}
+        rm -rf "${dmg_source_directory}"
+        mkdir -p "${dmg_source_directory}"
         mv "${app_path}" "${dmg_source_directory}"
         notarization_key_file=$(mktemp)
 
         echo "Adding symlink to /Applications to ${dmg_source_directory}"
-        ln -s /Applications ${dmg_source_directory}
+        ln -s /Applications "${dmg_source_directory}"
 
         echo "Creating final DMG at ${dmg_file_path} using ${dmg_source_directory}"
         hdiutil create -volname Gram -srcfolder "${dmg_source_directory}" -ov -format UDZO "${dmg_file_path}"
@@ -257,7 +260,7 @@ function sign_app_binaries() {
         # If someone runs this bundle script locally, a symlink will be placed in `dmg_source_directory`.
         # This symlink causes CPU issues with Gram if the Gram codebase is the project being worked on, so we simply remove it for now.
         echo "Removing symlink to /Applications from ${dmg_source_directory}"
-        rm ${dmg_source_directory}/Applications
+        rm "${dmg_source_directory}"/Applications
 
         if [[ $can_code_sign = true ]]; then
             echo "Notarizing DMG with Apple"
@@ -267,7 +270,7 @@ function sign_app_binaries() {
         fi
 
         if [ "$open_result" = true ]; then
-            open $dmg_target_directory
+            open "$dmg_target_directory"
         fi
     fi
 }
@@ -281,8 +284,8 @@ function sign_binary() {
     fi
 }
 
-cp target/${target_triple}/${target_dir}/gram "${app_path}/Contents/MacOS/gram"
-cp target/${target_triple}/${target_dir}/cli "${app_path}/Contents/MacOS/cli"
+cp target/"${target_triple}"/${target_dir}/gram "${app_path}/Contents/MacOS/gram"
+cp target/"${target_triple}"/${target_dir}/cli "${app_path}/Contents/MacOS/cli"
 ./script/mac-icon-to-car
 cp -r target/Assets.car "${app_path}/Contents/Resources/Assets.car"
 plist_file="${app_path}/Contents/Info.plist"
@@ -293,4 +296,3 @@ sign_app_binaries
 
 sign_binary "target/$target_triple/release/remote_server"
 echo "target/gram-remote-server-macos-$arch_suffix"
-

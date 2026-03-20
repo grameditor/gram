@@ -20,13 +20,13 @@ prompt_remove_preferences() {
     printf "Do you want to keep your Gram preferences? [Y/n] "
     read -r response
     case "$response" in
-        [nN]|[nN][oO])
-            rm -rf "$HOME/.config/gram"
-            echo "Preferences removed."
-            ;;
-        *)
-            echo "Preferences kept."
-            ;;
+    [nN] | [nN][oO])
+        rm -rf "$HOME/.config/gram"
+        echo "Preferences removed."
+        ;;
+    *)
+        echo "Preferences kept."
+        ;;
     esac
 }
 
@@ -75,7 +75,7 @@ linux() {
         prompt_remove_preferences
     fi
 
-    rm -rf $HOME/.gram_server
+    rm -rf "$HOME"/.gram_server
 }
 
 macos() {
@@ -83,7 +83,7 @@ macos() {
     db_suffix="stable"
     app_id="app.liten.Gram"
     case "$channel" in
-      dev)
+    dev)
         app="Gram Dev.app"
         db_suffix="dev"
         app_id="app.liten.Gram-Dev"
@@ -116,7 +116,7 @@ macos() {
         prompt_remove_preferences
     fi
 
-    rm -rf $HOME/.gram_server
+    rm -rf "$HOME"/.gram_server
 }
 
 main "$@"

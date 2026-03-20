@@ -20,6 +20,11 @@ while getopts 'h' flag; do
         help_info
         exit 0
         ;;
+    *)
+        echo "Error: Unexpected argument: $1" >&2
+        help_info
+        exit 1
+        ;;
     esac
 done
 
@@ -154,4 +159,4 @@ arch=$(uname -m)
 # tar -czvf "${target_dir}/release/$archive" -C ${temp_dir} "gram$suffix.app"
 
 gzip -f --stdout --best "${target_dir}/${remote_server_triple}/release/remote_server" \
-    > "${target_dir}/gram-remote-server-freebsd-x86_64.gz"
+    >"${target_dir}/gram-remote-server-freebsd-x86_64.gz"
