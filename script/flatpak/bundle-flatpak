@@ -16,11 +16,13 @@ export BRANDING_DARK="#4e4b5c"
 if [[ "$channel" == "dev" ]]; then
     export APP_ID="app.liten.GramDev"
     export APP_NAME="Gram Devel"
-    export ICON_FILE="app-icon-dev"
+    export ICON_SCALABLE="app.liten.Gram.Devel.svg"
+    export ICON_SYMBOLIC="app.liten.Gram-symbolic.svg"
 elif [[ "$channel" == "stable" ]]; then
     export APP_ID="app.liten.Gram"
     export APP_NAME="Gram"
-    export ICON_FILE="app-icon"
+    export ICON_SCALABLE="app.liten.Gram.svg"
+    export ICON_SYMBOLIC="app.liten.Gram-symbolic.svg"
 else
     echo "Invalid channel: '$channel'"
     exit
