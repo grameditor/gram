@@ -16,24 +16,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add appimage build option to bundle-linux (#114) by @theDoctor
 - Add binary aur install instructions to README (#53) by @bananas
 - Add default empty rustfmt config (#92) by @fzzr
+- Add new app icons by @kramo (#49) (#134)
 - Add perl-Time-Piece to linux script (#1) by @LHolten
 - Add remove trailing whitespace action (#81)
 - Add subpixel text rendering, switch from blade to wgpu (#103) by @selfisekai
 - Add zlib-ng-compat-static as dependency for Fedora build (#62) by @voidedgin
 - Build and package for windows (#74) by @sparx
+- Built in language support for Nix (#59)
 - Built in language support for OpenTofu (#33) by @theDoctor
+- Improved feedback when extension installation fails (#37)
 - Options to adjust client side decoration rounding/shadow (#20)
 - Support /path/to/file.txt(ln, col) style paths in terminal (#75)
-- Improved feedback when extension installation fails (#37)
-- Add new app icons by @kramo (#49)
+- Add bash LSP (#132) by @theDoctor
 
 ### Fixed
 
-- Updated documentation
-- Wasm is not an acronym
 - Bind vim/helix keys even if base keymap is None (#117)
 - Cleanup remaining screen-capture code (#80) by @selfisekai
-- Documentation around installing extensions. (#23) by @edwardloveall
+- Don't install WASI SDK if compatible clang is found (#41)
+- Don't panic on failing to send an error notification (#136) by @selfisekai
 - Enable the uninstall extension button (#32)
 - Extend icon theme docs with enable settings (#6) by @Petrosz007
 - Fetch newest release automatically (#83) by @scadu
@@ -47,18 +48,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix superhtml LSP (#56) by @Petrosz007
 - Fix the lua-language-server asset name when downloading from github (#78)
 - Fixed package name for cmake for Gentoo packages (#28) by @stepanov
-- Fixed typos in README (#19) by @GulfSugar
 - Fixes compilation issue on aarch64-linux (#61) by @voidedgin
-- Highlight that Rust in required to install some extensions (#34) by @ash-sykes
 - Make UI and Buffer Font match. (#69) by @voidedgin
 - Modify single instance port numbers to not clash with Zed (#10)
 - Remove more old sign-in code (#123) by @tjk
 - Remove unused credentials code (#110)
+- Set correct target for extension grammar (#84) by @selfisekai
 - Use system clang, if it supports the wasm target (#64) by @selfisekai
-- docs: fix a few links (#125) by @tjk
-- docs: remove mention of old feedback window (#126) by @tjk
-- extensions: Set correct target for grammar (#84) by @selfisekai
-- Don't install WASI SDK if compatible clang is found (#41)
+- docs: Documentation around installing extensions. (#23) by @edwardloveall
+- docs: Fix a few documentation links (#125) by @tjk
+- docs: Fixed typos in README (#19) by @GulfSugar
+- docs: Highlight that Rust in required to install some extensions (#34) by @ash-sykes
+- docs: Remove mention of old feedback window (#126) by @tjk
+- docs: Wasm is not an acronym
 
 ### Changed
 
