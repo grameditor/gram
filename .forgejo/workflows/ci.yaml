@@ -5,30 +5,47 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: '1'
+  CARGO_INCREMENTAL: '0'
 
 jobs:
   test-amd64:
     runs-on: rust-amd64
+    env:
+      CC: clang
+      CXX: clang++
+      CC_x86_64_unknown_linux_musl: musl-gcc
     steps:
       - uses: actions/checkout@v4
-      - name: Cache build
-        uses: actions/cache@v3
-        id: cache-gram-build
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-gram-cargo-${{ hashFiles('**/Cargo.lock') }}
+          fetch-depth: 0
+      - name: setup cargo config
+        run: cp ./.cargo/ci-config.toml ./.cargo/config.toml
+      - name: set RELEASE_CHANNEL to dev
+        run: echo "dev" >./crates/gram/RELEASE_CHANNEL
       - name: install nextest
         run: curl -LsSf https://get.nexte.st/latest/linux | tar zxf - -C ~/.cargo/bin
       - name: install linux dependencies
         run: ./script/linux
-      - name: install cargo-about
-        run: cargo install cargo-about@0.8.2
       - name: download wasi-sdk
         run: ./script/download-wasi-sdk
       - run: cargo nextest run --workspace --success-output never --show-progress none
       - run: ./script/bundle-linux --tarball --no-build-remote
+      - name: Set artifact name
+        id: set_artifact_name
+        shell: bash
+        run: |
+          mv target/release/gram-linux-x86_64.tar.gz ./gram-dev-linux-x86_64.tar.gz
+          echo "tarball_amd64=gram-dev-linux-x86_64.tar.gz" >> $FORGEJO_OUTPUT
+
+      - name: sha256sum
+        shell: bash
+        run: |
+          sha256sum ${{steps.set_artifact_name.outputs.tarball_amd64}}
+
+      - id: upload_tarball_amd64
+        name: upload tarball
+        uses: forgejo/upload-artifact@v4
+        with:
+          name: ${{steps.set_artifact_name.outputs.tarball_amd64}}
+          path: ${{steps.set_artifact_name.outputs.tarball_amd64}}

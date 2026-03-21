@@ -6,50 +6,140 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: '1'
+  CARGO_INCREMENTAL: '0'
 
 jobs:
   release-amd64:
     runs-on: rust-amd64
+    env:
+      CC: clang
+      CXX: clang++
+      CC_x86_64_unknown_linux_musl: musl-gcc
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: setup cargo config
+        run: cp ./.cargo/ci-config.toml ./.cargo/config.toml
+      - name: set release channel
+        run: echo "stable" > ./crates/gram/RELEASE_CHANNEL
       - name: install linux dependencies
         run: ./script/linux
+      - name: install nextest
+        run: curl -LsSf https://get.nexte.st/latest/linux | tar zxf - -C ~/.cargo/bin
+      - name: install cargo-deb
+        run: cargo install cargo-deb
+      - name: install cargo-generate-rpm
+        run: cargo install cargo-generate-rpm
       - name: download wasi-sdk
         run: ./script/download-wasi-sdk
+      - run: cargo nextest run --workspace --success-output never --show-progress none
       - name: bundle-linux
-        run: ./script/bundle-linux --tarball
-
+        run: ./script/bundle-linux --tarball --deb --rpm
       - name: Set artifact name
         id: set_artifact_name
         shell: bash
         run: |
-          version=
+          version="-dev"
+          debversion="dev"
           if [[ $FORGEJO_REF_TYPE == "tag" ]]; then
             version=-$FORGEJO_REF_NAME
+            debverson=$FORGEJO_REF_NAME
           fi
-          echo "tarball_amd64=gram-linux-amd64${version}.tar.gz" >> $FORGEJO_OUTPUT
-          echo "remote_server_amd64=gram-remote-server-linux-amd64${version}.gz" >> $FORGEJO_OUTPUT
+          find target -name '*.gz'
+          rpm_name="$(find target -name '*.rpm' | head -1)"
+          rpm_base="$(basename $rpm_name)"
+          deb_name="$(find target -name '*.deb' | head -1)"
+          echo "deb: $deb_name"
+          mv target/release/gram-linux-x86_64.tar.gz "./gram-linux-x86_64${version}.tar.gz"
+          mv target/gram-remote-server-linux-x86_64.gz "./gram-remote-server-linux-x86_64${version}.gz"
+          mv $deb_name "./gram_${debversion}-1_x86_64.deb"
+          mv $rpm_name "./gram_${debversion}-1_x86_64.rpm"
+          echo "tarball_amd64=gram-linux-x86_64${version}.tar.gz" >> $FORGEJO_OUTPUT
+          echo "remote_server_amd64=gram-remote-server-linux-x86_64${version}.gz" >> $FORGEJO_OUTPUT
+          echo "deb_amd64=gram_${debversion}-1_x86_64.deb" >> $FORGEJO_OUTPUT
+          echo "rpm_amd64=gram_${debversion}-1_x86_64.rpm" >> $FORGEJO_OUTPUT
 
       - name: sha256sum
         shell: bash
         run: |
-          sha256sum ${{steps.set_artifact_name.outputs.tarball_amd64}} > ${{steps.set_artifact_name.outputs.tarball_amd64}}.sha256sum
-          sha256sum ${{steps.set_artifact_name.outputs.remote_server_amd64}} > ${{steps.set_artifact_name.outputs.remote_server_amd64}}.sha256sum
+          sha256sum ${{steps.set_artifact_name.outputs.tarball_amd64}}
+          sha256sum ${{steps.set_artifact_name.outputs.remote_server_amd64}}
+          sha256sum ${{steps.set_artifact_name.outputs.deb_amd64}}
+          sha256sum ${{steps.set_artifact_name.outputs.rpm_amd64}}
 
-      - id: upload_tarball amd64
+      - id: upload_tarball_amd64
+        name: upload tarball
         uses: forgejo/upload-artifact@v4
         with:
           name: ${{steps.set_artifact_name.outputs.tarball_amd64}}
-          path: |
-            ${{steps.set_artifact_name.outputs.tarball_amd64}}
-            ${{steps.set_artifact_name.outputs.tarball_amd64}}.sha256sum
+          path: ${{steps.set_artifact_name.outputs.tarball_amd64}}
 
-      - id: upload_remote_server amd64
+      - id: upload_remote_server_amd64
+        name: upload remote-server
         uses: forgejo/upload-artifact@v4
         with:
           name: ${{steps.set_artifact_name.outputs.remote_server_amd64}}
-          path: |
-            ${{steps.set_artifact_name.outputs.remote_server_amd64}}
-            ${{steps.set_artifact_name.outputs.remote_server_amd64}}.sha256sum
+          path: ${{steps.set_artifact_name.outputs.remote_server_amd64}}
+
+      - id: upload_deb_amd64
+        name: upload deb
+        uses: forgejo/upload-artifact@v4
+        with:
+          name: ${{steps.set_artifact_name.outputs.deb_amd64}}
+          path: ${{steps.set_artifact_name.outputs.deb_amd64}}
+
+      - id: upload_rpm_amd64
+        name: upload rpm
+        uses: forgejo/upload-artifact@v4
+        with:
+          name: ${{steps.set_artifact_name.outputs.rpm_amd64}}
+          path: ${{steps.set_artifact_name.outputs.rpm_amd64}}
+
+  flatpak-amd64:
+    runs-on: rust-amd64
+    env:
+      CC: clang
+      CXX: clang++
+      CC_x86_64_unknown_linux_musl: musl-gcc
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: setup cargo config
+        run: cp ./.cargo/ci-config.toml ./.cargo/config.toml
+      - name: set release channel
+        run: echo "stable" > ./crates/gram/RELEASE_CHANNEL
+      - name: apt install flatpak
+        run: apt install flatpak
+      - name: install linux dependencies
+        run: ./script/linux
+      - name: install flatpak dependencies
+        run: ./script/flatpak/deps
+      - name: bundle-flatpak
+        run: ./script/flatpak/bundle-flatpak
+      - name: Set artifact name
+        id: set_artifact_name
+        shell: bash
+        run: |
+          if [[ "$(cat crates/gram/RELEASE_CHANNEL)" = "stable" ]]; then
+            devname=
+          else
+            devname=Dev
+          fi
+          find target -name '*.flatpak'
+          mv target/release/app.liten.Gram${devname}.flatpak "./app.liten.Gram${devname}.flatpak"
+          echo "flatpak_amd64=app.liten.Gram${devname}.flatpak" >> $FORGEJO_OUTPUT
+
+      - name: sha256sum
+        shell: bash
+        run: |
+          sha256sum ${{steps.set_artifact_name.outputs.flatpak_amd64}}
+
+      - id: upload_flatpak_amd64
+        name: upload flatpak
+        uses: forgejo/upload-artifact@v4
+        with:
+          name: ${{steps.set_artifact_name.outputs.flatpak_amd64}}
+          path: ${{steps.set_artifact_name.outputs.flatpak_amd64}}
