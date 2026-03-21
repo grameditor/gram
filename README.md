@@ -155,9 +155,9 @@ dependencies.
 
 ## Icons
 
-Application icon toad drawing originally by me
-[@krig](https://codeberg.org/krig) and turned into proper
-icons by [@kramo](https://codeberg.org/kramo).
+Application icons by by [@kramo](https://codeberg.org/kramo).
+
+Welcome screen toad by [@krig](https://codeberg.org/krig).
 
 The Gram toad was based on the famous style of drawing toads (or frogs?) by
 [Matsumoto Hōji (松本 奉時)](https://en.wikipedia.org/wiki/Matsumoto_H%C5%8Dji).
