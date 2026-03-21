@@ -12,12 +12,14 @@ The following keymap styles are currently supported:
 - JetBrains
 - Sublime Text
 - TextMate
+- Minimal (for vim/helix)
 - None (disables _all_ key bindings)
 
 This setting can also be changed via the command palette through the `gram: toggle base keymap selector` action.
 
 You can also enable `vim_mode` or `helix_mode`, which add modal bindings.
 For more information, see the documentation for [Vim mode](./vim.md) and [Helix mode](./helix.md).
+You may also want to use the Minimal base keymap if you want a pure vim/helix experience without any key bindings from another application.
 
 ## Keymap Editor
 

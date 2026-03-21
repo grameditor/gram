@@ -230,11 +230,12 @@ fn render_base_keymap_section(tab_index: &mut isize, cx: &mut App) -> impl IntoE
         BaseKeymap::SublimeText => Some(3),
         BaseKeymap::TextMate => Some(4),
         BaseKeymap::Atom => Some(5),
+        BaseKeymap::Minimal => Some(6),
         BaseKeymap::None => None,
     };
 
     return v_flex().gap_2().child(Label::new("Base Keymap")).child(
-        ToggleButtonGroup::two_rows(
+        ToggleButtonGroup::three_rows(
             "base_keymap_selection",
             [
                 ToggleButtonWithIcon::new("Emacs", IconName::EditorEmacs, |_, _, cx| {
@@ -257,6 +258,13 @@ fn render_base_keymap_section(tab_index: &mut isize, cx: &mut App) -> impl IntoE
                 ToggleButtonWithIcon::new("Atom", IconName::EditorAtom, |_, _, cx| {
                     write_keymap_base(BaseKeymap::Atom, cx);
                 }),
+            ],
+            [
+                ToggleButtonWithIcon::new("Minimal (for vim/helix)", IconName::Code, |_, _, cx| {
+                    write_keymap_base(BaseKeymap::Minimal, cx);
+                }),
+                ToggleButtonWithIcon::new("", IconName::Blank, |_, _, _cx| {}),
+                ToggleButtonWithIcon::new("", IconName::Blank, |_, _, _cx| {}),
             ],
         )
         .when_some(base_keymap, |this, base_keymap| {

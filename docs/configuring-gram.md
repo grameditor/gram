@@ -351,6 +351,14 @@ Note that a save will be triggered when an unsaved tab is closed, even if this i
 }
 ```
 
+8. Minimal
+
+```jsonc
+{
+  "base_keymap": "Minimal",
+}
+```
+
 ## Buffer Font Family
 
 - Description: The name of a font to use for rendering text in the editor.
