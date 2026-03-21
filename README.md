@@ -117,6 +117,17 @@ Install it using `paru` or another AUR helper of your choice:
 paru -S gram
 ```
 
+#### Note on Linux and Intel GPUs
+
+There is a known issue with running on some older Intel GPUs. To get Gram to run
+on these cards you can run through software emulation. It will be slow but will
+at least start. To do this, run the following from the terminal after
+installation:
+
+```sh
+LIBGL_ALWAYS_SOFTWARE=1 gram --foreground
+```
+
 ### MacOS
 
 To build on MacOS requires a developer account. You will need to set up signing
