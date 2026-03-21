@@ -92,10 +92,8 @@ See `./script/bundle-linux --help` for more details.
 ```sh
 # Install dependencies
 ./script/linux
-# Build an installable tarball
-./script/bundle-linux --tarball
-# Install to $HOME/.local
-./script/install.sh target/release/gram-linux-*.tar.gz
+# Build and install to $HOME/.local
+./script/install.sh --build
 ```
 
 To build a Flatpak, you'll need flatpak installed.
@@ -103,7 +101,8 @@ To build a Flatpak, you'll need flatpak installed.
 ```sh
 # Install dependencies
 ./script/linux
-# Install flatpak dependencies (requires flatpak)
+# Install flatpak dependencies
+# (requires flatpak and flatpak-builder)
 ./script/flatpak/deps
 # Build and install flatpak
 ./script/flatpak/bundle-flatpak

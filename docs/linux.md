@@ -4,8 +4,7 @@
 
 Gram is open source, and [you can install from source](./development/linux.md).
 
-If there is a tarball available for your architecture at the [Gram Codeberg](https://codeberg.org/GramEditor/gram/releases) repository,
-you can follow these instructions:
+If there is a tarball available for your architecture at the [Gram Codeberg](https://codeberg.org/GramEditor/gram/releases) repository, you can follow these instructions:
 
 
 1. Download the [install.sh](https://codeberg.org/GramEditor/gram/raw/branch/main/script/install.sh) script.
@@ -19,8 +18,22 @@ you can follow these instructions:
    To install system-wide, use the `--prefix PREFIX` argument:
 
    ```sh
-   ./install.sh --prefix /usr/local ./gram-linux-x86_64-1.0.0.tar.gz
+   ./install.sh --prefix /usr/local ./gram-linux-x86_64-1.1.0.tar.gz
    ```
+
+## Flatpak
+
+To build a [Flatpak](https://flatpak.org), you'll need `flatpak` and
+`flatpak-builder` installed.
+
+```sh
+# Install dependencies
+./script/linux
+# Install flatpak dependencies (requires flatpak and flatpak-builder)
+./script/flatpak/deps
+# Build and install flatpak
+./script/flatpak/bundle-flatpak
+```
 
 ## Troubleshooting
 
