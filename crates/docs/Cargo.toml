@@ -21,7 +21,6 @@ component.workspace = true
 ctor.workspace = true
 editor.workspace = true
 gpui.workspace = true
-indoc.workspace = true
 language.workspace = true
 log.workspace = true
 lsp.workspace = true
