@@ -84,13 +84,29 @@ requirements, etc.
 
 ### Linux
 
+The Linux build scripts can produce an installable tarball, a Flatpak, an
+AppImage, a deb for Debian-based distros and an rpm for Fedora/openSUSE/etc.
+
+See `./script/bundle-linux --help` for more details.
+
 ```sh
 # Install dependencies
 ./script/linux
 # Build an installable tarball
-./script/bundle-linux
+./script/bundle-linux --tarball
 # Install to $HOME/.local
 ./script/install.sh target/release/gram-linux-*.tar.gz
+```
+
+To build a Flatpak, you'll need flatpak installed.
+
+```sh
+# Install dependencies
+./script/linux
+# Install flatpak dependencies (requires flatpak)
+./script/flatpak/deps
+# Build and install flatpak
+./script/flatpak/bundle-flatpak
 ```
 
 On Arch Linux and Arch-based distributions, Gram is available in the
