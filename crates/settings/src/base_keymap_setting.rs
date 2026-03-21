@@ -19,6 +19,7 @@ pub enum BaseKeymap {
     TextMate,
     #[default]
     Emacs,
+    Minimal,
     None,
 }
 
@@ -31,6 +32,7 @@ impl From<BaseKeymapContent> for BaseKeymap {
             BaseKeymapContent::Atom => Self::Atom,
             BaseKeymapContent::TextMate => Self::TextMate,
             BaseKeymapContent::Emacs => Self::Emacs,
+            BaseKeymapContent::Minimal => Self::Minimal,
             BaseKeymapContent::None => Self::None,
         }
     }
@@ -44,6 +46,7 @@ impl Into<BaseKeymapContent> for BaseKeymap {
             BaseKeymap::Atom => BaseKeymapContent::Atom,
             BaseKeymap::TextMate => BaseKeymapContent::TextMate,
             BaseKeymap::Emacs => BaseKeymapContent::Emacs,
+            BaseKeymap::Minimal => BaseKeymapContent::Minimal,
             BaseKeymap::None => BaseKeymapContent::None,
         }
     }
@@ -58,6 +61,7 @@ impl Display for BaseKeymap {
             BaseKeymap::Atom => write!(f, "Atom"),
             BaseKeymap::TextMate => write!(f, "TextMate"),
             BaseKeymap::Emacs => write!(f, "Emacs"),
+            BaseKeymap::Minimal => write!(f, "Minimal"),
             BaseKeymap::None => write!(f, "None"),
         }
     }
@@ -65,22 +69,24 @@ impl Display for BaseKeymap {
 
 impl BaseKeymap {
     #[cfg(target_os = "macos")]
-    pub const OPTIONS: [(&'static str, Self); 6] = [
+    pub const OPTIONS: [(&'static str, Self); 7] = [
         ("VS Code", Self::VSCode),
         ("Atom", Self::Atom),
         ("JetBrains", Self::JetBrains),
         ("Sublime Text", Self::SublimeText),
         ("Emacs", Self::Emacs),
         ("TextMate", Self::TextMate),
+        ("Minimal", Self::Minimal),
     ];
 
     #[cfg(not(target_os = "macos"))]
-    pub const OPTIONS: [(&'static str, Self); 5] = [
+    pub const OPTIONS: [(&'static str, Self); 6] = [
         ("VS Code", Self::VSCode),
         ("Atom", Self::Atom),
         ("JetBrains", Self::JetBrains),
         ("Sublime Text", Self::SublimeText),
         ("Emacs", Self::Emacs),
+        ("Minimal", Self::Minimal),
     ];
 
     pub fn asset_path(&self) -> Option<&'static str> {
@@ -89,6 +95,7 @@ impl BaseKeymap {
             BaseKeymap::Atom => Some("keymaps/macos/atom.jsonc"),
             BaseKeymap::Emacs => Some("keymaps/macos/emacs.jsonc"),
             BaseKeymap::JetBrains => Some("keymaps/macos/jetbrains.jsonc"),
+            BaseKeymap::Minimal => Some("keymaps/minimal.jsonc"),
             BaseKeymap::None => None,
             BaseKeymap::SublimeText => Some("keymaps/macos/sublime_text.jsonc"),
             BaseKeymap::TextMate => Some("keymaps/macos/textmate.jsonc"),
@@ -100,6 +107,7 @@ impl BaseKeymap {
             BaseKeymap::Atom => Some("keymaps/linux/atom.jsonc"),
             BaseKeymap::Emacs => Some("keymaps/linux/emacs.jsonc"),
             BaseKeymap::JetBrains => Some("keymaps/linux/jetbrains.jsonc"),
+            BaseKeymap::Minimal => Some("keymaps/minimal.jsonc"),
             BaseKeymap::None => None,
             BaseKeymap::SublimeText => Some("keymaps/linux/sublime_text.jsonc"),
             BaseKeymap::TextMate => None,

@@ -219,6 +219,27 @@ impl<T: ButtonBuilder, const COLS: usize> ToggleButtonGroup<T, COLS, 2> {
     }
 }
 
+impl<T: ButtonBuilder, const COLS: usize> ToggleButtonGroup<T, COLS, 3> {
+    pub fn three_rows(
+        group_name: impl Into<SharedString>,
+        first_row: [T; COLS],
+        second_row: [T; COLS],
+        third_row: [T; COLS],
+    ) -> Self {
+        Self {
+            group_name: group_name.into(),
+            rows: [first_row, second_row, third_row],
+            style: ToggleButtonGroupStyle::Transparent,
+            size: ToggleButtonGroupSize::Default,
+            label_size: LabelSize::Small,
+            group_width: None,
+            auto_width: false,
+            selected_index: 0,
+            tab_index: None,
+        }
+    }
+}
+
 impl<T: ButtonBuilder, const COLS: usize, const ROWS: usize> ToggleButtonGroup<T, COLS, ROWS> {
     pub fn style(mut self, style: ToggleButtonGroupStyle) -> Self {
         self.style = style;

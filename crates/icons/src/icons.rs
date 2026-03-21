@@ -19,6 +19,7 @@ pub enum IconName {
     ArrowUpRight,
     Backspace,
     Binary,
+    Blank,
     Blocks,
     BoltFilled,
     BoltOutlined,
