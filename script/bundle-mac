@@ -289,7 +289,7 @@ cp target/"${target_triple}"/${target_dir}/cli "${app_path}/Contents/MacOS/cli"
 ./script/mac-icon-to-car
 cp -r target/Assets.car "${app_path}/Contents/Resources/Assets.car"
 plist_file="${app_path}/Contents/Info.plist"
-cat "$plist_file" | sed 's|  \<key\>CFBundleIconFile\</key\>|  <key>CFBundleIconName</key>\n  <string>Icon</string>\n  <key>CFBundleIconFile</key>|' >"${plist_file}.tmp"
+cat "$plist_file" | sed 's|  \<key\>CFBundleIconFile\</key\>|  <key>CFBundleIconName</key>\n  <string>AppIcon</string>\n  <key>CFBundleIconFile</key>|' >"${plist_file}.tmp"
 mv "${plist_file}.tmp" "$plist_file"
 
 sign_app_binaries
