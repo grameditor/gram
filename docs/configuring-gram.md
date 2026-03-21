@@ -291,7 +291,7 @@ Note that a save will be triggered when an unsaved tab is closed, even if this i
 
 - Description: Base key bindings scheme. Base keymaps can be overridden with user keymaps.
 - Setting: `base_keymap`
-- Default: `VSCode`
+- Default: `Emacs`
 
 **Options**
 
@@ -340,6 +340,14 @@ Note that a save will be triggered when an unsaved tab is closed, even if this i
 ```jsonc
 {
   "base_keymap": "TextMate",
+}
+```
+
+7. Emacs
+
+```jsonc
+{
+  "base_keymap": "Emacs",
 }
 ```
 
