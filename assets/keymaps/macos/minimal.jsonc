@@ -1,0 +1,36 @@
+[
+  {
+    "bindings": {
+      "escape": "menu::Cancel",
+    }
+  },
+  {
+    "context": "Editor && (showing_completions || showing_code_actions)",
+    "bindings": {
+      "up": "editor::ContextMenuPrevious",
+      "down": "editor::ContextMenuNext",
+      "enter": "editor::ConfirmCompletion",
+      "enter": "editor::ConfirmCodeAction",
+    }
+  },
+  {
+    "context": "Picker || menu",
+    "bindings": {
+      "up": "menu::SelectPrevious",
+      "down": "menu::SelectNext",
+    },
+  },
+  {
+    "context": "mode == single_line",
+    "bindings": {
+      "backspace": "editor::Backspace",
+      "enter": "menu::Confirm",
+    }
+  },
+  {
+    "context": "SettingsWindow",
+    "bindings": {
+      "escape": "workspace::CloseWindow",
+    }
+  }
+]
