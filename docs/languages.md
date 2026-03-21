@@ -45,10 +45,10 @@ Some work out-of-the box and others rely on 3rd party extensions.
 - [Makefile](./languages/makefile.md)
 - [Markdown](./languages/markdown.md) \*
 - [Nim](./languages/nim.md)
-- [Nix](./languages/nix.md)
+- [Nix](./languages/nix.md) \*
 - [OCaml](./languages/ocaml.md)
 - [Odin](./languages/odin.md) \*
-- [OpenTofu](./languages/opentofu.md)
+- [OpenTofu](./languages/opentofu.md) \*
 - [PHP](./languages/php.md)
 - [Prisma](./languages/prisma.md)
 - [Proto](./languages/proto.md)
@@ -73,7 +73,7 @@ Some work out-of-the box and others rely on 3rd party extensions.
 - [TypeScript](./languages/typescript.md) \*
 - [Uiua](./languages/uiua.md)
 - [Vue](./languages/vue.md)
-- [XML](./languages/xml.md)
+- [XML](./languages/xml.md) \*
 - [YAML](./languages/yaml.md) \*
 - [Yara](./languages/yarn.md)
 - [Yarn](./languages/yarn.md)
