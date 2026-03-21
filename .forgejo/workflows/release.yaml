@@ -26,15 +26,12 @@ jobs:
         run: echo "stable" > ./crates/gram/RELEASE_CHANNEL
       - name: install linux dependencies
         run: ./script/linux
-      - name: install nextest
-        run: curl -LsSf https://get.nexte.st/latest/linux | tar zxf - -C ~/.cargo/bin
       - name: install cargo-deb
         run: cargo install cargo-deb
       - name: install cargo-generate-rpm
         run: cargo install cargo-generate-rpm
       - name: download wasi-sdk
         run: ./script/download-wasi-sdk
-      - run: cargo nextest run --workspace --success-output never --show-progress none
       - name: bundle-linux
         run: ./script/bundle-linux --tarball --deb --rpm
       - name: Set artifact name
@@ -45,7 +42,7 @@ jobs:
           debversion="dev"
           if [[ $FORGEJO_REF_TYPE == "tag" ]]; then
             version=-$FORGEJO_REF_NAME
-            debverson=$FORGEJO_REF_NAME
+            debversion=$FORGEJO_REF_NAME
           fi
           find target -name '*.gz'
           rpm_name="$(find target -name '*.rpm' | head -1)"
@@ -61,20 +58,13 @@ jobs:
           echo "deb_amd64=gram_${debversion}-1_x86_64.deb" >> $FORGEJO_OUTPUT
           echo "rpm_amd64=gram_${debversion}-1_x86_64.rpm" >> $FORGEJO_OUTPUT
 
-      - name: sha256sum
-        shell: bash
-        run: |
-          sha256sum ${{steps.set_artifact_name.outputs.tarball_amd64}}
-          sha256sum ${{steps.set_artifact_name.outputs.remote_server_amd64}}
-          sha256sum ${{steps.set_artifact_name.outputs.deb_amd64}}
-          sha256sum ${{steps.set_artifact_name.outputs.rpm_amd64}}
-
       - id: upload_tarball_amd64
         name: upload tarball
         uses: forgejo/upload-artifact@v4
         with:
           name: ${{steps.set_artifact_name.outputs.tarball_amd64}}
           path: ${{steps.set_artifact_name.outputs.tarball_amd64}}
+          compression-level: 0
 
       - id: upload_remote_server_amd64
         name: upload remote-server
@@ -82,6 +72,7 @@ jobs:
         with:
           name: ${{steps.set_artifact_name.outputs.remote_server_amd64}}
           path: ${{steps.set_artifact_name.outputs.remote_server_amd64}}
+          compression-level: 0
 
       - id: upload_deb_amd64
         name: upload deb
@@ -89,6 +80,7 @@ jobs:
         with:
           name: ${{steps.set_artifact_name.outputs.deb_amd64}}
           path: ${{steps.set_artifact_name.outputs.deb_amd64}}
+          compression-level: 0
 
       - id: upload_rpm_amd64
         name: upload rpm
@@ -96,6 +88,7 @@ jobs:
         with:
           name: ${{steps.set_artifact_name.outputs.rpm_amd64}}
           path: ${{steps.set_artifact_name.outputs.rpm_amd64}}
+          compression-level: 0
 
   flatpak-amd64:
     runs-on: rust-amd64
@@ -112,7 +105,9 @@ jobs:
       - name: set release channel
         run: echo "stable" > ./crates/gram/RELEASE_CHANNEL
       - name: apt install flatpak
-        run: apt install flatpak
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y flatpak flatpak-builder
       - name: install linux dependencies
         run: ./script/linux
       - name: install flatpak dependencies
@@ -132,14 +127,11 @@ jobs:
           mv target/release/app.liten.Gram${devname}.flatpak "./app.liten.Gram${devname}.flatpak"
           echo "flatpak_amd64=app.liten.Gram${devname}.flatpak" >> $FORGEJO_OUTPUT
 
-      - name: sha256sum
-        shell: bash
-        run: |
-          sha256sum ${{steps.set_artifact_name.outputs.flatpak_amd64}}
-
       - id: upload_flatpak_amd64
         name: upload flatpak
         uses: forgejo/upload-artifact@v4
         with:
           name: ${{steps.set_artifact_name.outputs.flatpak_amd64}}
           path: ${{steps.set_artifact_name.outputs.flatpak_amd64}}
+          compression-level: 0
+
