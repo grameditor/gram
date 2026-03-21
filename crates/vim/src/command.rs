@@ -1712,6 +1712,7 @@ fn generate_commands(_: &App) -> Vec<VimCommand> {
         VimCommand::new(("dif", "fupdate"), editor::actions::ToggleSelectedDiffHunks)
             .range(act_on_range),
         VimCommand::str(("rev", "ert"), "git::Restore").range(act_on_range),
+        VimCommand::new(("reflow", ""), crate::rewrap::Rewrap).range(select_range),
         VimCommand::new(("d", "elete"), VisualDeleteLine).range(select_range),
         VimCommand::new(("y", "ank"), gpui::NoAction).range(|_, range| {
             Some(
@@ -3507,6 +3508,32 @@ mod test {
                 hornet
                 ida
                 quirrel
+            "},
+            Mode::Normal,
+        );
+    }
+
+    #[gpui::test]
+    async fn test_command_reflow(cx: &mut TestAppContext) {
+        let mut cx = VimTestContext::new(cx, true).await;
+        cx.update_editor(|editor, _window, cx| {
+            editor.set_hard_wrap(Some(10), cx);
+        });
+
+        cx.set_state(
+            indoc! {"
+                ˇaaaaaaaaaa bbbbbbbbbb cccccccccc dddddddddd
+            "},
+            Mode::Normal,
+        );
+        cx.simulate_keystrokes(": reflow");
+        cx.simulate_keystrokes("enter");
+        cx.assert_state(
+            indoc! {"
+                aaaaaaaaaa
+                bbbbbbbbbb
+                cccccccccc
+                ˇdddddddddd
             "},
             Mode::Normal,
         );

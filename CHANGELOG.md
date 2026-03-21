@@ -14,8 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add XML language server lemminx (#121) by @theDoctor
 - Add XML treesitter support (#116) by @theDoctor
 - Add appimage build option to bundle-linux (#114) by @theDoctor
+- Add bash LSP (#132) by @theDoctor
 - Add binary aur install instructions to README (#53) by @bananas
 - Add default empty rustfmt config (#92) by @fzzr
+- Add helix :reflow command to vim/helix modes
 - Add new app icons by @kramo (#49) (#134)
 - Add perl-Time-Piece to linux script (#1) by @LHolten
 - Add remove trailing whitespace action (#81)
@@ -27,7 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved feedback when extension installation fails (#37)
 - Options to adjust client side decoration rounding/shadow (#20)
 - Support /path/to/file.txt(ln, col) style paths in terminal (#75)
-- Add bash LSP (#132) by @theDoctor
 
 ### Fixed
 
