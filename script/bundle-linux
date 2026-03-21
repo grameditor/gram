@@ -145,7 +145,7 @@ fi
 # Generate the licenses first, so they can be baked into the binaries
 script/generate-licenses
 
-if [ -z "$CC" ] && command -v clang &>/dev/null; then
+if command -v clang &>/dev/null; then
   CC=${CC:+$(which clang)}
   export CC
 fi
@@ -221,7 +221,7 @@ if [ "$DO_TARBALL" = "true" ]; then
     mkdir -p "${gram_dir}/share/icons/hicolor/scalable/apps"
     mkdir -p "${gram_dir}/share/icons/hicolor/symbolic/apps"
     cp "crates/gram/resources/app.liten.Gram.svg" "${gram_dir}/share/icons/hicolor/scalable/apps/app.liten.Gram.svg"
-    cp "crates/gram/resources/app.liten.Gram-symbolic.svg" "${gram_dir}/share/icons/hicolor/symbolic/apps/app.liten.Gram.svg"
+    cp "crates/gram/resources/app.liten.Gram-symbolic.svg" "${gram_dir}/share/icons/hicolor/symbolic/apps/app.liten.Gram-symbolic.svg"
 
     mkdir -p "${gram_dir}/share/applications"
     envsubst <"crates/gram/resources/gram.desktop.in" >"${gram_dir}/share/applications/gram${suffix}.desktop"
