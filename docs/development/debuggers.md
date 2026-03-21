@@ -1,6 +1,6 @@
 # Using a debugger
 
-> **DISCLAIMER**: This is not documentation for [configuring Gram's debugger](../debugger.md).
+> **DISCLAIMER**: This is not documentation for [configuring Gram's debugger](gram://docs/debugger).
 > Rather, it is intended to provide information on how to use a debugger while developing Gram itself.
 
 ## Using Gram's built-in debugger
@@ -56,7 +56,7 @@ cargo build --config 'profile.release.debug="full"'
 
 ### Background
 
-When installing rust through rustup, (the recommended way to do so when developing Gram, see the documentation for getting started on your platform [here](../development.md))
+When installing rust through rustup, (the recommended way to do so when developing Gram, see the documentation for getting started on your platform [here](gram://docs/development))
 a few additional scripts are installed and put on your path to assist with debugging binaries compiled with rust.
 
 These are `rust-gdb` and `rust-lldb` respectively.

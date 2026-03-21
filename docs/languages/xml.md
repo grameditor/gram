@@ -6,7 +6,7 @@ XML syntax highlighting is supported natively.
 
 ## Configuration
 
-If you have additional file extensions that are not being automatically recognized as XML just add them to [file_types](../configuring-gram.md#file-types) in your Gram settings:
+If you have additional file extensions that are not being automatically recognized as XML just add them to [file_types](gram://docs/configuring-gram#file-types) in your Gram settings:
 
 ```jsonc
   "file_types": {

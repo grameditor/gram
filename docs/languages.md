@@ -45,6 +45,7 @@ Some work out-of-the box and others rely on 3rd party extensions.
 - [Makefile](./languages/makefile.md)
 - [Markdown](./languages/markdown.md) \*
 - [Nim](./languages/nim.md)
+- [Nix](./languages/nix.md)
 - [OCaml](./languages/ocaml.md)
 - [Odin](./languages/odin.md) \*
 - [OpenTofu](./languages/opentofu.md)

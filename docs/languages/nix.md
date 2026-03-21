@@ -25,3 +25,46 @@ To only enable `nixd`:
     },
   }
 ```
+
+## Configuration
+
+Language server options can be set in the `settings.jsonc` file. See the
+[Configuring Languages](gram://docs/configuring-languages) documentation for more information.
+
+### nixd
+
+For more details, see the [nixd documentation](https://github.com/nix-community/nixd/blob/main/nixd/docs/configuration.md).
+
+```jsonc
+{
+  "lsp": {
+    "nixd": {
+      "settings": {
+        "diagnostic": {
+          "suppress": [ "sema-extra-with" ]
+        }
+      }
+    }
+  }
+}
+```
+
+### nil
+
+For more details, see the [nil
+documentation](https://github.com/oxalica/nil/blob/main/docs/configuration.md).
+
+```jsonc
+{
+  "lsp": {
+    "nil": {
+      "settings": {
+         "diagnostics": {
+          "ignored": [ "unused_binding" ]
+        }
+      }
+    }
+  }
+}
+```
+

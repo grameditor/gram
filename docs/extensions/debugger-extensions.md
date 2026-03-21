@@ -1,6 +1,6 @@
 # Debugger Extensions
 
-[Debug Adapter Protocol](https://microsoft.github.io/debug-adapter-protocol) Servers can be exposed as extensions for use in the [debugger](../debugger.md).
+[Debug Adapter Protocol](https://microsoft.github.io/debug-adapter-protocol) Servers can be exposed as extensions for use in the [debugger](gram://docs/debugger).
 
 ## Defining Debugger Extensions
 
@@ -91,7 +91,7 @@ impl gram::Extension for MyExtension {
 ```
 
 This function should return `Some` debug scenario when that scenario defines a debugging counterpart to a given user task.
-Note that a `DebugScenario` can include a [build task](../debugger.md#build-tasks). If there is one, we will execute `run_dap_locator` after a build task is finished successfully.
+Note that a `DebugScenario` can include a [build task](gram://docs/debugger#build-tasks). If there is one, we will execute `run_dap_locator` after a build task is finished successfully.
 
 ```rust
 impl gram::Extension for MyExtension {

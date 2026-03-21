@@ -51,10 +51,10 @@ To use the Deno Language Server with TypeScript and TSX files, you will likely w
 }
 ```
 
-See [Configuring supported languages](../configuring-languages.md) in the Gram documentation for more information.
+See [Configuring supported languages](gram://docs/configuring-languages) in the Gram documentation for more information.
 
 <!--
-TBD: Deno TypeScript REPL instructions [docs/repl#typescript-deno](../repl.md#typescript-deno)
+TBD: Deno TypeScript REPL instructions [docs/repl#typescript-deno](gram://docs/repl#typescript-deno)
 -->
 
 ## Configuration completion

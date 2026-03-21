@@ -12,7 +12,7 @@ JavaScript support is available natively in Gram.
 Formatting on save is enabled by default for JavaScript, using TypeScript's built-in code formatting.
 But many JavaScript projects use other command-line code-formatting tools, such as [Prettier](https://prettier.io/).
 You can use one of these tools by specifying an _external_ code formatter for JavaScript in your settings.
-See [the configuration docs](../configuring-gram.md) for more information.
+See [the configuration docs](gram://docs/configuring-gram) for more information.
 
 For example, if you have Prettier installed and on your `PATH`, you can use it to format JavaScript files by adding the following to your `settings.jsonc`:
 
