@@ -7,10 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-03-21
+
 ### Added
 
 - Add AUR installation instructions to README (#38) by @nerdyslacker
 - Add Gleam theme by Danielle Maywood
+- Add Minimal base keymap for use with vim/helix keys (#144) by @tjk
 - Add XML language server lemminx (#121) by @theDoctor
 - Add XML treesitter support (#116) by @theDoctor
 - Add appimage build option to bundle-linux (#114) by @theDoctor

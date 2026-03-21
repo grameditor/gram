@@ -4443,7 +4443,7 @@ dependencies = [
 
 [[package]]
 name = "gram"
-version = "1.0.0"
+version = "1.1.0"
 dependencies = [
  "activity_indicator",
  "anyhow",
