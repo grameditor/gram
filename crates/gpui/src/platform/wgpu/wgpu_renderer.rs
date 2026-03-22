@@ -169,7 +169,7 @@ impl WgpuRenderer {
                 .copied()
                 .unwrap_or(surface_caps.alpha_modes[0])
         } else {
-            wgpu::CompositeAlphaMode::Opaque
+            wgpu::CompositeAlphaMode::Auto
         };
 
         let surface_config = wgpu::SurfaceConfiguration {
@@ -763,7 +763,7 @@ impl WgpuRenderer {
         let new_alpha_mode = if transparent {
             wgpu::CompositeAlphaMode::PreMultiplied
         } else {
-            wgpu::CompositeAlphaMode::Opaque
+            wgpu::CompositeAlphaMode::Auto
         };
 
         if new_alpha_mode != self.surface_config.alpha_mode {
