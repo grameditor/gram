@@ -15,4 +15,4 @@ Alongside the minidump file in your logs dir, there should be a `<uuid>.json` wh
 
 If you can reproduce the crash consistently, a debugger can be used to inspect the state of the program at the time of the crash, often providing useful insights into the cause of the crash.
 
-You can read more about setting up and using a debugger with Gram, and specifically for debugging crashes [here](gram://docs/development/debuggers.md#debugging-panics-and-crashes).
+You can read more about setting up and using a debugger with Gram, and specifically for debugging crashes [here](./debuggers.md#debugging-panics-and-crashes).

@@ -12,8 +12,6 @@ and more, in a consistent manner across different programming languages and runt
 
 To debug code written in a specific language, Gram needs to find a debug adapter for that language. Some debug adapters are provided by Gram without additional setup, and some are provided by [language extensions](./extensions/debugger-extensions.md). The following languages currently have debug adapters available:
 
-<!-- keep this sorted -->
-
 - [C](./languages/c.md#debugging) (built-in)
 - [C++](./languages/cpp.md#debugging) (built-in)
 - [Go](./languages/go.md#debugging) (built-in)
@@ -26,7 +24,7 @@ To debug code written in a specific language, Gram needs to find a debug adapter
 - [Swift](./languages/swift.md#debugging) (provided by extension)
 - [TypeScript](./languages/typescript.md#debugging) (built-in)
 
-> If your language isn't listed, you can contribute by adding a debug adapter for it. Check out our [debugger extensions](./extensions/debugger-extensions.md) documentation for more information.
+> If your language isn't listed, you can contribute by [adding a debug adapter for it](./extensions/debugger-extensions.md).
 
 Follow those links for language- and adapter-specific information and examples, or read on for more about Gram's general debugging features that apply to all adapters.
 
@@ -364,7 +362,8 @@ The Debugger supports the following theme options:
 
 ## Troubleshooting
 
-If you're running into problems with the debugger, please [open a GitHub issue](https://github.com/zed-industries/zed/issues/new?template=04_bug_debugger.yml), providing as much context as possible. There are also some features you can use to gather more information about the problem:
+If you're running into problems with the debugger, there are some features you
+can use to gather more information about the problem:
 
 - When you have a session running in the debug panel, you can run the {#action dev::CopyDebugAdapterArguments} action to copy a JSON blob to the clipboard that describes how Gram initialized the session. This is especially useful when the session failed to start, and is great context to add if you open a GitHub issue.
 - You can also use the {#action dev::OpenDebugAdapterLogs} action to see a trace of all of Gram's communications with debug adapters during the most recent debug sessions.

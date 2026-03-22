@@ -47,4 +47,4 @@ To control automatic formatting you can use `format_on_save` in your Gram settin
 
 ### See also:
 
-- [Gram Docs: Language Support: Shell Scripts](gram://docs/languages/sh)
+- [Gram Docs: Language Support: Shell Scripts](./sh.md)

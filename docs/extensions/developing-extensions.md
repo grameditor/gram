@@ -4,10 +4,10 @@
 
 Extensions are able to provide the following features to Gram:
 
-- [Languages](gram://docs/extensions/languages)
-- [Debuggers](gram://docs/extensions/debugger-extensions)
-- [Themes](gram://docs/extensions/themes)
-- [Icon Themes](gram://docs/extensions/icon-themes)
+- [Languages](../extensions/languages.md)
+- [Debuggers](../extensions/debugger-extensions.md)
+- [Themes](../extensions/themes.md)
+- [Icon Themes](../extensions/icon-themes.md)
 
 ## Developing an Extension
 

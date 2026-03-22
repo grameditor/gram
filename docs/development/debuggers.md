@@ -1,6 +1,6 @@
 # Using a debugger
 
-> **DISCLAIMER**: This is not documentation for [configuring Gram's debugger](gram://docs/debugger).
+> **DISCLAIMER**: This is not documentation for [configuring Gram's debugger](../debugger.md).
 > Rather, it is intended to provide information on how to use a debugger while developing Gram itself.
 
 ## Using Gram's built-in debugger
@@ -58,10 +58,7 @@ cargo build --config 'profile.release.debug="full"'
 
 The recommended way to get rust for Gram development is via
 [rustup](https://rustup.rs). For more details, see the documentation for getting
-[started on your platform](gram://docs/development).
-
-When installing rust through rustup, the recommended way to do so when developing Gram, see
-the documentation for getting [started on your platform](gram://docs/development).
+[started on your platform](../development.md).
 
 When rust is installed via rustup, a few additional scripts are installed and put on your path to assist with debugging binaries compiled with rust: `rust-gdb` and `rust-lldb`. Learn more about these scripts and why they are useful on [a bit of respite](https://michaelwoerister.github.io/2015/03/27/rust-xxdb.html).
 
@@ -133,4 +130,4 @@ This can be accomplished using the `backtrace` command in combination with the `
 Once the program is stopped, you will not be able to continue execution as you can before an exception is hit. However, you can jump around to different stack frames, and inspect the values of variables and expressions
 within each frame, which can be very useful in identifying the root cause of the crash.
 
-Read more on [Debugging Crashes](gram://docs/development/debugging-crashes).
+Read more on [Debugging Crashes](./debugging-crashes.md).

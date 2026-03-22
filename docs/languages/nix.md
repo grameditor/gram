@@ -29,7 +29,7 @@ To only enable `nixd`:
 ## Configuration
 
 Language server options can be set in the `settings.jsonc` file. See the
-[Configuring Languages](gram://docs/configuring-languages) documentation for more information.
+[Configuring Languages](../configuring-languages.md) documentation for more information.
 
 ### nixd
 

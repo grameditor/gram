@@ -205,5 +205,5 @@ Given an externally-ran web server (e.g., with `npx serve` or `npx live-server`)
 
 ## See also
 
-- [Gram Yarn documentation](gram://docs/languages/yarn) for a walkthrough of configuring your project to use Yarn.
-- [Gram Deno documentation](gram://docs/languages/deno)
+- [Gram Yarn documentation](./yarn.md) for a walkthrough of configuring your project to use Yarn.
+- [Gram Deno documentation](./deno.md)

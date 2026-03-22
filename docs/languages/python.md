@@ -63,7 +63,7 @@ Gram will recognize `.py` files automatically using its native tree-sitter-pytho
 
 ### Step 2: Use the Integrated Terminal (Optional)
 
-Gram includes an integrated terminal, accessible from the bottom panel. If Gram detects that your project is using a [virtual environment](#virtual-environments), it will be activated automatically in newly-created terminals. You can configure this behavior with the [`detect_venv`](gram://docs/configuring-gram#terminal-detect_venv) setting.
+Gram includes an integrated terminal, accessible from the bottom panel. If Gram detects that your project is using a [virtual environment](#virtual-environments), it will be activated automatically in newly-created terminals. You can configure this behavior with the [`detect_venv`](../configuring-gram.md#terminal-detect_venv) setting.
 
 ## Configure Python Language Servers in Gram
 
@@ -93,7 +93,7 @@ These are disabled by default, but can be enabled in your settings. For example:
 }
 ```
 
-See: [Working with Language Servers](gram://docs/configuring-languages#working-with-language-servers) for more information about how to enable and disable language servers.
+See: [Working with Language Servers](../configuring-languages.md#working-with-language-servers) for more information about how to enable and disable language servers.
 
 ### Basedpyright
 
@@ -161,7 +161,7 @@ See [Python Language Server Configuration](https://github.com/python-lsp/python-
 
 ## Virtual Environments
 
-[Virtual environments](https://docs.python.org/3/library/venv.html) are a useful tool for fixing a Python version and set of dependencies for a specific project, in a way that's isolated from other projects on the same machine. Gram has built-in support for discovering, configuring, and activating virtual environments, based on the language-agnostic concept of a [toolchain](gram://docs/toolchains).
+[Virtual environments](https://docs.python.org/3/library/venv.html) are a useful tool for fixing a Python version and set of dependencies for a specific project, in a way that's isolated from other projects on the same machine. Gram has built-in support for discovering, configuring, and activating virtual environments, based on the language-agnostic concept of a [toolchain](../toolchains.md).
 
 Note that if you have a global Python installation, it is also counted as a toolchain for Gram's purposes.
 
@@ -186,7 +186,7 @@ Gram uses the selected Python toolchain for your project in the following ways:
 
 ### Selecting a Toolchain
 
-For most projects, Gram will automatically select the right Python toolchain. In complex projects with multiple virtual environments, it might be necessary to override this selection. You can use the [toolchain selector](gram://docs/toolchains.md#selecting-toolchains) to pick a toolchain from the list discovered by Gram, or [specify the path to a toolchain manually](gram://docs/toolchains#adding-toolchains-manually) if it's not on the list.
+For most projects, Gram will automatically select the right Python toolchain. In complex projects with multiple virtual environments, it might be necessary to override this selection. You can use the [toolchain selector](../toolchains.md#selecting-toolchains) to pick a toolchain from the list discovered by Gram, or [specify the path to a toolchain manually](../toolchains.md#adding-toolchains-manually) if it's not on the list.
 
 ## Code Formatting & Linting
 

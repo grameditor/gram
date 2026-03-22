@@ -184,7 +184,7 @@ Which would mean that every time Gram saves, a `cargo check --workspace --all-ta
 
 While that works fine on small projects, it does not scale well.
 
-The alternatives would be to use [tasks](gram://docs/tasks), as Gram already provides a `cargo check --workspace --all-targets` task and the ability to cmd/ctrl-click on the terminal output to navigate to the error, and limit or turn off the check on save feature entirely.
+The alternatives would be to use [tasks](../tasks.md), as Gram already provides a `cargo check --workspace --all-targets` task and the ability to cmd/ctrl-click on the terminal output to navigate to the error, and limit or turn off the check on save feature entirely.
 
 Check on save feature is responsible for returning part of the diagnostics based on cargo check output, so turning it off will limit rust-analyzer with its own [diagnostics](https://rust-analyzer.github.io/book/diagnostics.html).
 

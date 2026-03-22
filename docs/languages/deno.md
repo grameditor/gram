@@ -51,15 +51,11 @@ To use the Deno Language Server with TypeScript and TSX files, you will likely w
 }
 ```
 
-See [Configuring supported languages](gram://docs/configuring-languages) in the Gram documentation for more information.
-
-<!--
-TBD: Deno TypeScript REPL instructions [docs/repl#typescript-deno](gram://docs/repl#typescript-deno)
--->
+See [Configuring supported languages](../configuring-languages.md) in the Gram documentation for more information.
 
 ## Configuration completion
 
-To get completions for `deno.json` or `package.json` you can add the following to your `settings.jsonc`: (More info here gram://docs/languages/json)
+To get completions for `deno.json` or `package.json` you can add the following to your `settings.jsonc`: (More info here ./json.md)
 
 ```jsonc
 "lsp": {
@@ -123,5 +119,5 @@ To run deno tasks like tests from the ui, add this to `.gram/tasks.jsonc`
 
 ## See also:
 
-- [TypeScript](gram://docs/languages/typescript)
-- [JavaScript](gram://docs/languages/javascript)
+- [TypeScript](./typescript.md)
+- [JavaScript](./javascript.md)

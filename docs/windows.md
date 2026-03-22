@@ -2,7 +2,7 @@
 
 ## Installing Gram
 
-Currently, Gram can only be installed on Windows by building [from source](gram://docs/development/windows).
+Currently, Gram can only be installed on Windows by building [from source](./development/windows.md).
 
 ## Uninstall
 

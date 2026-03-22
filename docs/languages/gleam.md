@@ -15,5 +15,5 @@ The Gleam language server is built into the gleam compiler and has a lot of help
 
 See also:
 
-- [Elixir](gram://docs/languages/elixir)
-- [Erlang](gram://docs/languages/erlang)
+- [Elixir](./elixir.md)
+- [Erlang](./erlang.md)

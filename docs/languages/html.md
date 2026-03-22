@@ -75,6 +75,6 @@ You can customize various [formatting options](https://code.visualstudio.com/doc
 
 ## See also
 
-- [CSS](gram://docs/languages/css)
-- [JavaScript](gram://docs/languages/javascript)
-- [TypeScript](gram://docs/languages/typescript)
+- [CSS](./css.md)
+- [JavaScript](./javascript.md)
+- [TypeScript](./typescript.md)

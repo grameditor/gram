@@ -86,7 +86,7 @@ Then in your `.luarc.json`:
 
 ### Inlay Hints
 
-To enable [Inlay Hints](gram://docs/configuring-languages#inlay-hints) for LuaLS in Gram
+To enable [Inlay Hints](../configuring-languages.md#inlay-hints) for LuaLS in Gram
 
 1. Add the following to your Gram settings.jsonc:
 

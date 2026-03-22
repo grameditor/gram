@@ -1,5 +1,5 @@
 use std::cmp::min;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::{borrow::Cow, sync::Arc, time::Duration};
 
 use anyhow::Result;
@@ -47,6 +47,7 @@ impl EventEmitter<EditorEvent> for DocumentationView {}
 
 impl Render for DocumentationView {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        let current = self.current.to_string();
         let settings = ThemeSettings::get_global(cx);
         let buffer_size = settings.buffer_font_size(cx);
         let line_height = (2 * buffer_size).round();
@@ -106,14 +107,16 @@ impl Render for DocumentationView {
                 ),
             )
             .child(div().flex_grow().map(|this| {
+                let current = current.clone();
                 this.child(
                     list(
                         self.list_state.clone(),
-                        cx.processor(|this, ix, window, cx| {
+                        cx.processor(move |this, ix, window, cx| {
                             let Some(contents) = &this.contents else {
                                 return div().into_any();
                             };
 
+                            let current = current.clone();
                             let mut render_cx =
                                 RenderContext::new(Some(this.workspace.clone()), window, cx)
                                     .with_link_clicked_callback(move |link: Link, window, cx| {
@@ -121,13 +124,34 @@ impl Render for DocumentationView {
                                             Link::Web { url } => {
                                                 open_doc_url(url.into(), window, cx)
                                             }
-                                            Link::Path { path, .. } => open_doc_url(
-                                                SharedString::from(
-                                                    path.to_str().unwrap().to_string(),
-                                                ),
-                                                window,
-                                                cx,
-                                            ),
+                                            Link::Path { path, .. } => {
+                                                let from = if let Some(base) =
+                                                    Path::new(&current).parent()
+                                                {
+                                                    let path = path.to_str().unwrap().to_string();
+                                                    if path.starts_with("../") {
+                                                        Path::new(".").join(
+                                                            base.parent().unwrap().join(
+                                                                path.strip_prefix("../").unwrap(),
+                                                            ),
+                                                        )
+                                                    } else if path.starts_with("./") {
+                                                        base.join(path.strip_prefix("./").unwrap())
+                                                    } else {
+                                                        base.join(path.as_str())
+                                                    }
+                                                } else {
+                                                    path
+                                                };
+
+                                                open_doc_url(
+                                                    SharedString::from(
+                                                        from.to_str().unwrap().to_string(),
+                                                    ),
+                                                    window,
+                                                    cx,
+                                                )
+                                            }
                                         }
                                     });
 
@@ -187,26 +211,8 @@ pub fn open_search(window: &mut Window, cx: &mut App) {
 }
 
 pub fn open_doc_url(url: SharedString, window: &mut Window, cx: &mut App) {
-    let url = url.to_string();
-    let url = url
-        .strip_prefix("./")
-        .map(|url| "gram://docs/".to_owned() + url)
-        .unwrap_or(url);
-    let url = if url.starts_with("#") {
-        // TODO: Anchor links are not supported yet
-        return;
-    } else if !url.starts_with("http") && !url.starts_with("gram://") {
-        "gram://docs/".to_owned() + &url
-    } else {
-        url
-    };
-    let url = if url.starts_with("gram://docs/") && !url.ends_with(".md") {
-        url + ".md"
-    } else {
-        url
-    };
     if url.starts_with("gram://docs/") {
-        window.dispatch_action(Box::new(OpenDocsAt { path: url }), cx);
+        window.dispatch_action(Box::new(OpenDocsAt { path: url.into() }), cx);
     } else if url.starts_with("gram://kb/") {
         let action = url.strip_prefix("gram://kb/").unwrap().to_string();
         window.dispatch_action(Box::new(ChangeKeybinding { action }), cx);
@@ -214,9 +220,25 @@ pub fn open_doc_url(url: SharedString, window: &mut Window, cx: &mut App) {
         let action = url.strip_prefix("gram://action/").unwrap().to_string();
         window.dispatch_action(Box::new(ChangeKeybinding { action }), cx);
     } else if url.starts_with("gram://") {
-        window.dispatch_action(Box::new(OpenGramUrl { url }), cx);
-    } else {
+        window.dispatch_action(Box::new(OpenGramUrl { url: url.into() }), cx);
+    } else if url.starts_with("http://") || url.starts_with("https://") {
         cx.open_url(&url);
+    } else {
+        let url = url.strip_prefix("./").unwrap_or(&url);
+        // TODO: Anchor links are not supported yet
+        if url.starts_with("#") {
+            return;
+        }
+        let url = url.split_once("#").map(|s| s.0).unwrap_or(&url);
+        let url = format!("gram://docs/{url}");
+        let url = if url.contains(".md#") {
+            url.replace(".md#", "#")
+        } else if !url.ends_with(".md") {
+            url + ".md"
+        } else {
+            url
+        };
+        window.dispatch_action(Box::new(OpenDocsAt { path: url }), cx);
     }
 }
 

@@ -11,7 +11,7 @@ See [Configuring Gram](./configuring-gram.md) for additional information and oth
 
 ## Themes
 
-[Themes](gram://docs/themes) and [Icon themes](gram://docs/icon-themes) can be installed as extensions. Most Zed extension themes and icon themes should be compatible.
+[Themes](./themes.md) and [Icon themes](./icon-themes.md) can be installed as extensions. Most Zed extension themes and icon themes should be compatible.
 
 Command: {#action gram::Extensions}.
 
