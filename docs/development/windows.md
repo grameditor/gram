@@ -110,7 +110,8 @@ cargo test --workspace
 
 ## Installing from msys2
 
-Gram does not support unofficial MSYS2 Gram packages built for Mingw-w64. Please report any issues you may have with [mingw-w64-zed](https://packages.msys2.org/base/mingw-w64-zed) to [msys2/MINGW-packages/issues](https://github.com/msys2/MINGW-packages/issues?q=is%3Aissue+is%3Aopen+zed).
+Gram does not support unofficial MSYS2 Gram packages built for Mingw-w64, and
+instead uses [mingw-w64-zed](https://packages.msys2.org/base/mingw-w64-zed).
 
 Please refer to [MSYS2 documentation](https://www.msys2.org/docs/ides-editors/#zed) first.
 

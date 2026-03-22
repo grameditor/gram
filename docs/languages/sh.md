@@ -58,5 +58,5 @@ shfmt --version
 
 ## See also:
 
-- [Gram Docs: Language Support: Bash](./bash.md)
-- [Gram Docs: Language Support: Fish](./fish.md)
+- [Language Support for Bash](gram://docs/languages/bash)
+- [Language Support for Fish](gram://docs/languages/fish)

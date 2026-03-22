@@ -108,4 +108,5 @@ Note however that you do _not_ need to go through a 2-phase resolution; if you c
 
 ## Testing
 
-To test your new Debug Adapter Protocol server extension, you can [install it](./developing-extensions.md#developing-an-extension-locally).
+To test your new Debug Adapter Protocol server extension, you can install it.
+Read more in [Developing Extensions](gram://docs/extensions/developing-extensions).

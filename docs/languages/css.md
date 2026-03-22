@@ -9,12 +9,12 @@ Gram has built-in support for CSS.
 
 ## Tailwind CSS
 
-Gram also supports [Tailwind CSS](./tailwindcss.md) out-of-the-box for languages and frameworks like JavaScript, Astro, Svelte, and more.
+Gram also supports [Tailwind CSS](gram://docs/languages/tailwindcss) out-of-the-box for languages and frameworks like JavaScript, Astro, Svelte, and more.
 
 <!-- TBD: Document CS -->
 
 ## Recommended Reading
 
-- [HTML](./html.md)
-- [TypeScript](./typescript.md)
-- [JavaScript](./javascript.md)
+- [HTML](gram://docs/languages/html)
+- [TypeScript](gram://docs/languages/typescript)
+- [JavaScript](gram://docs/languages/javascript)

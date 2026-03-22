@@ -56,35 +56,52 @@ cargo build --config 'profile.release.debug="full"'
 
 ### Background
 
-When installing rust through rustup, (the recommended way to do so when developing Gram, see the documentation for getting started on your platform [here](gram://docs/development))
-a few additional scripts are installed and put on your path to assist with debugging binaries compiled with rust.
+The recommended way to get rust for Gram development is via
+[rustup](https://rustup.rs). For more details, see the documentation for getting
+[started on your platform](gram://docs/development).
 
-These are `rust-gdb` and `rust-lldb` respectively.
+When installing rust through rustup, the recommended way to do so when developing Gram, see
+the documentation for getting [started on your platform](gram://docs/development).
 
-You can read more information about these scripts and why they are useful [here](https://michaelwoerister.github.io/2015/03/27/rust-xxdb.html) if you are interested.
+When rust is installed via rustup, a few additional scripts are installed and put on your path to assist with debugging binaries compiled with rust: `rust-gdb` and `rust-lldb`. Learn more about these scripts and why they are useful on [a bit of respite](https://michaelwoerister.github.io/2015/03/27/rust-xxdb.html).
 
-However, the summary is that they are simple shell scripts that wrap the standard `gdb` and `lldb` commands, injecting the relevant commands and flags to enable additional
+In summary, they are simple shell scripts that wrap the standard `gdb` and
+`lldb` commands, injecting the relevant commands and flags to enable additional
 rust-specific features such as pretty-printers and type information.
 
-Therefore, in order to use `rust-gdb` or `rust-lldb`, you must have `gdb` or `lldb` installed on your system. If you don't have them installed, you will need to install them in a manner appropriate for your platform.
+In order to use `rust-gdb` or `rust-lldb`, you must have `gdb` or `lldb`
+installed on your system. If you don't have them installed, you will need to
+install them in a manner appropriate for your platform.
 
-According to the [previously linked article](https://michaelwoerister.github.io/2015/03/27/rust-xxdb.html), "The minimum supported debugger versions are GDB 7.7 and LLDB 310. However, the general rule is: the newer the better." Therefore, it is recommended to install the latest version of `gdb` or `lldb` if possible.
+Quoting the article above,
 
-> **Note**: `rust-gdb` is not installed by default on Windows, as `gdb` support for windows is not very stable. It is recommended to use `lldb` with `rust-lldb` instead on Windows.
+> "The minimum supported debugger versions are GDB 7.7 and LLDB 310. However,
+> the general rule is: the newer the better."
 
-If you are unfamiliar with `gdb` or `lldb`, you can learn more about them [here](https://www.gnu.org/software/gdb/) and [here](https://lldb.llvm.org/) respectively.
+It is recommended to install the latest version of `gdb` or `lldb` if possible.
 
-### Usage with Gram
+> **Note**: On Windows, `rust-gdb` is not installed by default as `gdb` support
+> for Windows is not very stable. Use `lldb` with `rust-lldb` instead.
 
-After following the steps above for including full debug info when compiling Gram,
-You can either run `rust-gdb` or `rust-lldb` on the compiled Gram binary after building it with `cargo build`, by running one of the following commands:
+- [gdb](https://www.gnu.org/software/gdb/)
+- [lldb](https://lldb.llvm.org/)
+
+### Usage
+
+Follow the steps above to include full debug info when compiling Gram. Then, run
+`rust-gdb` or `rust-lldb` on the compiled Gram binary after building it with
+`cargo build`:
 
 ```
+# for gdb:
 rust-gdb target/debug/gram
+
+# for lldb:
 rust-lldb target/debug/gram
 ```
 
-Alternatively, you can attach to a running instance of Gram (such as an instance of Gram started using `cargo run`) by running one of the following commands:
+Alternatively, attach to a running instance of Gram (such as an instance
+of Gram started using `cargo run`):
 
 ```
 rust-gdb -p <pid>
@@ -93,9 +110,15 @@ rust-lldb -p <pid>
 
 Where `<pid>` is the process ID of the Gram instance you want to attach to.
 
-To get the process ID of a running Gram instance, you can use your systems process management tools such as `Task Manager` on windows or `Activity Monitor` on macOS.
+To get the process ID of a running Gram instance, you can use your systems process management tools such as `Task Manager` on windows or `Activity Monitor` on macOS, or from a terminal:
 
-Alternatively, you can run the `ps aux | grep gram` command on macOS and Linux or `Get-Process | Select-Object Id, ProcessName` in an instance of PowerShell on Windows.
+```
+# Mac or Linux
+ps aux | grep gram
+
+# Windows (PowerShell)
+Get-Process | Select-Object Id, ProcessName
+```
 
 #### Debugging Panics and Crashes
 
@@ -110,4 +133,4 @@ This can be accomplished using the `backtrace` command in combination with the `
 Once the program is stopped, you will not be able to continue execution as you can before an exception is hit. However, you can jump around to different stack frames, and inspect the values of variables and expressions
 within each frame, which can be very useful in identifying the root cause of the crash.
 
-You can find additional information on debugging Gram crashes [here](./debugging-crashes.md).
+Read more on [Debugging Crashes](gram://docs/development/debugging-crashes).

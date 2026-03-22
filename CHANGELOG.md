@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Use new icon format on Mac OS Tahoe (#146) by @kramo
+
 ## [1.1.0] - 2026-03-21
 
 ### Added

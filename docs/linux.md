@@ -55,17 +55,17 @@ This should output a line describing your current graphics setup and show a rota
 
 You can find out which graphics card Gram is using by looking in the Gram log (`~/.local/share/gram/logs/Gram.log`) for `Using GPU: ...`.
 
-If you see errors like `ERROR_INITIALIZATION_FAILED` or `GPU Crashed` or `ERROR_SURFACE_LOST_KHR` then you may be able to work around this by installing different drivers for your GPU, or by selecting a different GPU to run on. (See [#14225](https://github.com/gram-industries/gram/issues/14225))
+If you see errors like `ERROR_INITIALIZATION_FAILED` or `GPU Crashed` or `ERROR_SURFACE_LOST_KHR` then you may be able to work around this by installing different drivers for your GPU, or by selecting a different GPU to run on. (See [#14225](https://github.com/zed-industries/zed/issues/14225))
 
 On some systems the file `/etc/prime-discrete` can be used to enforce the use of a discrete GPU using [PRIME](https://wiki.archlinux.org/title/PRIME). Depending on the details of your setup, you may need to change the contents of this file to "on" (to force discrete graphics) or "off" (to force integrated graphics).
 
 On others, you may be able to the environment variable `DRI_PRIME=1` when running Gram to force the use of the discrete GPU.
 
-If you're using an AMD GPU and Gram crashes when selecting long lines, try setting the `GRAM_PATH_SAMPLE_COUNT=0` environment variable. (See [#26143](https://github.com/gram-industries/gram/issues/26143))
+If you're using an AMD GPU and Gram crashes when selecting long lines, try setting the `GRAM_PATH_SAMPLE_COUNT=0` environment variable. (See [#26143](https://github.com/zed-industries/zed/issues/26143))
 
-If you're using an AMD GPU, you might get a 'Broken Pipe' error. Try using the RADV or Mesa drivers. (See [#13880](https://github.com/gram-industries/gram/issues/13880))
+If you're using an AMD GPU, you might get a 'Broken Pipe' error. Try using the RADV or Mesa drivers. (See [#13880](https://github.com/zed-industries/zed/issues/13880))
 
-If you are using `amdvlk`, the default open-source AMD graphics driver, you may find that Gram consistently fails to launch. This is a known issue for some users, for example on Omarchy (see issue [#28851](https://github.com/gram-industries/gram/issues/28851)). To fix this, you will need to use a different driver. We recommend removing the `amdvlk` and `lib32-amdvlk` packages and installing `vulkan-radeon` instead (see issue [#14141](https://github.com/gram-industries/gram/issues/14141)).
+If you are using `amdvlk`, the default open-source AMD graphics driver, you may find that Gram consistently fails to launch. This is a known issue for some users, for example on Omarchy (see issue [#28851](https://github.com/zed-industries/zed/issues/28851)). To fix this, you will need to use a different driver. We recommend removing the `amdvlk` and `lib32-amdvlk` packages and installing `vulkan-radeon` instead (see issue [#14141](https://github.com/zed-industries/zed/issues/14141)).
 
 For more information, the [Arch guide to Vulkan](https://wiki.archlinux.org/title/Vulkan) has some good steps that translate well to most distributions.
 

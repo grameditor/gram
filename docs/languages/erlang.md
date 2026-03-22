@@ -27,5 +27,5 @@ To switch to `erlang-language-platform`, add the following to your `settings.jso
 
 ## See also:
 
-- [Elixir](./elixir.md)
-- [Gleam](./gleam.md)
+- [Elixir](gram://docs/languages/elixir)
+- [Gleam](gram://docs/languages/gleam)

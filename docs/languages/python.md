@@ -186,7 +186,7 @@ Gram uses the selected Python toolchain for your project in the following ways:
 
 ### Selecting a Toolchain
 
-For most projects, Gram will automatically select the right Python toolchain. In complex projects with multiple virtual environments, it might be necessary to override this selection. You can use the [toolchain selector](gram://docs/toolchains.md#selecting-toolchains) to pick a toolchain from the list discovered by Gram, or [specify the path to a toolchain manually](../toolchains#adding-toolchains-manually) if it's not on the list.
+For most projects, Gram will automatically select the right Python toolchain. In complex projects with multiple virtual environments, it might be necessary to override this selection. You can use the [toolchain selector](gram://docs/toolchains.md#selecting-toolchains) to pick a toolchain from the list discovered by Gram, or [specify the path to a toolchain manually](gram://docs/toolchains#adding-toolchains-manually) if it's not on the list.
 
 ## Code Formatting & Linting
 

@@ -25,17 +25,17 @@ To configure the Tailwind CSS language server, refer [to the extension settings]
 
 Languages which can be used with Tailwind CSS in Gram:
 
-- [Astro](./astro.md)
-- [CSS](./css.md)
-- [ERB](./ruby.md)
-- [Gleam](./gleam.md)
-- [HEEx](./elixir.md#heex)
-- [HTML](./html.md)
-- [TypeScript](./typescript.md)
-- [JavaScript](./javascript.md)
-- [PHP](./php.md)
-- [Svelte](./svelte.md)
-- [Vue](./vue.md)
+- [Astro](gram://docs/languages/astro)
+- [CSS](gram://docs/languages/css)
+- [ERB](gram://docs/languages/ruby)
+- [Gleam](gram://docs/languages/gleam)
+- [HEEx](gram://docs/languages/elixir#heex)
+- [HTML](gram://docs/languages/html)
+- [TypeScript](gram://docs/languages/typescript)
+- [JavaScript](gram://docs/languages/javascript)
+- [PHP](gram://docs/languages/php)
+- [Svelte](gram://docs/languages/svelte)
+- [Vue](gram://docs/languages/vue)
 
 ### Prettier Plugin
 
