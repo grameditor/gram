@@ -3944,7 +3944,11 @@ impl Render for Pane {
                                     },
                                 ));
                             if has_worktrees {
-                                placeholder
+                                placeholder.child(
+                                    Label::new("Select a file to start editing.")
+                                        .color(Color::Muted)
+                                        .italic(),
+                                )
                             } else {
                                 if self.welcome_page.is_none() {
                                     let workspace = self.workspace.clone();
