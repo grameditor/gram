@@ -123,5 +123,5 @@ To run deno tasks like tests from the ui, add this to `.gram/tasks.jsonc`
 
 ## See also:
 
-- [TypeScript](./typescript.md)
-- [JavaScript](./javascript.md)
+- [TypeScript](gram://docs/languages/typescript)
+- [JavaScript](gram://docs/languages/javascript)

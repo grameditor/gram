@@ -233,5 +233,5 @@ JavaScript debugging is more complicated than other languages because there are 
 
 ## See also
 
-- [Yarn documentation](./yarn.md) for a walkthrough of configuring your project to use Yarn.
-- [TypeScript documentation](./typescript.md)
+- [Yarn documentation](gram://docs/languages/yarn) for a walkthrough of configuring your project to use Yarn.
+- [TypeScript documentation](gram://docs/languages/typescript)
