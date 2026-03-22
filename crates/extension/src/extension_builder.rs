@@ -448,7 +448,10 @@ impl ExtensionBuilder {
     }
 
     async fn install_wasi_sdk_if_needed(&self) -> Result<PathBuf> {
-        if let Ok(system_clang) = which::which(format!("clang{}", env::consts::EXE_SUFFIX)) {
+        if let Ok(system_clang) = which::which(format!("clang{}", env::consts::EXE_SUFFIX))
+            && let Ok(_) = which::which(format!("wasm-ld{}", env::consts::EXE_SUFFIX))
+            && let Ok(_) = which::which(format!("wasm-component-ld{}", env::consts::EXE_SUFFIX))
+        {
             if util::command::new_smol_command(&system_clang)
                 .args([&format!("--target={RUST_TARGET}"), "-print-supported-cpus"])
                 .output()
