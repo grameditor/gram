@@ -1,4 +1,4 @@
-name: Build and test
+name: test (linux amd64)
 on:
   push:
     branches: ["main"]

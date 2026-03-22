@@ -1,6 +1,8 @@
-name: Release
+name: build release (linux amd64)
 on:
   push:
+    branches:
+      - "test/*"
     tags:
       - "*"
 
