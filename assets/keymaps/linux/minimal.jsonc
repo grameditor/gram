@@ -14,10 +14,16 @@
     }
   },
   {
-    "context": "Picker || menu",
+    "context": "Picker || menu || Prompt",
     "bindings": {
       "up": "menu::SelectPrevious",
       "down": "menu::SelectNext",
+    },
+  },
+  {
+    "context": "Prompt",
+    "bindings": {
+      "enter": "menu::Confirm",
     },
   },
   {
