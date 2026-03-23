@@ -88,6 +88,13 @@ jobs:
           path: ${{steps.set_artifact_name.outputs.deb_amd64}}
           compression-level: 0
 
+      - id: upload_deb_amd64_repo
+        name: publish deb to package registry
+        run: |
+          curl --user krig:${{secrets.CODEBERG_PACKAGE_TOKEN}} \
+               --upload-file ${{steps.set_artifact_name.outputs.deb_amd64}} \
+               https://codeberg.org/api/packages/GramEditor/debian/pool/gram/release/upload
+
       - id: upload_rpm_amd64
         name: upload rpm
         uses: forgejo/upload-artifact@v4
