@@ -1,15 +1,20 @@
 # Remote Development
 
 Gram supports remote editing over SSH, where you run the editor on your main
-machine but open and edit projects on remote machines. This is supported by
-running a remote server process on the remote machine which takes care of
-opening, reading and writing files and running language servers, and
-communicates back to the editor using Protobuf over SSH.
+machine but open and edit projects on remote machines.
+
+To make this work, Gram uses a remote process called `remote-server`, which
+needs to be installed on the machine that the editor should connect to. The
+editor will SSH to the remote machine and start the remote server which then
+takes care of opening, reading and writing files as well as running language
+servers.
+
+The remote server communicates with the editor over SSH and GRPC.
 
 ## Overview
 
 Remote development requires two computers, your local machine that runs the UI
-and the remote server which runs a headless server. The two communicate over
+and the remote server which runs a small server. The two communicate over
 SSH, so you will need to be able to SSH from your local machine into the remote
 server to use this feature.
 
@@ -21,27 +26,65 @@ run on the remote server.
 ## Setup
 
 1. Install the editor on your main machine.
-1. Build and copy the remote editor process to your development machine. Upload
-   it to `~/.gram_server/gram-remote-server-{RELEASE_CHANNEL}-{VERSION}` on the
-   server, for example `~/.gram_server/gram-remote-server-stable-0.181.6`. The
-   version must exactly match the version of the editor you are using.
-1. Use {#kb projects::OpenRemote} to open the "Remote Projects" dialog.
-1. Click "Connect New Server" and enter the command you use to SSH into the
+
+2. Build and copy the remote editor process to your development machine.
+
+   Either get a pre-built copy of the remote server from the
+   [Codeberg releases](https://codeberg.org/GramEditor/gram/releases)
+   page, or build it from source.
+
+   If you download the pre-built release, make sure to get a version that
+   matches your remote server. If you are running the editor on a Mac but want
+   to connect to a Linux machine, you will need the Linux version of the
+   remote-server.
+
+   Also make sure to get the same version of the remote server as your editor.
+
+   Decompress and copy the server to
+   `~/.gram_server/gram-remote-server-{RELEASE_CHANNEL}-{VERSION}`.
+
+   For example:
+
+   ```sh
+   mkdir -p ~/.gram_server
+   curl -L -o - \
+     https://codeberg.org/GramEditor/gram/releases/download/1.1.0/gram-remote-server-linux-x86_64-1.1.0.gz \
+     | gunzip > ~/.gram_server/gram-remote-server-stable-1.1.0
+   chmod +x ~/.gram_server/gram-remote-server-stable-1.1.0
+   ```
+
+3. Use {#kb projects::OpenRemote} to open the "Remote Projects" dialog.
+
+4. Click "Connect New Server" and enter the command you use to SSH into the
    server. See [Supported SSH options](#supported-ssh-options) for options you
    can pass.
-1. Your local machine will attempt to connect to the remote server using the
+
+5. Your local machine will attempt to connect to the remote server using the
    `ssh` binary on your path. Assuming the connection is successful and a
    compatible server binary is found, the editor will start up and start
    communicating with the remote server.
-1. Once the remote server is running, you will be prompted to choose a path to
+
+6. Once the remote server is running, you will be prompted to choose a path to
    open on the remote server.
+
    > **Note:** The remote server does not currently handle opening very large
    > directories (for example, `/` or `~` that may have >100,000 files) very
    > well.
 
-For simple cases where you don't need any SSH arguments, you can run `gram
-ssh://[<user>@]<host>[:<port>]/<path>` to open a remote folder/file directly. If
-you'd like to hotlink into an SSH project, use a link of the format:
+   On a Mac, the editor may fail to connect the first time you try, and you will
+   be presented with a permissions dialog to allow Gram to connect to the
+   network. You'll need to accept this and then try again.
+
+### Connect from the command line
+
+To open the editor and connect to a remote project directly from the terminal,
+use a command like `gram ssh://[<user>@]<host>[:<port>]/<path-to-project>`.
+
+It is currently not possible to pass any other arguments to SSH from the
+commandline. A workaround here is to set other options you need in your SSH
+config file. See the SSH documentation (`man ssh_config`) for more details.
+
+To hotlink into an SSH project, use a link of the format:
 `gram://ssh/[<user>@]<host>[:<port>]/<path>`.
 
 ## Supported platforms
@@ -55,7 +98,8 @@ The following platforms should work:
 - macOS Catalina or later (Intel or Apple Silicon)
 - Linux (x86_64 or arm64)
 - Windows is not yet supported as a remote server, but Windows can be used as a
-  local machine to connect to remote servers.
+  local machine to connect to remote servers. Note that Windows support in is
+  currently not well tested in general.
 
 ## Configuration
 
