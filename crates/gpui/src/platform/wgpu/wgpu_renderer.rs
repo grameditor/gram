@@ -93,11 +93,18 @@ struct WgpuBindGroupLayouts {
     surfaces: wgpu::BindGroupLayout,
 }
 
+pub struct PhysicalSize<P> {
+    pub width: P,
+    pub height: P,
+}
+
 pub struct WgpuRenderer {
     device: Arc<wgpu::Device>,
     queue: Arc<wgpu::Queue>,
     surface: wgpu::Surface<'static>,
-    surface_config: wgpu::SurfaceConfiguration,
+    size: PhysicalSize<u32>,
+    surface_format: wgpu::TextureFormat,
+    alpha_mode: wgpu::CompositeAlphaMode,
     pipelines: WgpuPipelines,
     bind_group_layouts: WgpuBindGroupLayouts,
     atlas: Arc<WgpuAtlas>,
@@ -172,11 +179,16 @@ impl WgpuRenderer {
             wgpu::CompositeAlphaMode::Auto
         };
 
+        let size = PhysicalSize {
+            width: config.size.width.0 as u32,
+            height: config.size.height.0 as u32,
+        };
+
         let surface_config = wgpu::SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
             format: surface_format,
-            width: config.size.width.0 as u32,
-            height: config.size.height.0 as u32,
+            width: size.width,
+            height: size.height,
             present_mode: wgpu::PresentMode::Fifo,
             desired_maximum_frame_latency: 2,
             alpha_mode,
@@ -244,7 +256,9 @@ impl WgpuRenderer {
             device,
             queue,
             surface,
-            surface_config,
+            size,
+            surface_format,
+            alpha_mode,
             pipelines,
             bind_group_layouts,
             atlas,
@@ -730,26 +744,26 @@ impl WgpuRenderer {
         let width = size.width.0 as u32;
         let height = size.height.0 as u32;
 
-        if width != self.surface_config.width || height != self.surface_config.height {
-            self.surface_config.width = width.max(1);
-            self.surface_config.height = height.max(1);
-            self.surface.configure(&self.device, &self.surface_config);
+        if width != self.size.width || height != self.size.height {
+            self.size.width = width.max(1);
+            self.size.height = height.max(1);
+            self.configure_surface();
 
             let (path_intermediate_texture, path_intermediate_view) =
                 Self::create_path_intermediate(
                     &self.device,
-                    self.surface_config.format,
-                    self.surface_config.width,
-                    self.surface_config.height,
+                    self.surface_format,
+                    self.size.width,
+                    self.size.height,
                 );
             self.path_intermediate_texture = path_intermediate_texture;
             self.path_intermediate_view = path_intermediate_view;
 
             let (path_msaa_texture, path_msaa_view) = Self::create_msaa_if_needed(
                 &self.device,
-                self.surface_config.format,
-                self.surface_config.width,
-                self.surface_config.height,
+                self.surface_format,
+                self.size.width,
+                self.size.height,
                 self.rendering_params.path_sample_count,
             )
             .map(|(t, v)| (Some(t), Some(v)))
@@ -766,14 +780,14 @@ impl WgpuRenderer {
             wgpu::CompositeAlphaMode::Auto
         };
 
-        if new_alpha_mode != self.surface_config.alpha_mode {
-            self.surface_config.alpha_mode = new_alpha_mode;
-            self.surface.configure(&self.device, &self.surface_config);
+        if new_alpha_mode != self.alpha_mode {
+            self.alpha_mode = new_alpha_mode;
+            self.configure_surface();
             self.pipelines = Self::create_pipelines(
                 &self.device,
                 &self.bind_group_layouts,
-                self.surface_config.format,
-                self.surface_config.alpha_mode,
+                self.surface_format,
+                self.alpha_mode,
                 self.rendering_params.path_sample_count,
                 self.dual_source_blending,
             );
@@ -783,8 +797,8 @@ impl WgpuRenderer {
     #[allow(dead_code)]
     pub fn viewport_size(&self) -> Size<DevicePixels> {
         Size {
-            width: DevicePixels(self.surface_config.width as i32),
-            height: DevicePixels(self.surface_config.height as i32),
+            width: DevicePixels(self.size.width as i32),
+            height: DevicePixels(self.size.height as i32),
         }
     }
 
@@ -812,6 +826,27 @@ impl WgpuRenderer {
         buffer
     }
 
+    fn configure_surface(&self) {
+        let surface_config = wgpu::SurfaceConfiguration {
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
+            format: self.surface_format,
+            width: self.size.width,
+            height: self.size.height,
+            present_mode: wgpu::PresentMode::Fifo,
+            desired_maximum_frame_latency: 2,
+            alpha_mode: self.alpha_mode,
+            view_formats: vec![],
+        };
+
+        self.surface.configure(&self.device, &surface_config);
+    }
+
+    #[allow(dead_code)]
+    fn resize(&mut self, new_size: PhysicalSize<u32>) {
+        self.size = new_size;
+        self.configure_surface();
+    }
+
     pub fn draw(&mut self, scene: &Scene) {
         self.atlas.before_frame();
 
@@ -821,14 +856,20 @@ impl WgpuRenderer {
                 /* skip frame */
                 return;
             }
-            wgpu::CurrentSurfaceTexture::Outdated | wgpu::CurrentSurfaceTexture::Suboptimal(..) => {
+            wgpu::CurrentSurfaceTexture::Outdated => {
+                self.configure_surface();
+                return;
+            }
+            wgpu::CurrentSurfaceTexture::Suboptimal(frame) => {
                 /* reconfigure surface */
-                self.surface.configure(&self.device, &self.surface_config);
+                drop(frame);
+                self.configure_surface();
                 return;
             }
             wgpu::CurrentSurfaceTexture::Lost => {
                 /* reconfigure surface, or recreate device if device lost */
-                self.surface.configure(&self.device, &self.surface_config);
+                // self.surface = self.instance.create_surface(self.window.clone()).unwrap();
+                self.configure_surface();
                 return;
             }
             wgpu::CurrentSurfaceTexture::Validation => {
@@ -841,13 +882,8 @@ impl WgpuRenderer {
             .create_view(&wgpu::TextureViewDescriptor::default());
 
         let globals = GlobalParams {
-            viewport_size: [
-                self.surface_config.width as f32,
-                self.surface_config.height as f32,
-            ],
-            premultiplied_alpha: if self.surface_config.alpha_mode
-                == wgpu::CompositeAlphaMode::PreMultiplied
-            {
+            viewport_size: [self.size.width as f32, self.size.height as f32],
+            premultiplied_alpha: if self.alpha_mode == wgpu::CompositeAlphaMode::PreMultiplied {
                 1
             } else {
                 0
@@ -1249,10 +1285,7 @@ impl WgpuRenderer {
         let vertex_buffer = self.create_storage_buffer(vertex_data);
 
         let globals = GlobalParams {
-            viewport_size: [
-                self.surface_config.width as f32,
-                self.surface_config.height as f32,
-            ],
+            viewport_size: [self.size.width as f32, self.size.height as f32],
             premultiplied_alpha: 0,
             pad: 0,
         };
