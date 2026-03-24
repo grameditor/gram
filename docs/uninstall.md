@@ -52,7 +52,7 @@ $HOME/.local/gram.app/bin/gram --uninstall
 
 ### Package Manager
 
-If you installed Gram using a package manager (such as Flatpak, Snap, or a distribution-specific package manager), consult that package manager's documentation for uninstallation instructions.
+If you installed Gram using a package manager (such as Flatpak or a distribution-specific package manager), consult that package manager's documentation for uninstallation instructions.
 
 ### Manual Removal
 
