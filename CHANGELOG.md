@@ -7,10 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-03-24
+
+### Added
+
+- Placeholder in empty pane when no file is open (#148)
+
 ### Fixed
 
 - Use new icon format on Mac OS Tahoe (#146) by @kramo
-- Fix some broken documentation links
+- Fix: Use CompositeAlphaMode::Auto as fallback instead of ::Opaque (#149)
+- Fix: handle wgpu surface recreation better (#149)
+- Fix: Check for wasm-[component]-ld when detecting clang for WASI (#64)
+- docs: Update installation instructions for Linux (#159) by @theDoctor
+- docs: Fix a bunch of broken documentation links
+
+### Changed
+
+- Don't load defaults for Minimal base keymap (#151) by @tjk
+- Increase contrast of selected item in Prompt window (#156) by @tjk
+- Remove (untested) Snap support from script folder
 
 ## [1.1.0] - 2026-03-21
 
