@@ -36,7 +36,7 @@ jobs:
         run: echo "dev" >./crates/gram/RELEASE_CHANNEL
       - name: install nextest
         run: |
-          if [ ! command -v cargo-nextest >/dev/null ]; then
+          if ! command -v cargo-nextest >/dev/null; then
             curl -LsSf https://get.nexte.st/latest/linux | tar zxf - -C ~/.cargo/bin
           fi
       - name: install linux dependencies
