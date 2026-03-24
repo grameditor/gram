@@ -10,10 +10,11 @@ env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: '1'
   CARGO_INCREMENTAL: '0'
+  GRAM_RPM_COMPRESSION: gzip
 
 jobs:
   release-amd64:
-    runs-on: rust-amd64
+    runs-on: rust-22.04-amd64
     env:
       CC: clang
       CXX: clang++
@@ -22,6 +23,17 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Cache build
+        uses: actions/cache@v3
+        id: cache-gram-build
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-gram-cargo-${{ hashFiles('**/Cargo.lock') }}
       - name: setup cargo config
         run: cp ./.cargo/ci-config.toml ./.cargo/config.toml
       - name: set release channel
