@@ -1,11 +1,54 @@
 # Gram on Linux
 
-## Standard Installation
+## Distro Packages
 
-Gram is open source, and [you can install from source](./development/linux.md).
+Gram provides prebuilt `.deb` and `.rpm` packages as release assets which can be downloaded [here](https://codeberg.org/GramEditor/gram/releases). Installation depends
+on your distro:
+
+### Debian/Ubuntu
+
+```sh
+sudo apt install ./path/to/gram_${version}-${revision}_${arch}.deb
+```
+
+Requires Debian 13 (Trixie)/Ubuntu 24.04 (noble) or later.
+
+### Fedora/RHEL/Rocky/Alma
+
+```sh
+sudo dnf install ./path/to/gram_${version}-${revision}_${arch}.rpm
+```
+
+Requires Fedora 42/RHEL 10.1/Rocky 10.1/Alma 10.1 or later.
+
+### OpenSUSE
+
+```sh
+sudo zypper install ./path/to/gram_${version}-${revision}_${arch}.rpm
+```
+
+Requires Leap 16 (or Tumbleweed/Slowroll) or later.
+
+## Arch
+
+There are two packages published on the AUR:
+
+- [`gram-editor-bin`](https://aur.archlinux.org/packages/gram-editor-bin): Binary package
+- [`gram-editor-git`](https://aur.archlinux.org/packages/gram-editor-git): Source package
+
+These are community efforts and may or may not be up-to-date. If you install packages from the AUR, it is your responsibility to verify their integrity yourself.
+
+## Flatpak
+
+Gram provides a prebuilt flatpak as a release asset. It can be downloaded from [here](https://codeberg.org/GramEditor/gram/releases) and installed by running:
+
+```sh
+flatpak install /path/to/app.liten.Gram-x86_64-${version}.flatpak
+```
+
+## From Tarball
 
 If there is a tarball available for your architecture at the [Gram Codeberg](https://codeberg.org/GramEditor/gram/releases) repository, you can follow these instructions:
-
 
 1. Download the [install.sh](https://codeberg.org/GramEditor/gram/raw/branch/main/script/install.sh) script.
 2. Run the script.
@@ -21,19 +64,9 @@ If there is a tarball available for your architecture at the [Gram Codeberg](htt
    ./install.sh --prefix /usr/local ./gram-linux-x86_64-1.1.0.tar.gz
    ```
 
-## Flatpak
+## From Source
 
-To build a [Flatpak](https://flatpak.org), you'll need `flatpak` and
-`flatpak-builder` installed.
-
-```sh
-# Install dependencies
-./script/linux
-# Install flatpak dependencies (requires flatpak and flatpak-builder)
-./script/flatpak/deps
-# Build and install flatpak
-./script/flatpak/bundle-flatpak
-```
+Gram is open source, and you can install from source. See [developer notes](./development/linux.md) for instructions.
 
 ## Troubleshooting
 
@@ -126,7 +159,6 @@ Or, if you have the Gram cli setup, you can do
 GRAM_LOG=wgpu=info /path/to/gram/cli --foreground .
 # copy the output
 ```
-
 
 ### Forcing X11 scale factor
 

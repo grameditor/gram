@@ -127,6 +127,20 @@ Zed comes with some (in our opinion) pretty severe caveats:
 
 Our (Gram's) intention is to resolve all of these problems.
 
+## Distro Packages
+
+The Gram project includes scripts to build binary packages for various targets, including `.deb`, `.rpm` and `AppImage`. The driver for all these is the `scripts/bundle-linux`
+script which takes the following flags (among others):
+
+- `--deb` (requires [`cargo-deb`](https://github.com/kornelski/cargo-deb))
+- `--rpm` (requires [`cargo-generate-rpm`](https://github.com/cat-in-136/cargo-generate-rpm))
+- `--appimage` (requires [`pkg2appimage`](https://github.com/AppImageCommunity/pkg2appimage))
+
+Adding any of these will build the corresponding package. Note that the `AppImage` is created from the `.deb.` package so while you can only provide the `--appimage` flag
+it will automatically build a `.deb` as well.
+
+Note that each of these package builds requires an additional dependency as noted above.
+
 ## Flatpak
 
 > Gram's current Flatpak integration exits the sandbox on startup. Workflows that rely on Flatpak's sandboxing may not work as expected.
@@ -134,9 +148,10 @@ Our (Gram's) intention is to resolve all of these problems.
 To build & install the Flatpak package locally follow the steps below:
 
 1. Install Flatpak for your distribution as outlined [here](https://flathub.org/setup).
-2. Run the `script/flatpak/deps` script to install the required dependencies.
-3. Run `script/flatpak/bundle-flatpak`.
-4. Now the package has been installed and has a bundle available at `target/release/{app-id}.flatpak`.
+2. Run `script/linux` to install Linux dependencies.
+3. Run `script/flatpak/deps` script to install the required dependencies.
+4. Run `script/flatpak/bundle-flatpak`.
+5. Now the package has been installed and has a bundle available at `target/release/{app-id}.flatpak`.
 
 ## Memory profiling
 
@@ -183,7 +198,6 @@ lot of CPU. It's not useful for debugging hangs or memory usage.
 ### Later
 
 - Build Gram with symbols:
-
   - Check out the commit found previously and modify `Cargo.toml`.
   - Apply the following diff, then make a release build.
 
