@@ -1,7 +1,7 @@
 #!/bin/sh
 mode="$1" # ci or release
 
-./.cargo/ci-config.toml ./.cargo/config.toml
+cp ./.cargo/ci-config.toml ./.cargo/config.toml
 ./script/linux
 ./script/download-wasi-sdk
 
