@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed environment variables failing to load when `nu` is the login shell
+
 ## [1.2.0] - 2026-03-24
 
 ### Added
