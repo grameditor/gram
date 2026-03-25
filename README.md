@@ -206,3 +206,9 @@ Welcome screen toad by [@krig](https://codeberg.org/krig).
 
 The Gram toad was based on the famous style of drawing toads (or frogs?) by
 [Matsumoto Hōji (松本 奉時)](https://en.wikipedia.org/wiki/Matsumoto_H%C5%8Dji).
+
+## Why the name Gram?
+
+**Gram** is an old norse/swedish word meaning "ill-tempered" or grumpy. It is also the name of a sword from norse legend which was broken and then re-forged, stronger than any other sword, used to kill a dragon.
+
+(this also explains the sword icon used in Gram)
