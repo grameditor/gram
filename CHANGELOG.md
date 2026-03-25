@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed environment variables failing to load when `nu` is the login shell
+- Fix environment variables failing to load when `nu` is the login shell
+- Fix edited multibuffers not saving on focus change when `autosave` setting is set to `on_focus_change`
 
 ## [1.2.0] - 2026-03-24
 
