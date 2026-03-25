@@ -97,7 +97,7 @@ Make sure you have Rust installed (via rustup, preferably).
 There are scripts to bundle for each platform, and the details as to what needs
 to be in place are different for all of the platforms.
 
-See the [Development](./development.md) instructions for details on system
+See the [Development](./docs/development.md) instructions for details on system
 requirements, etc.
 
 ### Linux
