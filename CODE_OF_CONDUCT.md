@@ -37,6 +37,20 @@ Examples of unacceptable behavior include:
 * Other conduct which could reasonably be considered inappropriate in a
   professional setting
 
+## Strict No LLM / No AI Policy
+
+No LLMs for issues.
+
+No LLMs for pull requests.
+
+No LLMs for comments on the bug tracker, including translation. English is
+encouraged, but not required. You are welcome to post in your native language
+and rely on others to have their own translation tools of choice to interpret
+your words.
+
+This section was copied from the Zig community Code of Conduct:
+https://ziglang.org/code-of-conduct/
+
 ## Enforcement Responsibilities
 
 Community leaders are responsible for clarifying and enforcing our standards of

@@ -32,6 +32,9 @@ from this project. This codebase is bloated and vibe-coded enough as it is, we
 need to fix and mend and patch and not start adding to the mess as much as
 possible.
 
+The project policy on AI and LLM use is outlined in the [Code of
+Conduct](./CODE_OF_CONDUCT.md).
+
 ## Bird's-eye view of the code base
 
 The [glossary](docs/development/glossary.md) lists and explains some of the structures and terms you will see throughout the codebase.

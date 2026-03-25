@@ -108,11 +108,37 @@ main reason for this fork from Zed is to remove certain "features" that we
 disagree with, morally. However, you are of course free to make it your own in
 any way you see fit.
 
-I don't use AI and if you submit a patch created with AI I might reject it
-(especially if it doesn't work and you can't explain or fix it). That said, the
-upstream Zed project does use it, so this project is not AI free in any sense.
+There is no official discord or reddit community, but there is an XMPP chat for
+Gram at [gram@rooms.slidge.im][xmpp-link]. Any XMPP client should be able to
+connect, and there is a [basic web UI][xmpp-webui] available. There are chat
+logs available in an [online archive][xmpp-archive] as well.
 
-There is no official discord or reddit community.
+[xmpp-link]: xmpp:gram@rooms.slidge.im?join
+[xmpp-webui]: https://slidge.im/gram/#/guest?join=gram@rooms.slidge.im
+[xmpp-archive]: https://rooms.slidge.im:5281/muc_log/gram/
+
+## Strict No AI/LLM Policy
+
+No more AI. I used to have a milder version of this statement here before, which
+I wrote early on when I wasn't really aware of "vibe-coding" as such and was
+mostly annoyed purely at the chatbox / autocomplete version of AI. That was bad
+enough, but I really am not a fan of what that has become (in March 2026 when I
+am writing this). I have copied this policy from the
+[Zig language project Code of Conduct][zig-coc]:
+
+> No LLMs for issues.
+>
+> No LLMs for pull requests.
+>
+> No LLMs for comments on the bug tracker, including translation. English is
+> encouraged, but not required. You are welcome to post in your native language
+> and rely on others to have their own translation tools of choice to interpret
+> your words.
+
+The Zed code base contains a lot of AI-generated code. It doesn't need a single
+line more.
+
+[zig-coc]: https://ziglang.org/code-of-conduct/
 
 ## Extensions
 
