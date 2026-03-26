@@ -8,8 +8,8 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  RUST_BACKTRACE: '1'
-  CARGO_INCREMENTAL: '0'
+  RUST_BACKTRACE: "1"
+  CARGO_INCREMENTAL: "0"
   GRAM_RPM_COMPRESSION: gzip
 
 jobs:
@@ -102,3 +102,10 @@ jobs:
           name: ${{steps.set_artifact_name.outputs.rpm_amd64}}
           path: ${{steps.set_artifact_name.outputs.rpm_amd64}}
           compression-level: 0
+
+      - id: upload_rpm_amd64_repo
+        name: publish rpm to package registry
+        run: |
+          curl --user krig:${{secrets.CODEBERG_PACKAGE_TOKEN}} \
+               --upload-file ${{steps.set_artifact_name.outputs.rpm_amd64}} \
+               https://codeberg.org/api/packages/GramEditor/rpm/upload
