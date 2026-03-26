@@ -10,7 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix environment variables failing to load when `nu` is the login shell
-- Fix edited multibuffers not saving on focus change when `autosave` setting is set to `on_focus_change`
+- Fix edited multibuffers not saving on focus change when `autosave`
+  setting is set to `on_focus_change`
+
+## [1.2.1] - 2026-03-26
+
+### Fixed
+
+- Make sure to update Cargo.lock before tagging
+- docs: Adopt the Zig project code of conduct policy on LLM use
+- docs: Add toad to README
+- docs: Add explanation for the name to README (#155)
+- docs: Fix markdown link in README
 
 ## [1.2.0] - 2026-03-24
 
