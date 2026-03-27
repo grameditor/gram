@@ -44,8 +44,21 @@ Requires Leap 16 (or Tumbleweed/Slowroll) or later.
 
 ### Arch
 
-There are two packages published on the AUR:
+Gram maintains a `PKGBUILD` file that can be used to build an Arch package from a bundled tarball:
 
+```sh
+# Install dependencies
+sudo pacman -S base-devel pacman-contrib
+./script/linux
+# Build package
+./script/bundle-linux --tarball --arch
+# Install package
+sudo pacman -U target/${target}-${arch}/arch/gram-bin-${version}.pkg.tar.zst
+```
+
+Alternatively, there are several packages published on the AUR:
+
+- [`gram-bin`](https://aur.archlinux.org/packages/gram-bin): Binary package
 - [`gram-editor-bin`](https://aur.archlinux.org/packages/gram-editor-bin): Binary package
 - [`gram-editor-git`](https://aur.archlinux.org/packages/gram-editor-git): Source package
 
