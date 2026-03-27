@@ -2,34 +2,47 @@
 
 ## Distro Packages
 
-Gram provides prebuilt `.deb` and `.rpm` packages as release assets which can be downloaded [here](https://codeberg.org/GramEditor/gram/releases). Installation depends
-on your distro:
+The preferred way to install is via adding a Gram repository file and installing from it. This provides the user with automatic updates once new packages are released. See instructions below.
+Alternatively, Gram provides prebuilt `.deb` and `.rpm` packages as release assets which can be downloaded [here](https://codeberg.org/GramEditor/gram/releases).
 
 ### Debian/Ubuntu
 
 ```sh
-sudo apt install ./path/to/gram_${version}-${revision}_${arch}.deb
+# Add the repository key
+sudo curl https://codeberg.org/api/packages/GramEditor/debian/repository.key -o /etc/apt/keyrings/forgejo-GramEditor.asc
+# Add the repository file
+echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/forgejo-GramEditor.asc] https://codeberg.org/api/packages/GramEditor/debian gram release" | sudo tee -a /etc/apt/sources.list.d/gram.list
+# Update package cache and install
+sudo apt update && sudo apt install gram
 ```
 
-Requires Debian 13 (Trixie)/Ubuntu 24.04 (noble) or later.
+Requires Debian 12 (Bookworm)/Ubuntu 24.04 (noble) or later.
 
 ### Fedora/RHEL/Rocky/Alma
 
 ```sh
-sudo dnf install ./path/to/gram_${version}-${revision}_${arch}.rpm
+# Add repository file
+sudo dnf config-manager addrepo --from-repofile="https://codeberg.org/api/packages/GramEditor/rpm.repo"
+# Install
+sudo dnf install gram
 ```
+
+**Note**: At the time of this writing RPM package signing does not work. In order to be able to install Gram you need to set `gpgcheck=0` inside `/etc/yum.repos.d/rpm.repo`.
 
 Requires Fedora 42/RHEL 10.1/Rocky 10.1/Alma 10.1 or later.
 
 ### OpenSUSE
 
 ```sh
-sudo zypper install ./path/to/gram_${version}-${revision}_${arch}.rpm
+sudo zypper addrepo https://codeberg.org/api/packages/GramEditor/rpm.repo
+sudo zypper install gram
 ```
+
+**Note**: At the time of this writing RPM package signing does not work. In order to be able to install Gram you need to set `gpgcheck=0` inside `/etc/yum.repos.d/rpm.repo`.
 
 Requires Leap 16 (or Tumbleweed/Slowroll) or later.
 
-## Arch
+### Arch
 
 There are two packages published on the AUR:
 
@@ -37,6 +50,12 @@ There are two packages published on the AUR:
 - [`gram-editor-git`](https://aur.archlinux.org/packages/gram-editor-git): Source package
 
 These are community efforts and may or may not be up-to-date. If you install packages from the AUR, it is your responsibility to verify their integrity yourself.
+
+Install one of the packages using, e.g., `paru` or another AUR helper of your choice:
+
+```sh
+paru -S gram-bin
+```
 
 ## Flatpak
 
