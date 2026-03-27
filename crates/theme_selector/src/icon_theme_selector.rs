@@ -1,3 +1,4 @@
+use app_actions::{ExtensionCategoryFilter, Extensions};
 use fs::Fs;
 use fuzzy::{StringMatch, StringMatchCandidate, match_strings};
 use gpui::{
@@ -14,7 +15,6 @@ use theme::{
 use ui::{ListItem, ListItemSpacing, prelude::*, v_flex};
 use util::ResultExt;
 use workspace::{ModalView, ui::HighlightedLabel};
-use app_actions::{ExtensionCategoryFilter, Extensions};
 
 pub(crate) struct IconThemeSelector {
     picker: Entity<Picker<IconThemeSelectorDelegate>>,
@@ -170,6 +170,12 @@ impl PickerDelegate for IconThemeSelectorDelegate {
         let appearance = Appearance::from(window.appearance());
 
         update_settings_file(self.fs.clone(), cx, move |settings, _| {
+            // if the setting for panel icons is disabled
+            // by default, enable now
+            let project_panel = settings.project_panel.get_or_insert_with(Default::default);
+            project_panel.file_icons = Some(project_panel.file_icons.unwrap_or(true));
+            project_panel.folder_icons = Some(project_panel.folder_icons.unwrap_or(true));
+
             theme::set_icon_theme(settings, theme_name, appearance);
         });
 

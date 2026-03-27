@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix edited multibuffers not saving on focus change when `autosave`
   setting is set to `on_focus_change`
 
+### Changed
+
+- Enable panel icons if default and icon theme is changed (#172)
+
 ## [1.2.1] - 2026-03-26
 
 ### Fixed

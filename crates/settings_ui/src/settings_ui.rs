@@ -3850,6 +3850,14 @@ fn render_icon_theme_picker(
                             field.json_path,
                             cx,
                             move |settings, _cx| {
+                                // if the setting for panel icons is disabled
+                                // by default, enable now
+                                let project_panel =
+                                    settings.project_panel.get_or_insert_with(Default::default);
+                                project_panel.file_icons =
+                                    Some(project_panel.file_icons.unwrap_or(true));
+                                project_panel.folder_icons =
+                                    Some(project_panel.folder_icons.unwrap_or(true));
                                 (field.write)(
                                     settings,
                                     Some(settings::IconThemeName(theme_name.into())),
