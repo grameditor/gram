@@ -329,7 +329,7 @@ wgpu = "29.0.0"
 
 aho-corasick = "1.1"
 alacritty_terminal = { git = "https://github.com/alacritty/alacritty", rev = "48ff32f7c6bbe2c084f1abc39470487510687323" }
-any_vec = "0.14"
+any_vec = "0.15"
 anyhow = "1.0.86"
 arrayvec = { version = "0.7.4", features = ["serde"] }
 ashpd = { version = "0.13", default-features = false, features = [
@@ -344,7 +344,7 @@ async-compat = "0.2.1"
 async-compression = { version = "0.4", features = ["gzip", "futures-io"] }
 async-dispatcher = "0.1"
 async-fs = "2.1"
-async-lock = "2.1"
+async-lock = "2.8"
 async-pipe = { git = "https://github.com/zed-industries/async-pipe-rs", rev = "82d00a04211cf4e1236029aa03e6b6ce2a74c553" }
 async-recursion = "1.0.0"
 async-tar = "0.5.1"
@@ -604,7 +604,7 @@ windows-core = "0.61"
 wit-component = "0.221"
 yawc = "0.2.5"
 zeroize = "1.8"
-zstd = "0.11"
+zstd = "0.13"
 
 
 [workspace.dependencies.windows]
