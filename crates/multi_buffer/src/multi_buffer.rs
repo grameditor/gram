@@ -6,6 +6,9 @@ mod transaction;
 
 use self::transaction::History;
 
+#[cfg(any(test, feature = "test-support"))]
+use rand::RngExt as _;
+
 pub use anchor::{Anchor, AnchorRangeExt};
 
 use anyhow::{Result, anyhow};
@@ -3813,7 +3816,7 @@ impl MultiBuffer {
             } else {
                 let remove_count = rng.random_range(1..=excerpt_ids.len());
                 let mut excerpts_to_remove = excerpt_ids
-                    .choose_multiple(rng, remove_count)
+                    .sample(rng, remove_count)
                     .cloned()
                     .collect::<Vec<_>>();
                 let snapshot = self.snapshot.borrow();

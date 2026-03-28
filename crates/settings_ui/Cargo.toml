@@ -44,13 +44,7 @@ workspace.workspace = true
 app_actions.workspace = true
 
 [dev-dependencies]
-assets.workspace = true
-futures.workspace = true
 gpui = { workspace = true, features = ["test-support"] }
-language.workspace = true
-node_runtime.workspace = true
 paths.workspace = true
 pretty_assertions.workspace = true
-session.workspace = true
 settings.workspace = true
-zlog.workspace = true

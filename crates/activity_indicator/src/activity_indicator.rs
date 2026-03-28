@@ -13,6 +13,7 @@ use project::{
     LanguageServerProgress, LspStoreEvent, ProgressToken, Project, ProjectEnvironmentEvent,
     git_store::{GitStoreEvent, Repository},
 };
+use proto::{ServerBinaryStatus, status_update::Status};
 use smallvec::SmallVec;
 use std::{
     cmp::Reverse,
@@ -129,55 +130,64 @@ impl ActivityIndicator {
                                 return;
                             };
                             let status = match &status_update.status {
-                                Some(proto::status_update::Status::Binary(binary_status)) => {
-                                    if let Some(binary_status) =
-                                        proto::ServerBinaryStatus::from_i32(*binary_status)
-                                    {
-                                        let binary_status = match binary_status {
-                                            proto::ServerBinaryStatus::None => BinaryStatus::None,
-                                            proto::ServerBinaryStatus::CheckingForUpdate => {
-                                                BinaryStatus::CheckingForUpdate
-                                            }
-                                            proto::ServerBinaryStatus::Downloading => {
-                                                BinaryStatus::Downloading
-                                            }
-                                            proto::ServerBinaryStatus::Starting => {
-                                                BinaryStatus::Starting
-                                            }
-                                            proto::ServerBinaryStatus::Stopping => {
-                                                BinaryStatus::Stopping
-                                            }
-                                            proto::ServerBinaryStatus::Stopped => {
-                                                BinaryStatus::Stopped
-                                            }
-                                            proto::ServerBinaryStatus::Failed => {
-                                                let Some(error) = status_update.message.clone()
-                                                else {
-                                                    return;
-                                                };
-                                                BinaryStatus::Failed { error }
-                                            }
-                                        };
-                                        LanguageServerStatusUpdate::Binary(binary_status)
-                                    } else {
-                                        return;
+                                Some(Status::Binary(binary_status)) => {
+                                    match ServerBinaryStatus::try_from(*binary_status) {
+                                        Ok(binary_status) => {
+                                            let binary_status = match binary_status {
+                                                ServerBinaryStatus::None => BinaryStatus::None,
+                                                ServerBinaryStatus::CheckingForUpdate => {
+                                                    BinaryStatus::CheckingForUpdate
+                                                }
+                                                ServerBinaryStatus::Downloading => {
+                                                    BinaryStatus::Downloading
+                                                }
+                                                ServerBinaryStatus::Starting => {
+                                                    BinaryStatus::Starting
+                                                }
+                                                ServerBinaryStatus::Stopping => {
+                                                    BinaryStatus::Stopping
+                                                }
+                                                ServerBinaryStatus::Stopped => {
+                                                    BinaryStatus::Stopped
+                                                }
+                                                ServerBinaryStatus::Failed => {
+                                                    let Some(error) = status_update.message.clone()
+                                                    else {
+                                                        return;
+                                                    };
+                                                    BinaryStatus::Failed { error }
+                                                }
+                                            };
+                                            LanguageServerStatusUpdate::Binary(binary_status)
+                                        }
+                                        Err(err) => {
+                                            log::error!("Unknown binary status: {err}");
+                                            return;
+                                        }
                                     }
                                 }
-                                Some(proto::status_update::Status::Health(health_status)) => {
-                                    if let Some(health) =
-                                        proto::ServerHealth::from_i32(*health_status)
-                                    {
-                                        let health = match health {
-                                            proto::ServerHealth::Ok => ServerHealth::Ok,
-                                            proto::ServerHealth::Warning => ServerHealth::Warning,
-                                            proto::ServerHealth::Error => ServerHealth::Error,
-                                        };
-                                        LanguageServerStatusUpdate::Health(
-                                            health,
-                                            status_update.message.clone().map(SharedString::from),
-                                        )
-                                    } else {
-                                        return;
+                                Some(Status::Health(health_status)) => {
+                                    match proto::ServerHealth::try_from(*health_status) {
+                                        Ok(health) => {
+                                            let health = match health {
+                                                proto::ServerHealth::Ok => ServerHealth::Ok,
+                                                proto::ServerHealth::Warning => {
+                                                    ServerHealth::Warning
+                                                }
+                                                proto::ServerHealth::Error => ServerHealth::Error,
+                                            };
+                                            LanguageServerStatusUpdate::Health(
+                                                health,
+                                                status_update
+                                                    .message
+                                                    .clone()
+                                                    .map(SharedString::from),
+                                            )
+                                        }
+                                        Err(err) => {
+                                            log::error!("Unknown server health: {err}");
+                                            return;
+                                        }
                                     }
                                 }
                                 None => return,

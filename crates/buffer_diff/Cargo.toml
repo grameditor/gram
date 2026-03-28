@@ -32,7 +32,6 @@ util.workspace = true
 ctor.workspace = true
 gpui = { workspace = true, features = ["test-support"] }
 rand.workspace = true
-serde_json.workspace = true
 settings.workspace = true
 text = { workspace = true, features = ["test-support"] }
 unindent.workspace = true

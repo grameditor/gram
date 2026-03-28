@@ -9,6 +9,8 @@ pub mod subscription;
 #[cfg(test)]
 mod tests;
 mod undo_map;
+#[cfg(any(test, feature = "test-support"))]
+use rand::RngExt as _;
 
 pub use anchor::*;
 use anyhow::{Context as _, Result};

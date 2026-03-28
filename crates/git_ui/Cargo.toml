@@ -21,7 +21,6 @@ anyhow.workspace = true
 askpass.workspace = true
 buffer_diff.workspace = true
 collections.workspace = true
-command_palette_hooks.workspace = true
 component.workspace = true
 db.workspace = true
 editor.workspace = true
@@ -59,13 +58,9 @@ workspace.workspace = true
 app_actions.workspace = true
 zeroize.workspace = true
 
-[target.'cfg(windows)'.dependencies]
-windows.workspace = true
-
 [dev-dependencies]
 ctor.workspace = true
 editor = { workspace = true, features = ["test-support"] }
-git_hosting_providers.workspace = true
 gpui = { workspace = true, features = ["test-support"] }
 indoc.workspace = true
 pretty_assertions.workspace = true

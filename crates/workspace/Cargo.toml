@@ -27,7 +27,6 @@ test-support = [
 any_vec.workspace = true
 anyhow.workspace = true
 async-recursion.workspace = true
-clock.workspace = true
 client.workspace = true
 collections.workspace = true
 component.workspace = true
@@ -63,11 +62,7 @@ util.workspace = true
 uuid.workspace = true
 app_actions.workspace = true
 
-[target.'cfg(target_os = "windows")'.dependencies]
-windows.workspace = true
-
 [dev-dependencies]
-dap = { workspace = true, features = ["test-support"] }
 db = { workspace = true, features = ["test-support"] }
 fs = { workspace = true, features = ["test-support"] }
 gpui = { workspace = true, features = ["test-support"] }

@@ -13,7 +13,7 @@ path = "src/text.rs"
 doctest = false
 
 [features]
-test-support = ["rand", "util/test-support"]
+test-support = ["util/test-support"]
 
 [dependencies]
 anyhow.workspace = true
@@ -22,7 +22,7 @@ collections.workspace = true
 log.workspace = true
 parking_lot.workspace = true
 postage.workspace = true
-rand = { workspace = true, optional = true }
+rand.workspace = true
 regex.workspace = true
 rope.workspace = true
 smallvec.workspace = true
@@ -33,7 +33,5 @@ util.workspace = true
 collections = { workspace = true, features = ["test-support"] }
 ctor.workspace = true
 gpui = { workspace = true, features = ["test-support"] }
-rand.workspace = true
 util = { workspace = true, features = ["test-support"] }
-http_client = { workspace = true, features = ["test-support"] }
 zlog.workspace = true

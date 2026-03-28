@@ -665,7 +665,7 @@ mod tests {
         },
     };
     use multi_buffer::MultiBufferOffset;
-    use rand::{Rng, prelude::StdRng};
+    use rand::{RngExt as _, prelude::StdRng};
     use util;
 
     impl TabSnapshot {

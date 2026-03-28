@@ -665,26 +665,20 @@ pub fn main() {
             })
         }
 
-        match open_rx
-            .try_next()
-            .ok()
-            .flatten()
-            .and_then(|request| OpenRequest::parse(request, cx).log_err())
+        if let Ok(recv) = open_rx.try_recv()
+            && let Some(request) = OpenRequest::parse(recv, cx).log_err()
         {
-            Some(request) => {
-                handle_open_request(request, app_state.clone(), cx);
-            }
-            None => {
-                cx.spawn({
-                    let app_state = app_state.clone();
-                    async move |cx| {
-                        if let Err(e) = restore_or_create_workspace(app_state, cx).await {
-                            fail_to_open_window_async(e, cx)
-                        }
+            handle_open_request(request, app_state.clone(), cx);
+        } else {
+            cx.spawn({
+                let app_state = app_state.clone();
+                async move |cx| {
+                    if let Err(e) = restore_or_create_workspace(app_state, cx).await {
+                        fail_to_open_window_async(e, cx)
                     }
-                })
-                .detach();
-            }
+                }
+            })
+            .detach();
         }
 
         let app_state = app_state.clone();

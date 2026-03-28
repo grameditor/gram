@@ -569,6 +569,9 @@ impl project::ProjectItem for NotebookItem {
                 let notebook = nbformat::parse_notebook(&file_content);
 
                 let notebook = match notebook {
+                    Ok(nbformat::Notebook::V3(notebook)) => {
+                        nbformat::upgrade_v3_notebook(notebook)?
+                    }
                     Ok(nbformat::Notebook::V4(notebook)) => notebook,
                     // 4.1 - 4.4 are converted to 4.5
                     Ok(nbformat::Notebook::Legacy(legacy_notebook)) => {

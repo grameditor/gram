@@ -1116,7 +1116,7 @@ mod tests {
         });
         cx.simulate_mouse_move(hover_point, None, Modifiers::secondary_key());
         cx.background_executor.run_until_parked();
-        assert!(requests.try_next().is_err());
+        assert!(requests.try_recv().is_err());
         cx.assert_editor_text_highlights::<HoveredLinkState>(indoc! {"
                 fn test() { do_work(); }
                 fn do_work() { test(); }
@@ -1328,7 +1328,10 @@ mod tests {
         );
 
         cx.simulate_click(screen_coord, Modifiers::secondary_key());
-        assert_eq!(cx.opened_url(), Some("https://codeberg.org/releases".into()));
+        assert_eq!(
+            cx.opened_url(),
+            Some("https://codeberg.org/releases".into())
+        );
     }
 
     #[gpui::test]
@@ -1353,7 +1356,10 @@ mod tests {
         );
 
         cx.simulate_click(screen_coord, Modifiers::secondary_key());
-        assert_eq!(cx.opened_url(), Some("https://codeberg.org/releases".into()));
+        assert_eq!(
+            cx.opened_url(),
+            Some("https://codeberg.org/releases".into())
+        );
     }
 
     #[test]

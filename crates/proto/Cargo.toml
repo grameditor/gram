@@ -7,7 +7,7 @@ publish.workspace = true
 license = "GPL-3.0-or-later"
 
 [features]
-test-support = ["collections/test-support"]
+test-support = []
 
 [lints]
 workspace = true
@@ -22,8 +22,8 @@ prost.workspace = true
 serde.workspace = true
 
 [build-dependencies]
+protobuf-src.workspace = true
 prost-build.workspace = true
 
-[dev-dependencies]
-collections = { workspace = true, features = ["test-support"] }
-typed-path = "0.11"
+[package.metadata.cargo-machete]
+ignored = ["prost-build", "protobuf-src"]

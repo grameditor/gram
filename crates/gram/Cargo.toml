@@ -65,13 +65,11 @@ gpui = { workspace = true, features = [
 gpui_tokio.workspace = true
 rayon.workspace = true
 
-http_client.workspace = true
 image_viewer.workspace = true
 inspector_ui.workspace = true
 install_cli.workspace = true
 journal.workspace = true
 json_schema_store.workspace = true
-kdl.workspace = true
 keymap_editor.workspace = true
 language.workspace = true
 language_extension.workspace = true
@@ -99,12 +97,10 @@ profiling.workspace = true
 project.workspace = true
 project_panel.workspace = true
 project_symbols.workspace = true
-proto.workspace = true
 recent_projects.workspace = true
 release_channel.workspace = true
 remote.workspace = true
 repl.workspace = true
-reqwest.workspace = true
 reqwest_client.workspace = true
 rope.workspace = true
 search.workspace = true
@@ -159,7 +155,6 @@ winresource = "0.1"
 ashpd.workspace = true
 
 [dev-dependencies]
-dap = { workspace = true, features = ["test-support"] }
 editor = { workspace = true, features = ["test-support"] }
 gpui = { workspace = true, features = ["test-support"] }
 image_viewer = { workspace = true, features = ["test-support"] }
@@ -189,7 +184,7 @@ osx_info_plist_exts = ["resources/info/*"]
 osx_url_schemes = ["gram"]
 
 [package.metadata.cargo-machete]
-ignored = ["profiling", "zstd"]
+ignored = ["profiling", "zstd", "winresource"]
 
 [package.metadata.deb]
 name = "gram"

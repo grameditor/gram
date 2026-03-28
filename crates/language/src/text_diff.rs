@@ -1,9 +1,8 @@
 use crate::{CharClassifier, CharKind, CharScopeContext, LanguageScope};
 use anyhow::{Context, anyhow};
 use imara_diff::{
-    Algorithm, UnifiedDiffBuilder, diff,
-    intern::{InternedInput, Token},
-    sources::lines_with_terminator,
+    Algorithm, BasicLineDiffPrinter, Diff, Hunk, InternedInput, Token, UnifiedDiffConfig,
+    sources::lines,
 };
 use std::{iter, ops::Range, sync::Arc};
 
@@ -13,21 +12,20 @@ const MAX_WORD_DIFF_LINE_COUNT: usize = 8;
 /// Computes a diff between two strings, returning a unified diff string.
 pub fn unified_diff(old_text: &str, new_text: &str) -> String {
     let input = InternedInput::new(old_text, new_text);
-    diff(
-        Algorithm::Histogram,
-        &input,
-        UnifiedDiffBuilder::new(&input),
-    )
+    Diff::compute(Algorithm::Histogram, &input)
+        .unified_diff(
+            &BasicLineDiffPrinter(&input.interner),
+            UnifiedDiffConfig::default(),
+            &input,
+        )
+        .to_string()
 }
 
 /// Computes a diff between two strings, returning a vector of old and new row
 /// ranges.
 pub fn line_diff(old_text: &str, new_text: &str) -> Vec<(Range<u32>, Range<u32>)> {
     let mut edits = Vec::new();
-    let input = InternedInput::new(
-        lines_with_terminator(old_text),
-        lines_with_terminator(new_text),
-    );
+    let input = InternedInput::new(lines(old_text), lines(new_text));
     diff_internal(&input, |_, _, old_rows, new_rows| {
         edits.push((old_rows, new_rows));
     });
@@ -111,10 +109,7 @@ pub fn text_diff_with_options(
     let empty: Arc<str> = Arc::default();
     let mut edits = Vec::new();
     let mut hunk_input = InternedInput::default();
-    let input = InternedInput::new(
-        lines_with_terminator(old_text),
-        lines_with_terminator(new_text),
-    );
+    let input = InternedInput::new(lines(old_text), lines(new_text));
     diff_internal(
         &input,
         |old_byte_range, new_byte_range, old_rows, new_rows| {
@@ -190,35 +185,33 @@ fn diff_internal(
     let mut new_offset = 0;
     let mut old_token_ix = 0;
     let mut new_token_ix = 0;
-    diff(
-        Algorithm::Histogram,
-        input,
-        |old_tokens: Range<u32>, new_tokens: Range<u32>| {
+    Diff::compute(Algorithm::Histogram, input)
+        .hunks()
+        .for_each(|hunk: Hunk| {
             old_offset += token_len(
                 input,
-                &input.before[old_token_ix as usize..old_tokens.start as usize],
+                &input.before[old_token_ix as usize..hunk.before.start as usize],
             );
             new_offset += token_len(
                 input,
-                &input.after[new_token_ix as usize..new_tokens.start as usize],
+                &input.after[new_token_ix as usize..hunk.after.start as usize],
             );
             let old_len = token_len(
                 input,
-                &input.before[old_tokens.start as usize..old_tokens.end as usize],
+                &input.before[hunk.before.start as usize..hunk.before.end as usize],
             );
             let new_len = token_len(
                 input,
-                &input.after[new_tokens.start as usize..new_tokens.end as usize],
+                &input.after[hunk.after.start as usize..hunk.after.end as usize],
             );
             let old_byte_range = old_offset..old_offset + old_len;
             let new_byte_range = new_offset..new_offset + new_len;
-            old_token_ix = old_tokens.end;
-            new_token_ix = new_tokens.end;
+            old_token_ix = hunk.before.end;
+            new_token_ix = hunk.after.end;
             old_offset = old_byte_range.end;
             new_offset = new_byte_range.end;
-            on_change(old_byte_range, new_byte_range, old_tokens, new_tokens);
-        },
-    );
+            on_change(old_byte_range, new_byte_range, hunk.before, hunk.after);
+        });
 }
 
 fn tokenize(text: &str, language_scope: Option<LanguageScope>) -> impl Iterator<Item = &str> {

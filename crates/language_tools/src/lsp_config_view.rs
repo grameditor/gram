@@ -121,8 +121,8 @@ impl LspConfigView {
                     } => {
                         if let Some(Status::Binary(binary_status_proto)) = &status_update.status {
                             if let Some(name) = name.as_ref() {
-                                if let Some(binary_status) =
-                                    ServerBinaryStatus::from_i32(*binary_status_proto)
+                                if let Ok(binary_status) =
+                                    ServerBinaryStatus::try_from(*binary_status_proto)
                                 {
                                     let status = match binary_status {
                                         ServerBinaryStatus::None => BinaryStatus::None,

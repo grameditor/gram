@@ -580,10 +580,7 @@ impl SplittableEditor {
                 self.set_excerpts_for_path(path, buffer, ranges, 2, diff, cx);
             } else {
                 let remove_count = rng.random_range(1..=paths.len());
-                let paths_to_remove = paths
-                    .choose_multiple(rng, remove_count)
-                    .cloned()
-                    .collect::<Vec<_>>();
+                let paths_to_remove = paths.sample(rng, remove_count).cloned().collect::<Vec<_>>();
                 for path in paths_to_remove {
                     self.remove_excerpts_for_path(path.clone(), cx);
                 }

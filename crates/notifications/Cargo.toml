@@ -14,7 +14,6 @@ doctest = false
 
 [features]
 test-support = [
-    "collections/test-support",
     "gpui/test-support",
     "rpc/test-support",
 ]
@@ -34,8 +33,6 @@ workspace.workspace = true
 app_actions.workspace = true
 
 [dev-dependencies]
-collections = { workspace = true, features = ["test-support"] }
 gpui = { workspace = true, features = ["test-support"] }
 rpc = { workspace = true, features = ["test-support"] }
-settings = { workspace = true, features = ["test-support"] }
 util = { workspace = true, features = ["test-support"] }

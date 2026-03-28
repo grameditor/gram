@@ -2019,6 +2019,7 @@ mod tests {
     use itertools::Itertools;
     use language::{Buffer, Capability};
     use multi_buffer::{ExcerptRange, MultiBuffer};
+    use rand::RngExt as _;
     use rand::prelude::*;
     use settings::SettingsStore;
     use std::env;
@@ -3119,7 +3120,7 @@ mod tests {
                     let block_count = rng.random_range(1..=4.min(block_map.custom_blocks.len()));
                     let block_ids_to_remove = block_map
                         .custom_blocks
-                        .choose_multiple(&mut rng, block_count)
+                        .sample(&mut rng, block_count)
                         .map(|block| block.id)
                         .collect::<HashSet<_>>();
 

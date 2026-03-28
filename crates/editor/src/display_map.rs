@@ -1688,7 +1688,7 @@ pub mod tests {
     };
     use lsp::LanguageServerId;
 
-    use rand::{Rng, prelude::*};
+    use rand::prelude::*;
     use settings::{SettingsContent, SettingsStore};
     use smol::stream::StreamExt;
     use std::{env, sync::Arc};

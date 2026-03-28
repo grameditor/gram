@@ -70,24 +70,17 @@ rayon.workspace = true
 
 [target.'cfg(not(windows))'.dependencies]
 crashes.workspace = true
-crash-handler.workspace = true
 fork.workspace = true
 libc.workspace = true
-minidumper.workspace = true
 
 [dev-dependencies]
-action_log.workspace = true
-clock = { workspace = true, features = ["test-support"] }
 collections.workspace = true
-dap = { workspace = true, features = ["test-support"] }
 editor = { workspace = true, features = ["test-support"] }
-workspace = { workspace = true, features = ["test-support"] }
 fs = { workspace = true, features = ["test-support"] }
 gpui = { workspace = true, features = ["test-support"] }
 http_client = { workspace = true, features = ["test-support"] }
 language = { workspace = true, features = ["test-support"] }
 node_runtime = { workspace = true, features = ["test-support"] }
-pretty_assertions.workspace = true
 project = { workspace = true, features = ["test-support"] }
 remote = { workspace = true, features = ["test-support"] }
 theme = { workspace = true, features = ["test-support"] }
@@ -101,4 +94,4 @@ cargo_toml.workspace = true
 toml.workspace = true
 
 [package.metadata.cargo-machete]
-ignored = ["git2", "rust-embed", "paths"]
+ignored = ["git2", "rust-embed", "cargo_toml", "toml"]

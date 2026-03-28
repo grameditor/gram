@@ -976,7 +976,7 @@ impl Terminal {
                 self.write_to_pty(format(color).into_bytes());
             }
             AlacTermEvent::ChildExit(raw_status) => {
-                self.register_task_finished(Some(raw_status), cx);
+                self.register_task_finished(raw_status.code(), cx);
             }
         }
     }
@@ -2482,6 +2482,7 @@ pub fn rgba_color(r: u8, g: u8, b: u8) -> Hsla {
 
 #[cfg(test)]
 mod tests {
+    use rand::RngExt as _;
     use std::time::Duration;
 
     use super::*;
@@ -2498,7 +2499,7 @@ mod tests {
         Entity, Modifiers, MouseButton, MouseDownEvent, MouseMoveEvent, MouseUpEvent, Pixels,
         Point, TestAppContext, bounds, point, size, smol_timeout,
     };
-    use rand::{Rng, distr, rngs::ThreadRng};
+    use rand::{distr, rngs::ThreadRng};
     use task::ShellBuilder;
 
     fn init_ctrl_click_hyperlink_test(cx: &mut TestAppContext, output: &[u8]) -> Entity<Terminal> {

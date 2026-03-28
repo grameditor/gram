@@ -3259,7 +3259,7 @@ fn test_random_collaboration(cx: &mut App, mut rng: StdRng) {
         .collect::<String>();
     let mut replica_ids = Vec::new();
     let mut buffers = Vec::new();
-    let network = Arc::new(Mutex::new(Network::new(rng.clone())));
+    let network = Arc::new(Mutex::new(Network::new(rng.fork())));
     let base_buffer = cx.new(|cx| Buffer::local(base_text.as_str(), cx));
 
     for i in 0..rng.random_range(min_peers..=max_peers) {

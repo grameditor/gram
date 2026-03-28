@@ -4012,7 +4012,7 @@ impl LspStore {
             worktree_store,
             languages: languages.clone(),
             language_server_statuses: Default::default(),
-            nonce: StdRng::from_os_rng().random(),
+            nonce: rand::make_rng::<rand::rngs::SmallRng>().random(),
             diagnostic_summaries: HashMap::default(),
             lsp_server_capabilities: HashMap::default(),
             lsp_data: HashMap::default(),
@@ -4072,7 +4072,7 @@ impl LspStore {
             worktree_store,
             languages: languages.clone(),
             language_server_statuses: Default::default(),
-            nonce: StdRng::from_os_rng().random(),
+            nonce: rand::make_rng::<rand::rngs::SmallRng>().random(),
             diagnostic_summaries: HashMap::default(),
             lsp_server_capabilities: HashMap::default(),
             next_hint_id: Arc::default(),
@@ -11948,9 +11948,9 @@ impl LspStore {
         Ok(CoreCompletion {
             replace_range: old_replace_start..old_replace_end,
             new_text: completion.new_text,
-            source: match proto::completion::Source::from_i32(completion.source) {
-                Some(proto::completion::Source::Custom) => CompletionSource::Custom,
-                Some(proto::completion::Source::Lsp) => CompletionSource::Lsp {
+            source: match proto::completion::Source::try_from(completion.source) {
+                Ok(proto::completion::Source::Custom) => CompletionSource::Custom,
+                Ok(proto::completion::Source::Lsp) => CompletionSource::Lsp {
                     insert_range,
                     server_id: LanguageServerId::from_proto(completion.server_id),
                     lsp_completion: serde_json::from_slice(&completion.lsp_completion)?,
@@ -11961,7 +11961,7 @@ impl LspStore {
                         .transpose()?,
                     resolved: completion.resolved,
                 },
-                Some(proto::completion::Source::BufferWord) => {
+                Ok(proto::completion::Source::BufferWord) => {
                     let word_range = completion
                         .buffer_word_start
                         .and_then(deserialize_anchor)
@@ -11975,7 +11975,8 @@ impl LspStore {
                         resolved: completion.resolved,
                     }
                 }
-                Some(proto::completion::Source::Dap) => CompletionSource::Dap {
+
+                Ok(proto::completion::Source::Dap) => CompletionSource::Dap {
                     sort_text: completion
                         .sort_text
                         .context("expected sort text to exist")?,
@@ -12020,17 +12021,18 @@ impl LspStore {
             .end
             .and_then(deserialize_anchor)
             .context("invalid end")?;
-        let lsp_action = match proto::code_action::Kind::from_i32(action.kind) {
-            Some(proto::code_action::Kind::Action) => {
+        let lsp_action = match proto::code_action::Kind::try_from(action.kind) {
+            Ok(proto::code_action::Kind::Action) => {
                 LspAction::Action(serde_json::from_slice(&action.lsp_action)?)
             }
-            Some(proto::code_action::Kind::Command) => {
+
+            Ok(proto::code_action::Kind::Command) => {
                 LspAction::Command(serde_json::from_slice(&action.lsp_action)?)
             }
-            Some(proto::code_action::Kind::CodeLens) => {
+            Ok(proto::code_action::Kind::CodeLens) => {
                 LspAction::CodeLens(serde_json::from_slice(&action.lsp_action)?)
             }
-            None => anyhow::bail!("Unknown action kind {}", action.kind),
+            Err(err) => anyhow::bail!("Unknown action kind {}: {}", action.kind, err),
         };
         Ok(CodeAction {
             server_id: LanguageServerId(action.server_id as usize),
@@ -13715,7 +13717,7 @@ impl LanguageServerLogType {
         use proto::rpc_message;
         match log_type {
             proto::language_server_log::LogType::Log(message_type) => Self::Log(
-                match LogLevel::from_i32(message_type.level).unwrap_or(LogLevel::Log) {
+                match LogLevel::try_from(message_type.level).unwrap_or(LogLevel::Log) {
                     LogLevel::Error => MessageType::ERROR,
                     LogLevel::Warning => MessageType::WARNING,
                     LogLevel::Info => MessageType::INFO,
@@ -13726,7 +13728,7 @@ impl LanguageServerLogType {
                 verbose_info: trace_message.verbose_info,
             },
             proto::language_server_log::LogType::Rpc(message) => Self::Rpc {
-                received: match rpc_message::Kind::from_i32(message.kind)
+                received: match rpc_message::Kind::try_from(message.kind)
                     .unwrap_or(rpc_message::Kind::Received)
                 {
                     rpc_message::Kind::Received => true,

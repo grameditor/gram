@@ -38,7 +38,7 @@ use parking_lot::Mutex;
 use paths::{config_dir, global_gitignore_path, tasks_file};
 use postage::stream::Stream as _;
 use pretty_assertions::{assert_eq, assert_matches};
-use rand::{Rng as _, rngs::StdRng};
+use rand::{RngExt as _, rngs::StdRng};
 use serde_json::json;
 #[cfg(not(windows))]
 use std::os;
@@ -3376,7 +3376,7 @@ async fn test_definition(cx: &mut gpui::TestAppContext) {
 
     // Assert no new language server started
     cx.executor().run_until_parked();
-    assert!(fake_servers.try_next().is_err());
+    assert!(fake_servers.try_recv().is_err());
 
     assert_eq!(definitions.len(), 1);
     let definition = definitions.pop().unwrap();

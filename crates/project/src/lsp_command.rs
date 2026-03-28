@@ -1597,11 +1597,11 @@ impl LspCommand for GetDocumentHighlights {
             buffer
                 .update(&mut cx, |buffer, _| buffer.wait_for_anchors([start, end]))?
                 .await?;
-            let kind = match proto::document_highlight::Kind::from_i32(highlight.kind) {
-                Some(proto::document_highlight::Kind::Text) => DocumentHighlightKind::TEXT,
-                Some(proto::document_highlight::Kind::Read) => DocumentHighlightKind::READ,
-                Some(proto::document_highlight::Kind::Write) => DocumentHighlightKind::WRITE,
-                None => DocumentHighlightKind::TEXT,
+            let kind = match proto::document_highlight::Kind::try_from(highlight.kind) {
+                Ok(proto::document_highlight::Kind::Text) => DocumentHighlightKind::TEXT,
+                Ok(proto::document_highlight::Kind::Read) => DocumentHighlightKind::READ,
+                Ok(proto::document_highlight::Kind::Write) => DocumentHighlightKind::WRITE,
+                Err(..) => DocumentHighlightKind::TEXT,
             };
             highlights.push(DocumentHighlight {
                 range: start..end,
@@ -3838,16 +3838,16 @@ impl GetDocumentDiagnostics {
         let tags = diagnostic
             .tags
             .into_iter()
-            .filter_map(|tag| match proto::LspDiagnosticTag::from_i32(tag) {
-                Some(proto::LspDiagnosticTag::Unnecessary) => Some(lsp::DiagnosticTag::UNNECESSARY),
-                Some(proto::LspDiagnosticTag::Deprecated) => Some(lsp::DiagnosticTag::DEPRECATED),
+            .filter_map(|tag| match proto::LspDiagnosticTag::try_from(tag) {
+                Ok(proto::LspDiagnosticTag::Unnecessary) => Some(lsp::DiagnosticTag::UNNECESSARY),
+                Ok(proto::LspDiagnosticTag::Deprecated) => Some(lsp::DiagnosticTag::DEPRECATED),
                 _ => None,
             })
             .collect::<Vec<_>>();
 
         Ok(lsp::Diagnostic {
             range: language::range_to_lsp(range)?,
-            severity: match proto::lsp_diagnostic::Severity::from_i32(diagnostic.severity).unwrap()
+            severity: match proto::lsp_diagnostic::Severity::try_from(diagnostic.severity).unwrap()
             {
                 proto::lsp_diagnostic::Severity::Error => Some(lsp::DiagnosticSeverity::ERROR),
                 proto::lsp_diagnostic::Severity::Warning => Some(lsp::DiagnosticSeverity::WARNING),

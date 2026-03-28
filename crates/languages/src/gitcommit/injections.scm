@@ -1,9 +1,5 @@
-((comment) @content
- (#set! injection.language "comment")
-)
+((diff) @injection.content
+  (#set! injection.language "diff"))
 
-((scissors) @content
- (#set! "language" "diff"))
-
-((rebase_command) @content
- (#set! "language" "git_rebase"))
+((rebase_command) @injection.content
+  (#set! injection.language "git_rebase"))

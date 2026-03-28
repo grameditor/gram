@@ -35,6 +35,8 @@ use gpui::{
 
 use lsp::{LanguageServerId, NumberOrString};
 use parking_lot::Mutex;
+#[cfg(any(test, feature = "test-support"))]
+use rand::RngExt as _;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use settings::WorktreeId;
@@ -992,7 +994,7 @@ impl Buffer {
         let buffer = TextBuffer::new(replica_id, buffer_id, message.base_text);
         let mut this = Self::build(buffer, file, capability);
         this.text.set_line_ending(proto::deserialize_line_ending(
-            rpc::proto::LineEnding::from_i32(message.line_ending).context("missing line_ending")?,
+            rpc::proto::LineEnding::try_from(message.line_ending).context("missing line_ending")?,
         ));
         this.saved_version = proto::deserialize_version(&message.saved_version);
         this.saved_mtime = message.saved_mtime.map(|time| time.into());
