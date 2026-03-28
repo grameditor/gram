@@ -376,7 +376,7 @@ impl LanguageServer {
                     notification.method,
                     serde_json::to_string_pretty(&notification.params).unwrap(),
                 );
-                false
+                notification.method.starts_with("$/")
             },
         );
 
