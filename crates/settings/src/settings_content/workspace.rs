@@ -743,6 +743,8 @@ pub enum ProjectPanelEntrySpacing {
     Comfortable,
     /// The standard spacing of entries.
     Standard,
+    /// Extra tight spacing of entries.
+    Tight,
 }
 
 #[derive(

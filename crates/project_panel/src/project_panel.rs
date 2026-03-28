@@ -4977,6 +4977,9 @@ impl ProjectPanel {
                         ProjectPanelEntrySpacing::Standard => {
                             ListItemSpacing::ExtraDense
                         }
+                        ProjectPanelEntrySpacing::Tight => {
+                            ListItemSpacing::SuperDense
+                        }
                     })
                     .selectable(false)
                     .when_some(canonical_path, |this, path| {
