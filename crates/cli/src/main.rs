@@ -97,9 +97,6 @@ struct Args {
     /// Custom path to Gram.app or the editor binary
     #[arg(long)]
     gram: Option<PathBuf>,
-    /// Run gram in dev-server mode
-    #[arg(long)]
-    dev_server_token: Option<String>,
     /// The username and WSL distribution to use when opening paths. If not specified,
     /// Gram will attempt to open the paths directly.
     ///
@@ -507,11 +504,6 @@ fn main() -> Result<()> {
             paths.push(parse_path_with_position(path)?);
         }
     }
-
-    anyhow::ensure!(
-        args.dev_server_token.is_none(),
-        "Dev servers were removed in v0.157.x please upgrade to SSH remoting: gram://docs/remote-development"
-    );
 
     rayon::ThreadPoolBuilder::new()
         .num_threads(4)

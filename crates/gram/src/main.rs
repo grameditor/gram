@@ -1210,13 +1210,9 @@ struct Args {
     #[arg(long, value_name = "USER@DISTRO")]
     wsl: Option<String>,
 
-    /// Instructs gram to run as a dev server on this machine. (not implemented)
-    #[arg(long)]
-    dev_server_token: Option<String>,
-
     /// Prints system specs.
     ///
-    /// Useful for submitting issues on GitHub when encountering a bug that
+    /// Useful for submitting issues on Codeberg when encountering a bug that
     /// prevents Gram from starting, so you can't run `gram: copy system specs to
     /// clipboard`
     #[arg(long)]
