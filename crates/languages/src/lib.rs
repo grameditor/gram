@@ -107,6 +107,7 @@ pub fn init(languages: Arc<LanguageRegistry>, fs: Arc<dyn Fs>, node: NodeRuntime
         ("yaml", tree_sitter_yaml::LANGUAGE),
         ("zig", tree_sitter_zig::LANGUAGE),
         ("gitcommit", tree_sitter_gitcommit::LANGUAGE),
+        ("git-rebase", tree_sitter_git_rebase::LANGUAGE),
     ]);
 
     let bash_lsp_adapter = Arc::new(bash::BashLspAdapter::new(node.clone()));
@@ -344,6 +345,10 @@ pub fn init(languages: Arc<LanguageRegistry>, fs: Arc<dyn Fs>, node: NodeRuntime
         },
         LanguageInfo {
             name: "gitcommit",
+            ..Default::default()
+        },
+        LanguageInfo {
+            name: "git-rebase",
             ..Default::default()
         },
         LanguageInfo {
