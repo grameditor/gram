@@ -462,13 +462,13 @@ partial-json-fixer = "0.5.3"
 parse_int = "0.9"
 pciid-parser = "0.8.1"
 pathdiff = "0.2"
-pet = { git = "https://github.com/microsoft/python-environment-tools.git", rev = "d5b5bb0c4558a51d8cc76b514bc870fd1c042f16" }
-pet-conda = { git = "https://github.com/microsoft/python-environment-tools.git", rev = "d5b5bb0c4558a51d8cc76b514bc870fd1c042f16" }
-pet-core = { git = "https://github.com/microsoft/python-environment-tools.git", rev = "d5b5bb0c4558a51d8cc76b514bc870fd1c042f16" }
-pet-fs = { git = "https://github.com/microsoft/python-environment-tools.git", rev = "d5b5bb0c4558a51d8cc76b514bc870fd1c042f16" }
-pet-poetry = { git = "https://github.com/microsoft/python-environment-tools.git", rev = "d5b5bb0c4558a51d8cc76b514bc870fd1c042f16" }
-pet-reporter = { git = "https://github.com/microsoft/python-environment-tools.git", rev = "d5b5bb0c4558a51d8cc76b514bc870fd1c042f16" }
-pet-virtualenv = { git = "https://github.com/microsoft/python-environment-tools.git", rev = "d5b5bb0c4558a51d8cc76b514bc870fd1c042f16" }
+pet = { git = "https://github.com/microsoft/python-environment-tools.git", rev = "80b4574dc9ce11957f454630f9561ce1d37fa5a1" }
+pet-conda = { git = "https://github.com/microsoft/python-environment-tools.git", rev = "80b4574dc9ce11957f454630f9561ce1d37fa5a1" }
+pet-core = { git = "https://github.com/microsoft/python-environment-tools.git", rev = "80b4574dc9ce11957f454630f9561ce1d37fa5a1" }
+pet-fs = { git = "https://github.com/microsoft/python-environment-tools.git", rev = "80b4574dc9ce11957f454630f9561ce1d37fa5a1" }
+pet-poetry = { git = "https://github.com/microsoft/python-environment-tools.git", rev = "80b4574dc9ce11957f454630f9561ce1d37fa5a1" }
+pet-reporter = { git = "https://github.com/microsoft/python-environment-tools.git", rev = "80b4574dc9ce11957f454630f9561ce1d37fa5a1" }
+pet-virtualenv = { git = "https://github.com/microsoft/python-environment-tools.git", rev = "80b4574dc9ce11957f454630f9561ce1d37fa5a1" }
 postage = { version = "0.5", features = ["futures-traits"] }
 pretty_assertions = { version = "1.3.0", features = ["unstable"] }
 proc-macro2 = "1.0.93"

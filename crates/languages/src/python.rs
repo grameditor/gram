@@ -1014,6 +1014,7 @@ fn python_env_kind_display(k: &PythonEnvironmentKind) -> &'static str {
         PythonEnvironmentKind::WindowsRegistry => "global (Windows Registry)",
         PythonEnvironmentKind::Uv => "uv",
         PythonEnvironmentKind::UvWorkspace => "uv (Workspace)",
+        PythonEnvironmentKind::WinPython => "WinPython",
     }
 }
 
