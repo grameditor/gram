@@ -953,23 +953,6 @@ impl GitGraph {
 
         let remote = repository.update(cx, |repo, cx| self.get_remote(repo, window, cx));
 
-        let avatar = {
-            v_flex()
-                .w(px(64.))
-                .h(px(64.))
-                .border_1()
-                .border_color(cx.theme().colors().border)
-                .rounded_full()
-                .justify_center()
-                .items_center()
-                .child(
-                    Icon::new(IconName::Person)
-                        .color(Color::Muted)
-                        .size(IconSize::XLarge)
-                        .into_any_element(),
-                )
-        };
-
         let changed_files_count = self
             .selected_commit_diff
             .as_ref()
@@ -987,25 +970,30 @@ impl GitGraph {
                     .p_3()
                     .gap_3()
                     .child(
-                        h_flex().justify_between().child(avatar).child(
-                            IconButton::new("close-detail", IconName::Close)
-                                .icon_size(IconSize::Small)
-                                .on_click(cx.listener(move |this, _, _, cx| {
-                                    this.selected_entry_idx = None;
-                                    this.selected_commit_diff = None;
-                                    this._commit_diff_task = None;
-                                    cx.notify();
-                                })),
-                        ),
-                    )
-                    .child(
-                        v_flex()
-                            .gap_0p5()
-                            .child(Label::new(author_name.clone()).weight(FontWeight::SEMIBOLD))
+                        h_flex()
+                            .justify_between()
                             .child(
-                                Label::new(date_string)
-                                    .color(Color::Muted)
-                                    .size(LabelSize::Small),
+                                v_flex()
+                                    .gap_0p5()
+                                    .child(
+                                        Label::new(author_name.clone())
+                                            .weight(FontWeight::SEMIBOLD),
+                                    )
+                                    .child(
+                                        Label::new(date_string)
+                                            .color(Color::Muted)
+                                            .size(LabelSize::Small),
+                                    ),
+                            )
+                            .child(
+                                IconButton::new("close-detail", IconName::Close)
+                                    .icon_size(IconSize::Small)
+                                    .on_click(cx.listener(move |this, _, _, cx| {
+                                        this.selected_entry_idx = None;
+                                        this.selected_commit_diff = None;
+                                        this._commit_diff_task = None;
+                                        cx.notify();
+                                    })),
                             ),
                     )
                     .children((!ref_names.is_empty()).then(|| {
@@ -1066,10 +1054,7 @@ impl GitGraph {
                             )
                             .when_some(remote, |this, remote| {
                                 let provider_name = remote.host.name();
-                                let icon = match provider_name.as_str() {
-                                    "GitHub" => IconName::Forge,
-                                    _ => IconName::Link,
-                                };
+                                let icon = IconName::Forge;
                                 let parsed_remote = ParsedGitRemote {
                                     owner: remote.owner.as_ref().into(),
                                     repo: remote.repo.as_ref().into(),
