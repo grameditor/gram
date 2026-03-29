@@ -562,7 +562,6 @@ tree-sitter-jsdoc = "0.23"
 tree-sitter-json = "0.24"
 tree-sitter-lua = { git = "https://github.com/tree-sitter-grammars/tree-sitter-lua", branch = "main" }
 tree-sitter-nix = { git = "https://github.com/nix-community/tree-sitter-nix", branch = "master" }
-tree-sitter-emmyluadoc = { git = "https://github.com/EmmyLuaLs/tree-sitter-emmyluadoc", branch = "main" }
 tree-sitter-md = { git = "https://github.com/tree-sitter-grammars/tree-sitter-markdown", branch = "split_parser" }
 tree-sitter-odin = { git = "https://github.com/tree-sitter-grammars/tree-sitter-odin", branch = "master" }
 tree-sitter-python = "0.25"
