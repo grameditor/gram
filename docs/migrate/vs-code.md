@@ -192,7 +192,7 @@ To start a new project, create a directory using your terminal or file manager, 
 You can also launch Gram from the terminal inside any folder with:
 `gram .`
 
-Once inside a project, use `Cmd+P` to jump between files quickly. `Cmd+Shift+P` (`Ctrl+Shift+P` on Linux) opens the command palette for running actions / tasks, toggling settings, or starting a collaboration session.
+Once inside a project, use `Cmd+P` to jump between files quickly. `Cmd+Shift+P` (`Ctrl+Shift+P` on Linux) opens the command palette for running actions / tasks, toggling settings, or running other actions.
 
 Open buffers appear as tabs across the top. The sidebar shows your file tree and Git status. Collapse it with `Cmd+B` for a distraction-free view.
 
@@ -277,7 +277,7 @@ In VS Code, the standard entry point is opening a folder. From there, the left-h
 Gram takes a different approach:
 
 - You can still open folders, but you don’t need to. Opening a single file or even starting with an empty workspace is valid.
-- The Command Palette (`Cmd+Shift+P`) and File Finder (`Cmd+P`) are your primary navigation tools. The File Finder searches across the entire workspace instantly; files, symbols, commands, even teammates if you're collaborating.
+- The Command Palette (`Cmd+Shift+P`) and File Finder (`Cmd+P`) are your primary navigation tools. The File Finder searches across the entire workspace instantly; files, symbols and commands.
 - Instead of a persistent sidebar, Gram encourages you to:
   - Fuzzy-find files by name (`Cmd+P`)
   - Jump directly to symbols (`Cmd+Shift+O`)
