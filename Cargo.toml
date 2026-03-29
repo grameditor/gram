@@ -1,7 +1,6 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/action_log",
     "crates/activity_indicator",
     "crates/app_actions",
     "crates/app_env_vars",
@@ -173,7 +172,6 @@ edition = "2024"
 # Workspace member crates
 #
 
-action_log = { path = "crates/action_log" }
 activity_indicator = { path = "crates/activity_indicator" }
 app_actions = { path = "crates/app_actions" }
 app_env_vars = { path = "crates/app_env_vars" }

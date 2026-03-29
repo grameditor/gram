@@ -3,30 +3,6 @@
 version = 4
 
 [[package]]
-name = "action_log"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "buffer_diff",
- "clock",
- "collections",
- "ctor",
- "futures 0.3.32",
- "gpui",
- "language",
- "log",
- "pretty_assertions",
- "project",
- "rand 0.10.0",
- "serde_json",
- "settings",
- "text",
- "util",
- "watch",
- "zlog",
-]
-
-[[package]]
 name = "activity_indicator"
 version = "0.1.0"
 dependencies = [
