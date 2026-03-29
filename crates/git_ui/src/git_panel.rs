@@ -2528,10 +2528,6 @@ impl GitPanel {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        if !self.can_push_and_pull(cx) {
-            return;
-        }
-
         let Some(repo) = self.active_repository.clone() else {
             return;
         };
@@ -2670,9 +2666,6 @@ impl GitPanel {
     }
 
     pub(crate) fn pull(&mut self, rebase: bool, window: &mut Window, cx: &mut Context<Self>) {
-        if !self.can_push_and_pull(cx) {
-            return;
-        }
         let Some(repo) = self.active_repository.clone() else {
             return;
         };
@@ -2732,9 +2725,6 @@ impl GitPanel {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        if !self.can_push_and_pull(cx) {
-            return;
-        }
         let Some(repo) = self.active_repository.clone() else {
             return;
         };
@@ -2893,10 +2883,6 @@ impl GitPanel {
                 })
                 .ok();
         })
-    }
-
-    fn can_push_and_pull(&self, cx: &App) -> bool {
-        !self.project.read(cx).is_via_collab()
     }
 
     fn get_remote(
@@ -3677,9 +3663,6 @@ impl GitPanel {
 
     pub(crate) fn render_remote_button(&self, cx: &mut Context<Self>) -> Option<AnyElement> {
         let branch = self.active_repository.as_ref()?.read(cx).branch.clone();
-        if !self.can_push_and_pull(cx) {
-            return None;
-        }
         Some(
             h_flex()
                 .gap_1()

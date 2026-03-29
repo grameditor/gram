@@ -5212,8 +5212,6 @@ impl Editor {
         // OnTypeFormatting returns a list of edits, no need to pass them between Gram instances,
         // hence we do LSP request & edit on host side only — add formats to host's history.
         let push_to_lsp_host_history = true;
-        // If this is not the host, append its history with new edits.
-        let push_to_client_history = project.read(cx).is_via_collab();
 
         let on_type_formatting = project.update(cx, |project, cx| {
             project.on_type_format(
@@ -5225,15 +5223,7 @@ impl Editor {
             )
         });
         Some(cx.spawn_in(window, async move |editor, cx| {
-            if let Some(transaction) = on_type_formatting.await? {
-                if push_to_client_history {
-                    buffer
-                        .update(cx, |buffer, _| {
-                            buffer.push_transaction(transaction, Instant::now());
-                            buffer.finalize_last_transaction();
-                        })
-                        .ok();
-                }
+            if let Some(_transaction) = on_type_formatting.await? {
                 editor.update(cx, |editor, cx| {
                     editor.refresh_document_highlights(cx);
                 })?;
@@ -14160,9 +14150,7 @@ impl Editor {
                 return;
             };
 
-            let hide_runnables = project
-                .update(cx, |project, _| project.is_via_collab())
-                .unwrap_or(true);
+            let hide_runnables = project.update(cx, |_, _| false).unwrap_or(true);
             if hide_runnables {
                 return;
             }

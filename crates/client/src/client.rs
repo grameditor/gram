@@ -676,16 +676,6 @@ impl Client {
         ConnectionResult::Result(Ok(()))
     }
 
-    pub fn disconnect(self: &Arc<Self>, cx: &AsyncApp) {
-        self.peer.teardown();
-        self.set_status(Status::SignedOut, cx);
-    }
-
-    pub fn reconnect(self: &Arc<Self>, cx: &AsyncApp) {
-        self.peer.teardown();
-        self.set_status(Status::ConnectionLost, cx);
-    }
-
     fn connection_id(&self) -> Result<ConnectionId> {
         if let Status::Connected { connection_id, .. } = *self.status().borrow() {
             Ok(connection_id)

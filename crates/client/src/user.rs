@@ -1,24 +1,13 @@
 use super::{Client, proto};
 use anyhow::{Context as _, Result};
 use collections::HashMap;
-use gpui::{Context, SharedString, SharedUri, Task};
+use gpui::{Context, SharedString, Task};
 use postage::watch;
 use rpc::proto::{RequestMessage, UsersResponse};
 use std::sync::{Arc, Weak};
 use text::ReplicaId;
 
 pub type UserId = u64;
-
-#[derive(
-    Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy, serde::Serialize, serde::Deserialize,
-)]
-pub struct ChannelId(pub u64);
-
-impl std::fmt::Display for ChannelId {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        self.0.fmt(f)
-    }
-}
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]
 pub struct ProjectId(pub u64);
@@ -36,7 +25,6 @@ pub struct ParticipantIndex(pub u32);
 pub struct User {
     pub id: UserId,
     pub github_login: SharedString,
-    pub avatar_uri: SharedUri,
     pub name: Option<String>,
 }
 
@@ -153,19 +141,6 @@ impl UserStore {
         self.load_users(proto::FuzzySearchUsers { query }, cx)
     }
 
-    pub fn get_cached_user(&self, user_id: u64) -> Option<Arc<User>> {
-        self.users.get(&user_id).cloned()
-    }
-
-    pub fn get_user_optimistic(&self, user_id: u64, cx: &Context<Self>) -> Option<Arc<User>> {
-        if let Some(user) = self.users.get(&user_id).cloned() {
-            return Some(user);
-        }
-
-        self.get_user(user_id, cx).detach_and_log_err(cx);
-        None
-    }
-
     pub fn get_user(&self, user_id: u64, cx: &Context<Self>) -> Task<Result<Arc<User>>> {
         if let Some(user) = self.users.get(&user_id).cloned() {
             return Task::ready(Ok(user));
@@ -181,12 +156,6 @@ impl UserStore {
                     .context("server responded with no users")
             })?
         })
-    }
-
-    pub fn cached_user_by_github_login(&self, github_login: &str) -> Option<Arc<User>> {
-        self.by_github_login
-            .get(github_login)
-            .and_then(|id| self.users.get(id).cloned())
     }
 
     pub fn current_user(&self) -> Option<Arc<User>> {
@@ -237,7 +206,6 @@ impl User {
         Arc::new(User {
             id: message.id,
             github_login: message.github_login.into(),
-            avatar_uri: message.avatar_url.into(),
             name: message.name,
         })
     }
