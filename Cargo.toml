@@ -328,7 +328,7 @@ wgpu = "29.0.1"
 aho-corasick = "1.1"
 alacritty_terminal = { git = "https://github.com/alacritty/alacritty", rev = "48ff32f7c6bbe2c084f1abc39470487510687323" }
 any_vec = "0.15"
-anyhow = "1.0.86"
+anyhow = "1.0"
 arrayvec = { version = "0.7.4", features = ["serde"] }
 ashpd = { version = "0.13", default-features = false, features = [
     "async-io",
@@ -352,7 +352,7 @@ async-tungstenite = "0.32.0"
 async_zip = { version = "0.0.18", features = ["deflate", "deflate64"] }
 backtrace = "0.3"
 base64 = "0.22"
-bincode = "1.2.1"
+bitcode = { version = "0.6", features = ["serde"] }
 bitflags = "2.6.0"
 brotli = "8.0.2"
 bytes = "1.0"

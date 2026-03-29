@@ -273,7 +273,7 @@ impl minidumper::ServerHandler for CrashServer {
             }
             3 => {
                 let gpu_specs: system_specs::GpuSpecs =
-                    bincode::deserialize(&buffer).expect("gpu specs");
+                    bitcode::deserialize(&buffer).expect("gpu specs");
                 // we ignore the case where it was already set because this message is sent
                 // on each new window. in theory all gram windows should be using the same
                 // GPU so this is fine.

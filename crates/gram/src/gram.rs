@@ -346,9 +346,8 @@ pub fn initialize_workspace(app_state: Arc<AppState>, cx: &mut App) {
         if let Some(specs) = window.gpu_specs() {
             log::info!("Using GPU: {:?}", specs);
             show_software_emulation_warning_if_needed(specs.clone(), window, cx);
-            if let Some((crash_server, message)) = crashes::CRASH_HANDLER
-                .get()
-                .zip(bincode::serialize(&specs).ok())
+            if let Some((crash_server, message)) =
+                crashes::CRASH_HANDLER.get().zip(bitcode::serialize(&specs).ok())
                 && let Err(err) = crash_server.send_message(3, message)
             {
                 log::warn!(
