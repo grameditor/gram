@@ -7,15 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add tree-sitter grammar for git rebase
+- Add "Tight" line spacing for project panel
+
+### Removed
+
+- cli: Remove unimplemented dev_server_token argument
+
 ### Fixed
 
 - Fix environment variables failing to load when `nu` is the login shell
 - Fix edited multibuffers not saving on focus change when `autosave`
   setting is set to `on_focus_change`
+- Fix unknown capture warning for TOML files
+- Don't terminate connection on ignorable LSP messages
 
 ### Changed
 
 - Enable panel icons if default and icon theme is changed (#172)
+- Add Arch package build
 
 ## [1.2.1] - 2026-03-26
 
