@@ -11,7 +11,6 @@ pub mod core_media {
         CMItemIndex, CMSampleTimingInfo, CMTime, CMTimeMake, CMVideoCodecType,
         kCMSampleAttachmentKey_NotSync, kCMTimeInvalid, kCMVideoCodecType_H264,
     };
-    use anyhow::Result;
     use core_foundation::{
         array::{CFArray, CFArrayRef},
         base::{CFTypeID, OSStatus, TCFType},
@@ -57,26 +56,6 @@ pub mod core_media {
             }
         }
 
-        pub fn sample_timing_info(&self, index: usize) -> Result<CMSampleTimingInfo> {
-            unsafe {
-                let mut timing_info = CMSampleTimingInfo {
-                    duration: kCMTimeInvalid,
-                    presentationTimeStamp: kCMTimeInvalid,
-                    decodeTimeStamp: kCMTimeInvalid,
-                };
-                let result = CMSampleBufferGetSampleTimingInfo(
-                    self.as_concrete_TypeRef(),
-                    index as CMItemIndex,
-                    &mut timing_info,
-                );
-                anyhow::ensure!(
-                    result == 0,
-                    "error getting sample timing info, code {result}"
-                );
-                Ok(timing_info)
-            }
-        }
-
         pub fn format_description(&self) -> CMFormatDescription {
             unsafe {
                 CMFormatDescription::wrap_under_get_rule(CMSampleBufferGetFormatDescription(
@@ -102,11 +81,6 @@ pub mod core_media {
             create_if_necessary: bool,
         ) -> CFArrayRef;
         fn CMSampleBufferGetImageBuffer(buffer: CMSampleBufferRef) -> CVImageBufferRef;
-        fn CMSampleBufferGetSampleTimingInfo(
-            buffer: CMSampleBufferRef,
-            index: CMItemIndex,
-            timing_info_out: *mut CMSampleTimingInfo,
-        ) -> OSStatus;
         fn CMSampleBufferGetFormatDescription(buffer: CMSampleBufferRef) -> CMFormatDescriptionRef;
         fn CMSampleBufferGetDataBuffer(sample_buffer: CMSampleBufferRef) -> CMBlockBufferRef;
     }
@@ -123,52 +97,11 @@ pub mod core_media {
     );
     impl_CFTypeDescription!(CMFormatDescription);
 
-    impl CMFormatDescription {
-        pub fn h264_parameter_set_count(&self) -> usize {
-            unsafe {
-                let mut count = 0;
-                let result = CMVideoFormatDescriptionGetH264ParameterSetAtIndex(
-                    self.as_concrete_TypeRef(),
-                    0,
-                    ptr::null_mut(),
-                    ptr::null_mut(),
-                    &mut count,
-                    ptr::null_mut(),
-                );
-                assert_eq!(result, 0);
-                count
-            }
-        }
-
-        pub fn h264_parameter_set_at_index(&self, index: usize) -> Result<&[u8]> {
-            unsafe {
-                let mut bytes = ptr::null();
-                let mut len = 0;
-                let result = CMVideoFormatDescriptionGetH264ParameterSetAtIndex(
-                    self.as_concrete_TypeRef(),
-                    index,
-                    &mut bytes,
-                    &mut len,
-                    ptr::null_mut(),
-                    ptr::null_mut(),
-                );
-                anyhow::ensure!(result == 0, "error getting parameter set, code: {result}");
-                Ok(std::slice::from_raw_parts(bytes, len))
-            }
-        }
-    }
+    impl CMFormatDescription {}
 
     #[link(name = "CoreMedia", kind = "framework")]
     unsafe extern "C" {
         fn CMFormatDescriptionGetTypeID() -> CFTypeID;
-        fn CMVideoFormatDescriptionGetH264ParameterSetAtIndex(
-            video_desc: CMFormatDescriptionRef,
-            parameter_set_index: usize,
-            parameter_set_pointer_out: *mut *const u8,
-            parameter_set_size_out: *mut usize,
-            parameter_set_count_out: *mut usize,
-            NALUnitHeaderLengthOut: *mut isize,
-        ) -> OSStatus;
     }
 
     #[repr(C)]
@@ -231,7 +164,6 @@ pub mod core_video {
     use core_foundation::{
         base::kCFAllocatorDefault, dictionary::CFDictionaryRef, mach_port::CFAllocatorRef,
     };
-    use foreign_types::ForeignTypeRef;
 
     use metal::{MTLDevice, MTLPixelFormat};
     use std::ptr;
@@ -335,18 +267,10 @@ pub mod core_video {
     impl_TCFType!(CVMetalTexture, CVMetalTextureRef, CVMetalTextureGetTypeID);
     impl_CFTypeDescription!(CVMetalTexture);
 
-    impl CVMetalTexture {
-        pub fn as_texture_ref(&self) -> &metal::TextureRef {
-            unsafe {
-                let texture = CVMetalTextureGetTexture(self.as_concrete_TypeRef());
-                metal::TextureRef::from_ptr(texture as *mut _)
-            }
-        }
-    }
+    impl CVMetalTexture {}
 
     #[link(name = "CoreVideo", kind = "framework")]
     unsafe extern "C" {
         fn CVMetalTextureGetTypeID() -> CFTypeID;
-        fn CVMetalTextureGetTexture(texture: CVMetalTextureRef) -> *mut c_void;
     }
 }

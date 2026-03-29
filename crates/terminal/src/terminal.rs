@@ -10,13 +10,13 @@ use alacritty_terminal::{
     Term,
     event::{Event as AlacTermEvent, EventListener, Notify, WindowSize},
     event_loop::{EventLoop, Msg, Notifier},
-    grid::{Dimensions, Grid, Row, Scroll as AlacScroll},
+    grid::{Dimensions, Row, Scroll as AlacScroll},
     index::{Boundary, Column, Direction as AlacDirection, Line, Point as AlacPoint},
     selection::{Selection, SelectionRange, SelectionType},
     sync::FairMutex,
     term::{
         Config, RenderableCursor, TermMode,
-        cell::{Cell, Flags},
+        cell::Cell,
         search::{Match, RegexIter, RegexSearch},
     },
     tty::{self},
@@ -1625,62 +1625,6 @@ impl Terminal {
         let start = AlacPoint::new(term.topmost_line(), Column(0));
         let end = AlacPoint::new(term.bottommost_line(), term.last_column());
         term.bounds_to_string(start, end)
-    }
-
-    pub fn last_n_non_empty_lines(&self, n: usize) -> Vec<String> {
-        let term = self.term.clone();
-        let terminal = term.lock_unfair();
-        let grid = terminal.grid();
-        let mut lines = Vec::new();
-
-        let mut current_line = grid.bottommost_line().0;
-        let topmost_line = grid.topmost_line().0;
-
-        while current_line >= topmost_line && lines.len() < n {
-            let logical_line_start = self.find_logical_line_start(grid, current_line, topmost_line);
-            let logical_line = self.construct_logical_line(grid, logical_line_start, current_line);
-
-            if let Some(line) = self.process_line(logical_line) {
-                lines.push(line);
-            }
-
-            // Move to the line above the start of the current logical line
-            current_line = logical_line_start - 1;
-        }
-
-        lines.reverse();
-        lines
-    }
-
-    fn find_logical_line_start(&self, grid: &Grid<Cell>, current: i32, topmost: i32) -> i32 {
-        let mut line_start = current;
-        while line_start > topmost {
-            let prev_line = Line(line_start - 1);
-            let last_cell = &grid[prev_line][Column(grid.columns() - 1)];
-            if !last_cell.flags.contains(Flags::WRAPLINE) {
-                break;
-            }
-            line_start -= 1;
-        }
-        line_start
-    }
-
-    fn construct_logical_line(&self, grid: &Grid<Cell>, start: i32, end: i32) -> String {
-        let mut logical_line = String::new();
-        for row in start..=end {
-            let grid_row = &grid[Line(row)];
-            logical_line.push_str(&row_to_string(grid_row));
-        }
-        logical_line
-    }
-
-    fn process_line(&self, line: String) -> Option<String> {
-        let trimmed = line.trim_end().to_string();
-        if !trimmed.is_empty() {
-            Some(trimmed)
-        } else {
-            None
-        }
     }
 
     pub fn focus_in(&self) {

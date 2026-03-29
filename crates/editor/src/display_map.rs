@@ -1000,23 +1000,6 @@ impl DisplaySnapshot {
             .map(|h| h.text)
     }
 
-    /// Returns text chunks starting at the end of the given display row in reverse until the start of the file
-    pub fn reverse_text_chunks(&self, display_row: DisplayRow) -> impl Iterator<Item = &str> {
-        (0..=display_row.0).rev().flat_map(move |row| {
-            self.block_snapshot
-                .chunks(
-                    BlockRow(row)..BlockRow(row + 1),
-                    false,
-                    self.masked,
-                    Highlights::default(),
-                )
-                .map(|h| h.text)
-                .collect::<Vec<_>>()
-                .into_iter()
-                .rev()
-        })
-    }
-
     pub fn chunks(
         &self,
         display_rows: Range<DisplayRow>,

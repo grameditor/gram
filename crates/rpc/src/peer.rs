@@ -413,16 +413,6 @@ impl Peer {
         self.request_internal(None, receiver_id, request)
     }
 
-    pub fn forward_request<T: RequestMessage>(
-        &self,
-        sender_id: ConnectionId,
-        receiver_id: ConnectionId,
-        request: T,
-    ) -> impl Future<Output = Result<T::Response>> {
-        self.request_internal(Some(sender_id), receiver_id, request)
-            .map_ok(|envelope| envelope.payload)
-    }
-
     fn request_internal<T: RequestMessage>(
         &self,
         original_sender_id: Option<ConnectionId>,
@@ -555,67 +545,10 @@ impl Peer {
         Ok(())
     }
 
-    pub fn forward_send<T: EnvelopedMessage>(
-        &self,
-        sender_id: ConnectionId,
-        receiver_id: ConnectionId,
-        message: T,
-    ) -> Result<()> {
-        let connection = self.connection_state(receiver_id)?;
-        let message_id = connection
-            .next_message_id
-            .fetch_add(1, atomic::Ordering::SeqCst);
-        connection
-            .outgoing_tx
-            .unbounded_send(Message::Envelope(message.into_envelope(
-                message_id,
-                None,
-                Some(sender_id.into()),
-            )))?;
-        Ok(())
-    }
-
     pub fn respond<T: RequestMessage>(
         &self,
         receipt: Receipt<T>,
         response: T::Response,
-    ) -> Result<()> {
-        let connection = self.connection_state(receipt.sender_id.into())?;
-        let message_id = connection
-            .next_message_id
-            .fetch_add(1, atomic::Ordering::SeqCst);
-        connection
-            .outgoing_tx
-            .unbounded_send(Message::Envelope(response.into_envelope(
-                message_id,
-                Some(receipt.message_id),
-                None,
-            )))?;
-        Ok(())
-    }
-
-    pub fn end_stream<T: RequestMessage>(&self, receipt: Receipt<T>) -> Result<()> {
-        let connection = self.connection_state(receipt.sender_id.into())?;
-        let message_id = connection
-            .next_message_id
-            .fetch_add(1, atomic::Ordering::SeqCst);
-
-        let message = proto::EndStream {};
-
-        connection
-            .outgoing_tx
-            .unbounded_send(Message::Envelope(message.into_envelope(
-                message_id,
-                Some(receipt.message_id),
-                None,
-            )))?;
-        Ok(())
-    }
-
-    pub fn respond_with_error<T: RequestMessage>(
-        &self,
-        receipt: Receipt<T>,
-        response: proto::Error,
     ) -> Result<()> {
         let connection = self.connection_state(receipt.sender_id.into())?;
         let message_id = connection

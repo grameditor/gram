@@ -206,14 +206,6 @@ impl TaskContexts {
             })
             .copied()
     }
-
-    pub fn task_context_for_worktree_id(&self, worktree_id: WorktreeId) -> Option<&TaskContext> {
-        self.active_worktree_context
-            .iter()
-            .chain(self.other_worktree_contexts.iter())
-            .find(|(id, _)| *id == worktree_id)
-            .map(|(_, context)| context)
-    }
 }
 
 impl TaskSourceKind {

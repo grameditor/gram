@@ -1049,11 +1049,6 @@ impl LanguageServer {
         self.notification_handlers.lock().remove(T::METHOD);
     }
 
-    /// Checks if a notification handler has been registered via [`Self::on_notification`].
-    pub fn has_notification_handler<T: notification::Notification>(&self) -> bool {
-        self.notification_handlers.lock().contains_key(T::METHOD)
-    }
-
     #[must_use]
     fn on_custom_notification<Params, F>(&self, method: &'static str, mut f: F) -> Subscription
     where

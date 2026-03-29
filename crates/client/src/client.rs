@@ -146,9 +146,6 @@ pub struct Client {
             >,
         >,
     >,
-
-    #[cfg(any(test, feature = "test-support"))]
-    rpc_url: RwLock<Option<Url>>,
 }
 
 #[derive(Error, Debug)]
@@ -220,18 +217,6 @@ impl Status {
                 | Self::Reauthenticating
                 | Self::Reauthenticated
                 | Self::Reconnecting
-        )
-    }
-
-    /// Returns whether the client is currently connected or was connected at some point.
-    pub fn is_or_was_connected(&self) -> bool {
-        self.is_connected() || self.was_connected()
-    }
-
-    pub fn is_signing_in(&self) -> bool {
-        matches!(
-            self,
-            Self::Authenticating | Self::Reauthenticating | Self::Connecting | Self::Reconnecting
         )
     }
 
@@ -372,8 +357,6 @@ impl Client {
             authenticate: Default::default(),
             #[cfg(any(test, feature = "test-support"))]
             establish_connection: Default::default(),
-            #[cfg(any(test, feature = "test-support"))]
-            rpc_url: RwLock::default(),
         })
     }
 
@@ -425,12 +408,6 @@ impl Client {
             + Fn(&Credentials, &AsyncApp) -> Task<Result<Connection, EstablishConnectionError>>,
     {
         *self.establish_connection.write() = Some(Box::new(connect));
-        self
-    }
-
-    #[cfg(any(test, feature = "test-support"))]
-    pub fn override_rpc_url(&self, url: Url) -> &Self {
-        *self.rpc_url.write() = Some(url);
         self
     }
 

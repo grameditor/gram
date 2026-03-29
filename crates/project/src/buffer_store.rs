@@ -244,13 +244,6 @@ impl RemoteBufferStore {
         Ok(None)
     }
 
-    pub fn incomplete_buffer_ids(&self) -> Vec<BufferId> {
-        self.loading_remote_buffers_by_id
-            .keys()
-            .copied()
-            .collect::<Vec<_>>()
-    }
-
     pub fn deserialize_project_transaction(
         &self,
         message: proto::ProjectTransaction,
@@ -1027,24 +1020,6 @@ impl BufferStore {
         })
     }
 
-    pub fn buffer_version_info(&self, cx: &App) -> (Vec<proto::BufferVersion>, Vec<BufferId>) {
-        let buffers = self
-            .buffers()
-            .map(|buffer| {
-                let buffer = buffer.read(cx);
-                proto::BufferVersion {
-                    id: buffer.remote_id().into(),
-                    version: language::proto::serialize_version(&buffer.version),
-                }
-            })
-            .collect();
-        let incomplete_buffer_ids = self
-            .as_remote()
-            .map(|remote| remote.incomplete_buffer_ids())
-            .unwrap_or_default();
-        (buffers, incomplete_buffer_ids)
-    }
-
     pub fn disconnected_from_host(&mut self, cx: &mut App) {
         for open_buffer in self.opened_buffers.values_mut() {
             if let Some(buffer) = open_buffer.upgrade() {
@@ -1072,11 +1047,6 @@ impl BufferStore {
     pub fn unshared(&mut self, _cx: &mut Context<Self>) {
         self.downstream_client.take();
         self.forget_shared_buffers();
-    }
-
-    pub fn discard_incomplete(&mut self) {
-        self.opened_buffers
-            .retain(|_, buffer| !matches!(buffer, OpenBuffer::Operations(_)));
     }
 
     fn buffer_changed_file(&mut self, buffer: Entity<Buffer>, cx: &mut App) -> Option<()> {
@@ -1571,16 +1541,6 @@ impl BufferStore {
 
     pub fn forget_shared_buffers(&mut self) {
         self.shared_buffers.clear();
-    }
-
-    pub fn forget_shared_buffers_for(&mut self, peer_id: &proto::PeerId) {
-        self.shared_buffers.remove(peer_id);
-    }
-
-    pub fn update_peer_id(&mut self, old_peer_id: &proto::PeerId, new_peer_id: proto::PeerId) {
-        if let Some(buffers) = self.shared_buffers.remove(old_peer_id) {
-            self.shared_buffers.insert(new_peer_id, buffers);
-        }
     }
 
     pub fn has_shared_buffers(&self) -> bool {

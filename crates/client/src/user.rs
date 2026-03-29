@@ -133,14 +133,6 @@ impl UserStore {
         })
     }
 
-    pub fn fuzzy_search_users(
-        &self,
-        query: String,
-        cx: &Context<Self>,
-    ) -> Task<Result<Vec<Arc<User>>>> {
-        self.load_users(proto::FuzzySearchUsers { query }, cx)
-    }
-
     pub fn get_user(&self, user_id: u64, cx: &Context<Self>) -> Task<Result<Arc<User>>> {
         if let Some(user) = self.users.get(&user_id).cloned() {
             return Task::ready(Ok(user));

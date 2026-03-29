@@ -205,12 +205,6 @@ pub fn crashes_dir() -> &'static Option<PathBuf> {
     })
 }
 
-/// Returns the path to the retired crashes directory, if it exists for the current platform.
-pub fn crashes_retired_dir() -> &'static Option<PathBuf> {
-    static CRASHES_RETIRED_DIR: OnceLock<Option<PathBuf>> = OnceLock::new();
-    CRASHES_RETIRED_DIR.get_or_init(|| crashes_dir().as_ref().map(|dir| dir.join("Retired")))
-}
-
 /// Returns the path to the `settings.jsonc` file.
 pub fn settings_file() -> &'static PathBuf {
     static SETTINGS_FILE: OnceLock<PathBuf> = OnceLock::new();
@@ -291,75 +285,6 @@ pub fn snippets_dir() -> &'static PathBuf {
     SNIPPETS_DIR.get_or_init(|| config_dir().join("snippets"))
 }
 
-/// Returns the path to the contexts directory.
-///
-/// This is where the saved contexts from the Assistant are stored.
-pub fn text_threads_dir() -> &'static PathBuf {
-    static CONTEXTS_DIR: OnceLock<PathBuf> = OnceLock::new();
-    CONTEXTS_DIR.get_or_init(|| {
-        if cfg!(target_os = "macos") {
-            config_dir().join("conversations")
-        } else {
-            data_dir().join("conversations")
-        }
-    })
-}
-
-/// Returns the path to the contexts directory.
-///
-/// This is where the prompts for use with the Assistant are stored.
-pub fn prompts_dir() -> &'static PathBuf {
-    static PROMPTS_DIR: OnceLock<PathBuf> = OnceLock::new();
-    PROMPTS_DIR.get_or_init(|| {
-        if cfg!(target_os = "macos") {
-            config_dir().join("prompts")
-        } else {
-            data_dir().join("prompts")
-        }
-    })
-}
-
-/// Returns the path to the prompt templates directory.
-///
-/// This is where the prompt templates for core features can be overridden with templates.
-///
-/// # Arguments
-///
-/// * `dev_mode` - If true, assumes the current working directory is the Gram repository.
-pub fn prompt_overrides_dir(repo_path: Option<&Path>) -> PathBuf {
-    if let Some(path) = repo_path {
-        let dev_path = path.join("assets").join("prompts");
-        if dev_path.exists() {
-            return dev_path;
-        }
-    }
-
-    static PROMPT_TEMPLATES_DIR: OnceLock<PathBuf> = OnceLock::new();
-    PROMPT_TEMPLATES_DIR
-        .get_or_init(|| {
-            if cfg!(target_os = "macos") {
-                config_dir().join("prompt_overrides")
-            } else {
-                data_dir().join("prompt_overrides")
-            }
-        })
-        .clone()
-}
-
-/// Returns the path to the semantic search's embeddings directory.
-///
-/// This is where the embeddings used to power semantic search are stored.
-pub fn embeddings_dir() -> &'static PathBuf {
-    static EMBEDDINGS_DIR: OnceLock<PathBuf> = OnceLock::new();
-    EMBEDDINGS_DIR.get_or_init(|| {
-        if cfg!(target_os = "macos") {
-            config_dir().join("embeddings")
-        } else {
-            data_dir().join("embeddings")
-        }
-    })
-}
-
 /// Returns the path to the languages directory.
 ///
 /// This is where language servers are downloaded to for languages built-in to Gram.
@@ -380,12 +305,6 @@ pub fn debug_adapters_dir() -> &'static PathBuf {
 pub fn default_prettier_dir() -> &'static PathBuf {
     static DEFAULT_PRETTIER_DIR: OnceLock<PathBuf> = OnceLock::new();
     DEFAULT_PRETTIER_DIR.get_or_init(|| data_dir().join("prettier"))
-}
-
-/// Returns the path to the remote server binaries directory.
-pub fn remote_servers_dir() -> &'static PathBuf {
-    static REMOTE_SERVERS_DIR: OnceLock<PathBuf> = OnceLock::new();
-    REMOTE_SERVERS_DIR.get_or_init(|| data_dir().join("remote_servers"))
 }
 
 /// Returns the relative path to a `.gram` folder within a project.

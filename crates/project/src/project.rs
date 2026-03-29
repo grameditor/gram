@@ -1569,15 +1569,6 @@ impl Project {
         });
     }
 
-    #[cfg(any(test, feature = "test-support"))]
-    #[inline]
-    pub fn has_open_buffer(&self, path: impl Into<ProjectPath>, cx: &App) -> bool {
-        self.buffer_store
-            .read(cx)
-            .get_by_path(&path.into())
-            .is_some()
-    }
-
     #[inline]
     pub fn fs(&self) -> &Arc<dyn Fs> {
         &self.fs
@@ -1681,12 +1672,6 @@ impl Project {
         cx: &'a App,
     ) -> impl 'a + DoubleEndedIterator<Item = Entity<Worktree>> {
         self.worktree_store.read(cx).visible_worktrees(cx)
-    }
-
-    #[inline]
-    pub fn worktree_for_root_name(&self, root_name: &str, cx: &App) -> Option<Entity<Worktree>> {
-        self.visible_worktrees(cx)
-            .find(|tree| tree.read(cx).root_name() == root_name)
     }
 
     #[inline]
@@ -2135,12 +2120,6 @@ impl Project {
     pub fn is_remote(&self) -> bool {
         debug_assert_eq!(!self.is_local(), self.is_via_remote_server());
         !self.is_local()
-    }
-
-    pub fn disable_worktree_scanner(&mut self, cx: &mut Context<Self>) {
-        self.worktree_store.update(cx, |worktree_store, _cx| {
-            worktree_store.disable_scanner();
-        });
     }
 
     #[inline]
@@ -3279,19 +3258,6 @@ impl Project {
         )
     }
 
-    pub fn document_symbols(
-        &mut self,
-        buffer: &Entity<Buffer>,
-        cx: &mut Context<Self>,
-    ) -> Task<Result<Vec<DocumentSymbol>>> {
-        self.request_lsp(
-            buffer.clone(),
-            LanguageServerToQuery::FirstCapable,
-            GetDocumentSymbols,
-            cx,
-        )
-    }
-
     pub fn symbols(&self, query: &str, cx: &mut Context<Self>) -> Task<Result<Vec<Symbol>>> {
         self.lsp_store
             .update(cx, |lsp_store, cx| lsp_store.symbols(query, cx))
@@ -3990,41 +3956,10 @@ impl Project {
         None
     }
 
-    /// If there's only one visible worktree, returns the given worktree-relative path with no prefix.
-    ///
-    /// Otherwise, returns the full path for the project path (obtained by prefixing the worktree-relative path with the name of the worktree).
-    pub fn short_full_path_for_project_path(
-        &self,
-        project_path: &ProjectPath,
-        cx: &App,
-    ) -> Option<String> {
-        let path_style = self.path_style(cx);
-        if self.visible_worktrees(cx).take(2).count() < 2 {
-            return Some(project_path.path.display(path_style).to_string());
-        }
-        self.worktree_for_id(project_path.worktree_id, cx)
-            .map(|worktree| {
-                let worktree_name = worktree.read(cx).root_name();
-                worktree_name
-                    .join(&project_path.path)
-                    .display(path_style)
-                    .to_string()
-            })
-    }
-
     pub fn project_path_for_absolute_path(&self, abs_path: &Path, cx: &App) -> Option<ProjectPath> {
         self.worktree_store
             .read(cx)
             .project_path_for_absolute_path(abs_path, cx)
-    }
-
-    pub fn get_workspace_root(&self, project_path: &ProjectPath, cx: &App) -> Option<PathBuf> {
-        Some(
-            self.worktree_for_id(project_path.worktree_id, cx)?
-                .read(cx)
-                .abs_path()
-                .to_path_buf(),
-        )
     }
 
     pub fn blame_buffer(

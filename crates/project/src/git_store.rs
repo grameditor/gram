@@ -886,20 +886,6 @@ impl GitStore {
         .await
     }
 
-    pub fn get_unstaged_diff(&self, buffer_id: BufferId, cx: &App) -> Option<Entity<BufferDiff>> {
-        let diff_state = self.diffs.get(&buffer_id)?;
-        diff_state.read(cx).unstaged_diff.as_ref()?.upgrade()
-    }
-
-    pub fn get_uncommitted_diff(
-        &self,
-        buffer_id: BufferId,
-        cx: &App,
-    ) -> Option<Entity<BufferDiff>> {
-        let diff_state = self.diffs.get(&buffer_id)?;
-        diff_state.read(cx).uncommitted_diff.as_ref()?.upgrade()
-    }
-
     pub fn open_conflict_set(
         &mut self,
         buffer: Entity<Buffer>,
@@ -3934,14 +3920,6 @@ impl Repository {
         let worktree_store = git_store.read(cx).worktree_store.read(cx);
         let abs_path = worktree_store.absolutize(path, cx)?;
         self.snapshot.abs_path_to_repo_path(&abs_path)
-    }
-
-    pub fn contains_sub_repo(&self, other: &Entity<Self>, cx: &App) -> bool {
-        other
-            .read(cx)
-            .snapshot
-            .work_directory_abs_path
-            .starts_with(&self.snapshot.work_directory_abs_path)
     }
 
     pub fn open_commit_buffer(
