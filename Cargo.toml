@@ -427,31 +427,11 @@ nix = "0.29"
 num-format = "0.4.4"
 num-traits = "0.2"
 objc = "0.2"
-objc2-foundation = { version = "=0.3.2", default-features = false, features = [
-    "NSArray",
-    "NSAttributedString",
-    "NSBundle",
-    "NSCoder",
-    "NSData",
-    "NSDate",
-    "NSDictionary",
-    "NSEnumerator",
-    "NSError",
-    "NSGeometry",
-    "NSNotification",
-    "NSNull",
-    "NSObjCRuntime",
-    "NSObject",
-    "NSProcessInfo",
-    "NSRange",
-    "NSRunLoop",
-    "NSString",
-    "NSURL",
-    "NSUndoManager",
-    "NSValue",
-    "objc2-core-foundation",
-    "std",
-] }
+objc2 = "0.6"
+objc2-app-kit = "0.3"
+objc2-foundation = "0.3"
+objc2-metal = "0.3"
+block2 = "0.6"
 open = "5.3.3"
 ordered-float = "5.2.0"
 palette = { version = "0.7.6", default-features = false, features = ["std"] }
