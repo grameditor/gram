@@ -1030,20 +1030,15 @@ mod windows {
 #[cfg(target_os = "macos")]
 mod mac_os {
     use anyhow::{Context as _, Result};
-    use core_foundation::{
-        array::{CFArray, CFIndex},
-        base::TCFType as _,
-        string::kCFStringEncodingUTF8,
-        url::{CFURL, CFURLCreateWithBytes},
-    };
-    use core_services::{LSLaunchURLSpec, LSOpenFromURLSpec, kLSLaunchDefaults};
+    use objc2_core_foundation::{CFArray, CFIndex, CFRetained, CFStringBuiltInEncodings, CFURL};
+    use objc2_core_services::{LSLaunchFlags, LSLaunchURLSpec, LSOpenFromURLSpec};
     use serde::Deserialize;
     use std::{
         ffi::OsStr,
         fs, io,
         path::{Path, PathBuf},
         process::{Command, ExitStatus},
-        ptr,
+        ptr::{self, NonNull},
     };
 
     use cli::FORCE_CLI_MODE_ENV_VAR_NAME;
@@ -1117,27 +1112,30 @@ mod mac_os {
                 Self::App { app_bundle, .. } => {
                     let app_path = app_bundle;
 
-                    let status = unsafe {
-                        let app_url = CFURL::from_path(app_path, true)
-                            .with_context(|| format!("invalid app path {app_path:?}"))?;
-                        let url_to_open = CFURL::wrap_under_create_rule(CFURLCreateWithBytes(
-                            ptr::null(),
+                    let app_url = CFURL::from_directory_path(app_path)
+                        .with_context(|| format!("invalid app path {app_path:?}"))?;
+                    let url_to_open = unsafe {
+                        CFURL::with_bytes(
+                            None,
                             url.as_ptr(),
                             url.len() as CFIndex,
-                            kCFStringEncodingUTF8,
-                            ptr::null(),
-                        ));
-                        // equivalent to: open gram-cli:... -a /Applications/Gram\ Preview.app
-                        let urls_to_open =
-                            CFArray::from_copyable(&[url_to_open.as_concrete_TypeRef()]);
+                            CFStringBuiltInEncodings::EncodingUTF8.0,
+                            None,
+                        )
+                        .with_context(|| format!("invalid url {url:?}"))?
+                    };
+                    // equivalent to: open gram-cli:... -a /Applications/Gram\ Preview.app
+                    let urls_to_open = CFArray::from_retained_objects(&[url_to_open]);
+                    let status = unsafe {
                         LSOpenFromURLSpec(
-                            &LSLaunchURLSpec {
-                                appURL: app_url.as_concrete_TypeRef(),
-                                itemURLs: urls_to_open.as_concrete_TypeRef(),
+                            NonNull::from(&LSLaunchURLSpec {
+                                appURL: CFRetained::as_ptr(&app_url).as_ptr(),
+                                itemURLs: CFRetained::as_ptr(&urls_to_open).as_ptr()
+                                    as *const CFArray,
                                 passThruParams: ptr::null(),
-                                launchFlags: kLSLaunchDefaults,
+                                launchFlags: LSLaunchFlags::empty(),
                                 asyncRefCon: ptr::null_mut(),
-                            },
+                            }),
                             ptr::null_mut(),
                         )
                     };
