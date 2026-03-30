@@ -11192,8 +11192,7 @@ dependencies = [
 name = "time_format"
 version = "0.1.0"
 dependencies = [
- "core-foundation 0.10.0",
- "core-foundation-sys",
+ "objc2-core-foundation",
  "sys-locale",
  "time",
 ]

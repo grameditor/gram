@@ -449,78 +449,63 @@ fn is_12_hour_time_by_locale(locale: &str) -> bool {
 
 #[cfg(target_os = "macos")]
 mod macos {
-    use core_foundation::base::TCFType;
-    use core_foundation::date::CFAbsoluteTime;
-    use core_foundation::string::CFString;
-    use core_foundation_sys::date_formatter::CFDateFormatterCreateStringWithAbsoluteTime;
-    use core_foundation_sys::date_formatter::CFDateFormatterRef;
-    use core_foundation_sys::locale::CFLocaleRef;
-    use core_foundation_sys::{
-        base::kCFAllocatorDefault,
-        date_formatter::{
-            CFDateFormatterCreate, kCFDateFormatterMediumStyle, kCFDateFormatterNoStyle,
-            kCFDateFormatterShortStyle,
-        },
-        locale::CFLocaleCopyCurrent,
+    use objc2_core_foundation::{
+        CFAbsoluteTime, CFDateFormatter, CFDateFormatterStyle, CFLocale, CFRetained, CFString,
     };
 
     pub fn format_time(timestamp: &time::OffsetDateTime) -> String {
-        format_with_date_formatter(timestamp, TIME_FORMATTER.with(|f| *f))
+        TIME_FORMATTER.with(|fmt| format_with_date_formatter(timestamp, Some(&fmt)))
     }
 
     pub fn format_date(timestamp: &time::OffsetDateTime) -> String {
-        format_with_date_formatter(timestamp, DATE_FORMATTER.with(|f| *f))
+        DATE_FORMATTER.with(|fmt| format_with_date_formatter(timestamp, Some(&fmt)))
     }
 
     pub fn format_date_medium(timestamp: &time::OffsetDateTime) -> String {
-        format_with_date_formatter(timestamp, MEDIUM_DATE_FORMATTER.with(|f| *f))
+        MEDIUM_DATE_FORMATTER.with(|fmt| format_with_date_formatter(timestamp, Some(&fmt)))
     }
 
     fn format_with_date_formatter(
         timestamp: &time::OffsetDateTime,
-        fmt: CFDateFormatterRef,
+        fmt: Option<&CFDateFormatter>,
     ) -> String {
         const UNIX_TO_CF_ABSOLUTE_TIME_OFFSET: i64 = 978307200;
         // Convert timestamp to macOS absolute time
         let timestamp_macos = timestamp.unix_timestamp() - UNIX_TO_CF_ABSOLUTE_TIME_OFFSET;
         let cf_absolute_time = timestamp_macos as CFAbsoluteTime;
-        unsafe {
-            let s = CFDateFormatterCreateStringWithAbsoluteTime(
-                kCFAllocatorDefault,
-                fmt,
-                cf_absolute_time,
-            );
-            CFString::wrap_under_create_rule(s).to_string()
-        }
+        let s =
+            unsafe { CFDateFormatter::new_string_with_absolute_time(None, fmt, cf_absolute_time) };
+        s.and_then(|r| r.downcast::<CFString>().ok())
+            .map(|s| s.to_string())
+            .unwrap()
     }
 
     thread_local! {
-        static CURRENT_LOCALE: CFLocaleRef = unsafe { CFLocaleCopyCurrent() };
-        static TIME_FORMATTER: CFDateFormatterRef = unsafe {
-            CFDateFormatterCreate(
-                kCFAllocatorDefault,
-                CURRENT_LOCALE.with(|locale| *locale),
-                kCFDateFormatterNoStyle,
-                kCFDateFormatterShortStyle,
-            )
-        };
-        static DATE_FORMATTER: CFDateFormatterRef = unsafe {
-            CFDateFormatterCreate(
-                kCFAllocatorDefault,
-                CURRENT_LOCALE.with(|locale| *locale),
-                kCFDateFormatterShortStyle,
-                kCFDateFormatterNoStyle,
-            )
-        };
-
-        static MEDIUM_DATE_FORMATTER: CFDateFormatterRef = unsafe {
-            CFDateFormatterCreate(
-                kCFAllocatorDefault,
-                CURRENT_LOCALE.with(|locale| *locale),
-                kCFDateFormatterMediumStyle,
-                kCFDateFormatterNoStyle,
-            )
-        };
+        static CURRENT_LOCALE: CFRetained<CFLocale> = CFLocale::current().unwrap();
+        static TIME_FORMATTER: CFRetained<CFDateFormatter> = CURRENT_LOCALE.with(|locale| {
+            unsafe { CFDateFormatter::new(
+                None,
+                Some(&locale),
+                CFDateFormatterStyle::NoStyle,
+                CFDateFormatterStyle::ShortStyle,
+            ).unwrap() }
+        });
+        static DATE_FORMATTER: CFRetained<CFDateFormatter> = CURRENT_LOCALE.with(|locale| {
+            unsafe { CFDateFormatter::new(
+                None,
+                Some(&locale),
+                CFDateFormatterStyle::ShortStyle,
+                CFDateFormatterStyle::NoStyle,
+            ).unwrap() }
+        });
+        static MEDIUM_DATE_FORMATTER: CFRetained<CFDateFormatter> = CURRENT_LOCALE.with(|locale| {
+            unsafe { CFDateFormatter::new(
+                None,
+                Some(&locale),
+                CFDateFormatterStyle::MediumStyle,
+                CFDateFormatterStyle::NoStyle,
+            ).unwrap() }
+        });
     }
 }
 
