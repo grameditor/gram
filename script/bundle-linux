@@ -116,12 +116,11 @@ if [ "${DO_APPIMAGE}" == "true" ]; then
     fi
 fi
 
-# Check if on Arch Linux and dependencies are installed
+# Check if on Arch Linux
 if [ "${DO_ARCH}" == "true" ]; then
     if ! grep -q "Arch Linux" /etc/os-release; then
         echo "Building an Arch package will only work on Arch Linux" && exit 1
     fi
-    pacman -Qi base-devel pacman-contrib >/dev/null || (echo "Packages 'base-devel' and/or 'pacman-contrib' not installed" && exit 1)
 fi
 
 export GRAM_BUNDLE=true
