@@ -1,7 +1,3 @@
-#[cfg(target_os = "macos")]
-mod mac_watcher;
-
-#[cfg(not(target_os = "macos"))]
 pub mod fs_watcher;
 
 use parking_lot::Mutex;
@@ -10,8 +6,6 @@ use std::time::Instant;
 use util::maybe;
 
 use anyhow::{Context as _, Result, anyhow};
-#[cfg(any(target_os = "linux", target_os = "freebsd"))]
-use ashpd::desktop::trash;
 use futures::stream::iter;
 use gpui::App;
 use gpui::BackgroundExecutor;
@@ -751,48 +745,9 @@ impl Fs for RealFs {
         }
     }
 
-    #[cfg(target_os = "macos")]
+    #[cfg(any(target_os = "macos", target_os = "linux", target_os = "freebsd"))]
     async fn trash_file(&self, path: &Path, _options: RemoveOptions) -> Result<()> {
-        use cocoa::{
-            base::{id, nil},
-            foundation::{NSAutoreleasePool, NSString},
-        };
-        use objc::{class, msg_send, sel, sel_impl};
-
-        unsafe {
-            /// Allow NSString::alloc use here because it sets autorelease
-            #[allow(clippy::disallowed_methods)]
-            unsafe fn ns_string(string: &str) -> id {
-                unsafe { NSString::alloc(nil).init_str(string).autorelease() }
-            }
-
-            let url: id = msg_send![class!(NSURL), fileURLWithPath: ns_string(path.to_string_lossy().as_ref())];
-            let array: id = msg_send![class!(NSArray), arrayWithObject: url];
-            let workspace: id = msg_send![class!(NSWorkspace), sharedWorkspace];
-
-            let _: id = msg_send![workspace, recycleURLs: array completionHandler: nil];
-        }
-        Ok(())
-    }
-
-    #[cfg(any(target_os = "linux", target_os = "freebsd"))]
-    async fn trash_file(&self, path: &Path, _options: RemoveOptions) -> Result<()> {
-        if let Ok(Some(metadata)) = self.metadata(path).await
-            && metadata.is_symlink
-        {
-            // TODO: trash_file does not support trashing symlinks yet - https://github.com/bilelmoussaoui/ashpd/issues/255
-            return self.remove_file(path, RemoveOptions::default()).await;
-        }
-        let file = smol::fs::File::open(path).await?;
-        match trash::trash_file(&file.as_fd()).await {
-            Ok(_) => Ok(()),
-            Err(err) => {
-                log::error!("Failed to trash file: {}", err);
-                // Trashing files can fail if you don't have a trashing dbus service configured.
-                // In that case, delete the file directly instead.
-                return self.remove_file(path, RemoveOptions::default()).await;
-            }
-        }
+        trash::delete(path).context("Failed to move {path:?} to trash")
     }
 
     #[cfg(target_os = "windows")]
@@ -1072,62 +1027,6 @@ impl Fs for RealFs {
         Ok(Box::pin(result))
     }
 
-    #[cfg(target_os = "macos")]
-    async fn watch(
-        &self,
-        path: &Path,
-        latency: Duration,
-    ) -> (
-        Pin<Box<dyn Send + Stream<Item = Vec<PathEvent>>>>,
-        Arc<dyn Watcher>,
-    ) {
-        use fsevent::StreamFlags;
-
-        let (events_tx, events_rx) = smol::channel::unbounded();
-        let handles = Arc::new(parking_lot::Mutex::new(collections::BTreeMap::default()));
-        let watcher = Arc::new(mac_watcher::MacWatcher::new(
-            events_tx,
-            Arc::downgrade(&handles),
-            latency,
-        ));
-        watcher.add(path).expect("handles can't be dropped");
-
-        (
-            Box::pin(
-                events_rx
-                    .map(|events| {
-                        events
-                            .into_iter()
-                            .map(|event| {
-                                log::trace!("fs path event: {event:?}");
-                                let kind = if event.flags.contains(StreamFlags::ITEM_REMOVED) {
-                                    Some(PathEventKind::Removed)
-                                } else if event.flags.contains(StreamFlags::ITEM_CREATED) {
-                                    Some(PathEventKind::Created)
-                                } else if event.flags.contains(StreamFlags::ITEM_MODIFIED)
-                                    | event.flags.contains(StreamFlags::ITEM_RENAMED)
-                                {
-                                    Some(PathEventKind::Changed)
-                                } else {
-                                    None
-                                };
-                                PathEvent {
-                                    path: event.path,
-                                    kind,
-                                }
-                            })
-                            .collect()
-                    })
-                    .chain(futures::stream::once(async move {
-                        drop(handles);
-                        vec![]
-                    })),
-            ),
-            watcher,
-        )
-    }
-
-    #[cfg(not(target_os = "macos"))]
     async fn watch(
         &self,
         path: &Path,

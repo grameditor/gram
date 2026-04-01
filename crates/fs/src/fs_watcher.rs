@@ -83,7 +83,7 @@ impl Watcher for FsWatcher {
 
         #[cfg(target_os = "windows")]
         let mode = notify::RecursiveMode::Recursive;
-        #[cfg(target_os = "linux")]
+        #[cfg(not(target_os = "windows"))]
         let mode = notify::RecursiveMode::NonRecursive;
 
         let registration_id = global({
@@ -160,6 +160,8 @@ pub struct GlobalWatcher {
 
     // DANGER: never keep the state lock while holding the watcher lock
     // two mutexes because calling watcher.add triggers an watcher.event, which needs watchers.
+    #[cfg(target_os = "macos")]
+    watcher: Mutex<notify::FsEventWatcher>,
     #[cfg(target_os = "linux")]
     watcher: Mutex<notify::INotifyWatcher>,
     #[cfg(target_os = "freebsd")]
