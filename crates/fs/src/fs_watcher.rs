@@ -70,7 +70,7 @@ impl Watcher for FsWatcher {
                 return Ok(());
             }
         }
-        #[cfg(target_os = "linux")]
+        #[cfg(any(target_os = "linux", target_os = "macos"))]
         {
             if self.registrations.lock().contains_key(path) {
                 log::trace!("path to watch is already watched: {path:?}");
