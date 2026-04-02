@@ -1,7 +1,7 @@
 use std::{path::Path, pin::Pin, task::Poll};
 
 use anyhow::{Context, Result};
-use async_compression::futures::bufread::GzipDecoder;
+use async_compression::futures::bufread::{GzipDecoder, XzDecoder};
 use futures::{AsyncRead, AsyncSeek, AsyncSeekExt, AsyncWrite, io::BufReader};
 use sha2::{Digest, Sha256};
 
@@ -92,6 +92,7 @@ async fn stream_response_archive(
     asset_kind: AssetKind,
 ) -> Result<()> {
     match asset_kind {
+        AssetKind::TarXz => extract_tar_xz(destination_path, url, response).await?,
         AssetKind::TarGz => extract_tar_gz(destination_path, url, response).await?,
         AssetKind::Gz => extract_gz(destination_path, url, response).await?,
         AssetKind::Zip => {
@@ -108,6 +109,7 @@ async fn stream_file_archive(
     asset_kind: AssetKind,
 ) -> Result<()> {
     match asset_kind {
+        AssetKind::TarXz => extract_tar_xz(destination_path, url, file_archive).await?,
         AssetKind::TarGz => extract_tar_gz(destination_path, url, file_archive).await?,
         AssetKind::Gz => extract_gz(destination_path, url, file_archive).await?,
         #[cfg(not(windows))]
@@ -119,6 +121,20 @@ async fn stream_file_archive(
             util::archive::extract_zip(destination_path, file_archive).await?;
         }
     };
+    Ok(())
+}
+
+async fn extract_tar_xz(
+    destination_path: &Path,
+    url: &str,
+    from: impl AsyncRead + Unpin,
+) -> Result<(), anyhow::Error> {
+    let decompressed_bytes = XzDecoder::new(BufReader::new(from));
+    let archive = async_tar::Archive::new(decompressed_bytes);
+    archive
+        .unpack(&destination_path)
+        .await
+        .with_context(|| format!("extracting {url} to {destination_path:?}"))?;
     Ok(())
 }
 

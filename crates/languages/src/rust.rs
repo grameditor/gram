@@ -197,6 +197,7 @@ impl RustLspAdapter {
 
     async fn build_asset_name() -> String {
         let extension = match Self::GITHUB_ASSET_KIND {
+            AssetKind::TarXz => "tar.xz",
             AssetKind::TarGz => "tar.gz",
             AssetKind::Gz => "gz",
             AssetKind::Zip => "zip",
@@ -702,7 +703,7 @@ impl LspInstaller for RustLspAdapter {
         } = version;
         let destination_path = container_dir.join(format!("rust-analyzer-{name}"));
         let server_path = match Self::GITHUB_ASSET_KIND {
-            AssetKind::TarGz | AssetKind::Gz => destination_path.clone(), // Tar and gzip extract in place.
+            AssetKind::TarXz | AssetKind::TarGz | AssetKind::Gz => destination_path.clone(), // Tar and gzip extract in place.
             AssetKind::Zip => destination_path.clone().join("rust-analyzer.exe"), // zip contains a .exe
         };
 
@@ -1238,8 +1239,8 @@ async fn get_cached_server_binary(container_dir: PathBuf) -> Option<LanguageServ
             None => return Ok(None),
         };
         let path = match RustLspAdapter::GITHUB_ASSET_KIND {
-            AssetKind::TarGz | AssetKind::Gz => path, // Tar and gzip extract in place.
-            AssetKind::Zip => path.join("rust-analyzer.exe"), // zip contains a .exe
+            AssetKind::TarXz | AssetKind::TarGz | AssetKind::Gz => path, // Tar and gzip extract in place.
+            AssetKind::Zip => path.join("rust-analyzer.exe"),            // zip contains a .exe
         };
 
         anyhow::Ok(Some(LanguageServerBinary {
