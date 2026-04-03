@@ -15,6 +15,7 @@ Keywords=gram;
 # If this happens to you, an unconfirmed fix may be to install Arch's `gnome-defaults-list` package.
 MimeType=text/plain;application/x-zerosize;x-scheme-handler/gram;
 Actions=NewWorkspace;
+StartupWMClass=app.liten.Gram
 
 [Desktop Action NewWorkspace]
 Exec=$APP_CLI --new $APP_ARGS
