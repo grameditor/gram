@@ -56,6 +56,17 @@ impl LspInstaller for SuperhtmlLspAdapter {
         })
     }
 
+    #[cfg(not(target_os = "windows"))]
+    async fn fetch_latest_server_version(
+        &self,
+        _delegate: &dyn LspAdapterDelegate,
+        _pre_release: bool,
+        _cx: &mut AsyncApp,
+    ) -> Result<GitHubLspBinaryVersion> {
+        anyhow::bail!("The superhtml language server has to be installed separately");
+    }
+
+    #[cfg(target_os = "windows")]
     async fn fetch_latest_server_version(
         &self,
         delegate: &dyn LspAdapterDelegate,
@@ -100,6 +111,17 @@ impl LspInstaller for SuperhtmlLspAdapter {
         })
     }
 
+    #[cfg(not(target_os = "windows"))]
+    async fn fetch_server_binary(
+        &self,
+        version: GitHubLspBinaryVersion,
+        container_dir: PathBuf,
+        delegate: &dyn LspAdapterDelegate,
+    ) -> Result<LanguageServerBinary> {
+        anyhow::bail!("The superhtml language server has to be installed separately");
+    }
+
+    #[cfg(target_os = "windows")]
     async fn fetch_server_binary(
         &self,
         version: GitHubLspBinaryVersion,
