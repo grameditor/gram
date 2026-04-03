@@ -175,25 +175,7 @@ pub(crate) fn settings_data(cx: &App) -> Vec<SettingsPage> {
                     metadata: None,
                     files: USER,
                 }),
-                SettingsPageItem::SectionHeader("Scoped Settings"),
-                SettingsPageItem::SettingItem(SettingItem {
-                    files: USER,
-                    title: "Preview Channel",
-                    description: "Which settings should be activated only in Preview build of Gram.",
-                    field: Box::new(
-                        SettingField {
-                            json_path: Some("preview_channel_settings"),
-                            pick: |settings_content| {
-                                Some(settings_content)
-                            },
-                            write: |_settings_content, _value| {
-
-                            },
-                        }
-                        .unimplemented(),
-                    ),
-                    metadata: None,
-                }),
+                SettingsPageItem::SectionHeader("Profiles"),
                 SettingsPageItem::SettingItem(SettingItem {
                     files: USER,
                     title: "Settings Profiles",
