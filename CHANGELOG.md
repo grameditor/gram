@@ -43,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Handle symlinked settings files in watcher
 - Include file size in DiskState to fix stale buffer reload (zed#48691)
 - Open named in-memory databases as SQLite URIs (zed#50967)
+- Fix crash with Unicode chars whose lowercase expands to multiple codepoints (zed#52989)
 
 ### Changed
 
