@@ -4336,69 +4336,6 @@ pub(crate) fn settings_data(cx: &App) -> Vec<SettingsPage> {
                     metadata: None,
                     files: USER,
                 }),
-                SettingsPageItem::SectionHeader("Notification Panel"),
-                SettingsPageItem::SettingItem(SettingItem {
-                    title: "Notification Panel Button",
-                    description: "Show the notification panel button in the status bar.",
-                    field: Box::new(SettingField {
-                        json_path: Some("notification_panel.button"),
-                        pick: |settings_content| {
-                            settings_content
-                                .notification_panel
-                                .as_ref()?
-                                .button
-                                .as_ref()
-                        },
-                        write: |settings_content, value| {
-                            settings_content
-                                .notification_panel
-                                .get_or_insert_default()
-                                .button = value;
-                        },
-                    }),
-                    metadata: None,
-                    files: USER,
-                }),
-                SettingsPageItem::SettingItem(SettingItem {
-                    title: "Notification Panel Dock",
-                    description: "Where to dock the notification panel.",
-                    field: Box::new(SettingField {
-                        json_path: Some("notification_panel.dock"),
-                        pick: |settings_content| {
-                            settings_content.notification_panel.as_ref()?.dock.as_ref()
-                        },
-                        write: |settings_content, value| {
-                            settings_content
-                                .notification_panel
-                                .get_or_insert_default()
-                                .dock = value;
-                        },
-                    }),
-                    metadata: None,
-                    files: USER,
-                }),
-                SettingsPageItem::SettingItem(SettingItem {
-                    title: "Notification Panel Default Width",
-                    description: "Default width of the notification panel in pixels.",
-                    field: Box::new(SettingField {
-                        json_path: Some("notification_panel.default_width"),
-                        pick: |settings_content| {
-                            settings_content
-                                .notification_panel
-                                .as_ref()?
-                                .default_width
-                                .as_ref()
-                        },
-                        write: |settings_content, value| {
-                            settings_content
-                                .notification_panel
-                                .get_or_insert_default()
-                                .default_width = value;
-                        },
-                    }),
-                    metadata: None,
-                    files: USER,
-                }),
             ],
         },
         SettingsPage {
