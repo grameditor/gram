@@ -3121,9 +3121,7 @@ impl Pane {
         let tab_count = tab_items.len();
         if self.is_tab_pinned(tab_count) {
             log::warn!(
-                "Pinned tab count ({}) exceeds actual tab count ({}). \
-                This should not happen. If possible, add reproduction steps, \
-                in a comment, to https://github.com/zed-industries/zed/issues/33342",
+                "Pinned tab count ({}) exceeds actual tab count ({}).",
                 self.pinned_tab_count,
                 tab_count
             );
