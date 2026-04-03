@@ -27,7 +27,7 @@ impl SuperhtmlLspAdapter {
 
 #[cfg(target_os = "linux")]
 impl SuperhtmlLspAdapter {
-    const GITHUB_ASSET_KIND: AssetKind = AssetKind::TarXz;
+    const GITHUB_ASSET_KIND: AssetKind = AssetKind::TarGz;
     const OS_NAME: &str = "linux-musl";
 }
 
@@ -81,7 +81,6 @@ impl LspInstaller for SuperhtmlLspAdapter {
             arch,
             Self::OS_NAME,
             match Self::GITHUB_ASSET_KIND {
-                AssetKind::TarXz => "tar.xz",
                 AssetKind::TarGz => "tar.gz",
                 AssetKind::Zip => "zip",
                 _ => unreachable!(),

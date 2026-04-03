@@ -338,7 +338,7 @@ impl LspInstaller for TyLspAdapter {
         async_fs::create_dir_all(&destination_path).await?;
 
         let server_path = match Self::GITHUB_ASSET_KIND {
-            AssetKind::TarXz | AssetKind::TarGz | AssetKind::Gz => destination_path
+            AssetKind::TarGz | AssetKind::Gz => destination_path
                 .join(Self::build_asset_name()?.0)
                 .join("ty"),
             AssetKind::Zip => destination_path.clone().join("ty.exe"),
@@ -381,9 +381,7 @@ impl LspInstaller for TyLspAdapter {
         match find_cached_server_binary(&container_dir, None, async |path| {
             match Self::build_asset_name() {
                 Ok(name) => Some(match TyLspAdapter::GITHUB_ASSET_KIND {
-                    AssetKind::TarXz | AssetKind::TarGz | AssetKind::Gz => {
-                        path.join(name.0).join("ty")
-                    }
+                    AssetKind::TarGz | AssetKind::Gz => path.join(name.0).join("ty"),
                     AssetKind::Zip => path.join("ty.exe"),
                 }),
                 Err(_) => None,
@@ -2444,7 +2442,7 @@ impl LspInstaller for RuffLspAdapter {
         } = latest_version;
         let destination_path = container_dir.join(format!("ruff-{name}"));
         let server_path = match Self::GITHUB_ASSET_KIND {
-            AssetKind::TarXz | AssetKind::TarGz | AssetKind::Gz => destination_path
+            AssetKind::TarGz | AssetKind::Gz => destination_path
                 .join(Self::build_asset_name()?.0)
                 .join("ruff"),
             AssetKind::Zip => destination_path.clone().join("ruff.exe"),
@@ -2534,7 +2532,7 @@ impl LspInstaller for RuffLspAdapter {
 
             let path = last.context("no cached binary")?;
             let path = match Self::GITHUB_ASSET_KIND {
-                AssetKind::TarXz | AssetKind::TarGz | AssetKind::Gz => {
+                AssetKind::TarGz | AssetKind::Gz => {
                     path.join(Self::build_asset_name()?.0).join("ruff")
                 }
                 AssetKind::Zip => path.join("ruff.exe"),
