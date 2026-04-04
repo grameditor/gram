@@ -1045,7 +1045,7 @@ fn render_settings_item(
     cx: &mut Context<'_, SettingsWindow>,
 ) -> Stateful<Div> {
     let (found_in_file, _) = setting_item.field.file_set_in(file.clone(), cx);
-    let file_set_in = SettingsUiFile::from_settings(found_in_file.clone());
+    let file_set_in = SettingsUiFile::from_settings(&found_in_file);
 
     h_flex()
         .id(setting_item.title)
@@ -1315,10 +1315,10 @@ impl SettingsUiFile {
         }
     }
 
-    fn from_settings(file: settings::SettingsFile) -> Option<Self> {
+    fn from_settings(file: &settings::SettingsFile) -> Option<Self> {
         Some(match file {
             settings::SettingsFile::User => SettingsUiFile::User,
-            settings::SettingsFile::Project(location) => SettingsUiFile::Project(location),
+            settings::SettingsFile::Project(location) => SettingsUiFile::Project(location.clone()),
             settings::SettingsFile::Server => SettingsUiFile::Server("todo: server name"),
             settings::SettingsFile::Default => return None,
             settings::SettingsFile::Global => return None,
@@ -2007,7 +2007,7 @@ impl SettingsWindow {
             all_files.push(settings::SettingsFile::User);
         }
         for file in all_files {
-            let Some(settings_ui_file) = SettingsUiFile::from_settings(file) else {
+            let Some(settings_ui_file) = SettingsUiFile::from_settings(&file) else {
                 continue;
             };
             if settings_ui_file.is_server() {
@@ -2025,10 +2025,14 @@ impl SettingsWindow {
                     });
 
                 let Some(directory_name) = directory_name else {
-                    log::error!(
-                        "No directory name found for settings file at worktree ID: {}",
-                        worktree_id
-                    );
+                    // don't bother logging unless we have something to say
+                    if let Some(display_name) = self.display_name(&settings_ui_file) {
+                        log::error!(
+                            "No directory name found for settings ui_file={:?} at worktree ID: {}",
+                            self.display_name(&settings_ui_file),
+                            worktree_id
+                        );
+                    }
                     continue;
                 };
 

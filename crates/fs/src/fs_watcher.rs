@@ -88,6 +88,10 @@ impl Watcher for FsWatcher {
             }
         }
 
+        let cano_path = path
+            .canonicalize()
+            .map(|v| SanitizedPath::new_arc::<std::path::Path>(v.as_ref()))
+            .ok();
         let root_path = SanitizedPath::new_arc(path);
         let path: Arc<std::path::Path> = path.into();
 
@@ -111,11 +115,23 @@ impl Watcher for FsWatcher {
                         .paths
                         .iter()
                         .filter_map(|event_path| {
+                            let cano_path = cano_path.clone();
                             let event_path = SanitizedPath::new(event_path);
-                            event_path.starts_with(&root_path).then(|| PathEvent {
-                                path: event_path.as_path().to_path_buf(),
-                                kind,
-                            })
+                            if event_path.starts_with(&root_path) {
+                                return Some(PathEvent {
+                                    path: event_path.as_path().to_path_buf(),
+                                    kind,
+                                });
+                            }
+                            if let Some(cano) = &cano_path
+                                && event_path.cmp(&cano) == std::cmp::Ordering::Equal
+                            {
+                                return Some(PathEvent {
+                                    path: root_path.to_path_buf(),
+                                    kind,
+                                });
+                            }
+                            return None;
                         })
                         .collect::<Vec<_>>();
 
