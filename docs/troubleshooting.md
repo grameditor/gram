@@ -94,3 +94,27 @@ automatically comply with open source licenses.
 - Is `cargo-about` unable to find the license for a dependency? If so, add a
   clarification field at the end of `script/licenses/licenses.toml`, as
   specified in the [cargo-about book](https://embarkstudios.github.io/cargo-about/cli/generate/config.html#crate-configuration).
+
+## Unable to watch for file system changes
+
+By default, Gram uses a method native to the current platform to watch for file
+system changes (inotify on Linux, FSEvents on Mac). For some file systems, this
+method does not work, for example for NFS or SSHfs mounts, or when connecting to
+a Windows remote.
+
+It is possible to use a poll-based file watcher on these file systems instead.
+The polling watcher is more resource-intensive than the native file watchers,
+but works in more scenarios.
+
+To use the poll watcher, set the `file_watcher` option in the Worktree settings.
+
+For example:
+
+```jsonc
+{
+  "file_watcher": {
+    "mode": "poll",  // "native" | "poll"
+    "poll_interval_ms": 2000  // 500-30000ms
+  }
+}
+```

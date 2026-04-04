@@ -13592,7 +13592,13 @@ impl LanguageServerWatchedPathsBuilder {
                     let lsp_store = lsp_store.clone();
                     async move |_, cx| {
                         maybe!(async move {
-                            let mut push_updates = fs.watch(&abs_path, LSP_ABS_PATH_OBSERVE).await;
+                            let mut push_updates = fs
+                                .watch(
+                                    &abs_path,
+                                    LSP_ABS_PATH_OBSERVE,
+                                    fs::fs_watcher::WatcherMode::Native,
+                                )
+                                .await;
                             while let Some(update) = push_updates.0.next().await {
                                 let action = lsp_store
                                     .update(cx, |this, _| {

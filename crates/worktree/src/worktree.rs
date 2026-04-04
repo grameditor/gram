@@ -1071,7 +1071,8 @@ impl LocalWorktree {
             let background = cx.background_executor().clone();
             async move {
                 let (events, watcher) = if scanning_enabled {
-                    fs.watch(&abs_path, FS_WATCH_LATENCY).await
+                    fs.watch(&abs_path, FS_WATCH_LATENCY, settings.file_watcher)
+                        .await
                 } else {
                     (Box::pin(stream::pending()) as _, Arc::new(NullWatcher) as _)
                 };
@@ -3789,8 +3790,9 @@ impl BackgroundScanner {
 
         log::trace!("containing git repository: {containing_git_repository:?}");
 
+        let global_gitignore_file = paths::global_gitignore_path();
         let mut global_gitignore_events = if let Some(global_gitignore_path) =
-            &paths::global_gitignore_path()
+            &global_gitignore_file
             && self.scanning_enabled
         {
             let is_file = self.fs.is_file(&global_gitignore_path).await;
@@ -3802,11 +3804,13 @@ impl BackgroundScanner {
             } else {
                 None
             };
-            if is_file
-                || matches!(global_gitignore_path.parent(), Some(path) if self.fs.is_dir(path).await)
-            {
+            if is_file {
                 self.fs
-                    .watch(global_gitignore_path, FS_WATCH_LATENCY)
+                    .watch(
+                        global_gitignore_path,
+                        FS_WATCH_LATENCY,
+                        self.settings.file_watcher,
+                    )
                     .await
                     .0
             } else {
@@ -3920,12 +3924,9 @@ impl BackgroundScanner {
                     self.process_events(paths.into_iter().filter(|e| e.kind.is_some()).map(Into::into).collect()).await;
                 }
 
-                paths = global_gitignore_events.next().fuse() => {
-                    match paths.as_deref() {
-                        Some([event, ..]) => {
-                            self.update_global_gitignore(&event.path).await;
-                        }
-                        _ => (),
+                _ = global_gitignore_events.next().fuse() => {
+                    if let Some(path) = &global_gitignore_file {
+                            self.update_global_gitignore(&path).await;
                     }
                 }
             }

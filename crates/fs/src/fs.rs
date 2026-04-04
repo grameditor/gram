@@ -65,6 +65,8 @@ use std::ffi::OsStr;
 #[cfg(any(test, feature = "test-support"))]
 pub use fake_git_repo::{LOAD_HEAD_TEXT_TASK, LOAD_INDEX_TEXT_TASK};
 
+use crate::fs_watcher::{FsWatcher, WatcherMode};
+
 pub trait Watcher: Send + Sync {
     fn add(&self, path: &Path) -> Result<()>;
     fn remove(&self, path: &Path) -> Result<()>;
@@ -137,6 +139,7 @@ pub trait Fs: Send + Sync {
         &self,
         path: &Path,
         latency: Duration,
+        mode: WatcherMode,
     ) -> (
         Pin<Box<dyn Send + Stream<Item = Vec<PathEvent>>>>,
         Arc<dyn Watcher>,
@@ -1031,6 +1034,7 @@ impl Fs for RealFs {
         &self,
         path: &Path,
         latency: Duration,
+        mode: WatcherMode,
     ) -> (
         Pin<Box<dyn Send + Stream<Item = Vec<PathEvent>>>>,
         Arc<dyn Watcher>,
@@ -1039,7 +1043,26 @@ impl Fs for RealFs {
 
         let (tx, rx) = smol::channel::unbounded();
         let pending_paths: Arc<Mutex<Vec<PathEvent>>> = Default::default();
-        let watcher = Arc::new(fs_watcher::FsWatcher::new(tx, pending_paths.clone()));
+
+        let watcher: Arc<dyn Watcher> = match mode {
+            WatcherMode::Poll { interval_ms } => {
+                match fs_watcher::PollFsWatcher::new(
+                    tx.clone(),
+                    pending_paths.clone(),
+                    Duration::from_millis(interval_ms as u64),
+                ) {
+                    Ok(watcher) => Arc::new(watcher),
+                    Err(e) => {
+                        log::error!(
+                            "Failed to create poll watcher for {}, falling back to native: {e}",
+                            path.display()
+                        );
+                        Arc::new(FsWatcher::new(tx.clone(), pending_paths.clone()))
+                    }
+                }
+            }
+            _ => Arc::new(FsWatcher::new(tx.clone(), pending_paths.clone())),
+        };
 
         // If the path doesn't exist yet (e.g. settings.jsonc), watch the parent dir to learn when it's created.
         if let Err(e) = watcher.add(path)
@@ -2735,7 +2758,8 @@ impl Fs for FakeFs {
     async fn watch(
         &self,
         path: &Path,
-        _: Duration,
+        _latency: Duration,
+        _mode: WatcherMode,
     ) -> (
         Pin<Box<dyn Send + Stream<Item = Vec<PathEvent>>>>,
         Arc<dyn Watcher>,

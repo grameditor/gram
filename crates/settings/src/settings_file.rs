@@ -54,7 +54,13 @@ pub fn watch_config_file(
     let (tx, rx) = mpsc::unbounded();
     executor
         .spawn(async move {
-            let (events, _) = fs.watch(&path, Duration::from_millis(100)).await;
+            let (events, _) = fs
+                .watch(
+                    &path,
+                    Duration::from_millis(100),
+                    fs::fs_watcher::WatcherMode::Native,
+                )
+                .await;
             futures::pin_mut!(events);
 
             let contents = fs.load(&path).await.unwrap_or_default();
@@ -96,7 +102,13 @@ pub fn watch_config_dir(
                 }
             }
 
-            let (events, _) = fs.watch(&dir_path, Duration::from_millis(100)).await;
+            let (events, _) = fs
+                .watch(
+                    &dir_path,
+                    Duration::from_millis(100),
+                    fs::fs_watcher::WatcherMode::Native,
+                )
+                .await;
             futures::pin_mut!(events);
 
             while let Some(event_batch) = events.next().await {

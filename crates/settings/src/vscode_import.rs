@@ -817,6 +817,7 @@ impl VsCodeSettings {
                 .filter(|r| !r.is_empty()),
             private_files: None,
             hidden_files: None,
+            file_watcher: None,
         }
     }
 }

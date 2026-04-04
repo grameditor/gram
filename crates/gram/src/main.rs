@@ -1326,7 +1326,11 @@ fn watch_themes(fs: Arc<dyn fs::Fs>, cx: &mut App) {
     use std::time::Duration;
     cx.spawn(async move |cx| {
         let (mut events, _) = fs
-            .watch(paths::themes_dir(), Duration::from_millis(100))
+            .watch(
+                paths::themes_dir(),
+                Duration::from_millis(100),
+                fs::fs_watcher::WatcherMode::Native,
+            )
             .await;
 
         while let Some(paths) = events.next().await {
@@ -1358,7 +1362,13 @@ fn watch_languages(fs: Arc<dyn fs::Fs>, languages: Arc<LanguageRegistry>, cx: &m
             return;
         };
 
-        let (mut events, watcher) = fs.watch(&languages_src, Duration::from_millis(100)).await;
+        let (mut events, watcher) = fs
+            .watch(
+                &languages_src,
+                Duration::from_millis(100),
+                fs::fs_watcher::WatcherMode::Native,
+            )
+            .await;
 
         // add subdirectories since fs.watch is not recursive on Linux
         if let Some(mut paths) = fs.read_dir(&languages_src).await.log_err() {

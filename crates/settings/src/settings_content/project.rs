@@ -100,6 +100,42 @@ pub struct WorktreeSettingsContent {
     /// Treat the files matching these globs as hidden files. You can hide hidden files in the project panel.
     /// Default: ["**/.*"]
     pub hidden_files: Option<Vec<String>>,
+
+    /// Set this to `poll` to watch for changes in the worktree by polling instead of using a
+    /// platform-native file watcher like inotify or FSEvents. Polling is less efficient but may
+    /// work better for some file systems like network mounts.
+    pub file_watcher: Option<FileWatcherSettingsContent>,
+}
+
+#[with_fallible_options]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, JsonSchema, MergeFrom, Hash)]
+#[serde(rename_all = "snake_case")]
+pub struct FileWatcherSettingsContent {
+    /// Set method for detecting changes to files in the worktree.
+    ///
+    /// - "native": Use platform-native file watcher
+    /// - "poll": Use poll-based file watcher
+    ///
+    /// Default: "native"
+    pub mode: Option<FileWatcherMode>,
+
+    /// Poll interval in milliseconds for poll mode.
+    ///
+    /// Range: 500 - 30000 ms
+    /// Default: 2000 ms
+    pub poll_interval_ms: Option<u32>,
+}
+
+#[derive(
+    Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize, JsonSchema, MergeFrom, Hash,
+)]
+#[serde(rename_all = "snake_case")]
+pub enum FileWatcherMode {
+    /// Use platform-specific file watcher (inotify / FSEvents)
+    #[default]
+    Native,
+    /// Poll for changes to files at a regular interval
+    Poll,
 }
 
 #[with_fallible_options]

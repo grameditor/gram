@@ -1104,6 +1104,23 @@
   // Globs to match files that will be considered "hidden". These files can be hidden from the
   // project panel by toggling the "hide_hidden" setting.
   "hidden_files": ["**/.*"],
+  /// Set this to `poll` to watch for changes in the worktree by polling instead of using a
+  /// platform-native file watcher like inotify or FSEvents. Polling is less efficient but may
+  /// work better for some file systems like network mounts.
+  "file_watcher": {
+    /// Set method for detecting changes to files in the worktree.
+    ///
+    /// - "native": Use platform-native file watcher
+    /// - "poll": Use poll-based file watcher
+    ///
+    /// Default: "native"
+    "mode": null,
+    /// Poll interval in milliseconds for poll mode.
+    ///
+    /// Range: 500 - 30000 ms
+    /// Default: 2000 ms
+    "poll_interval_ms": null
+  },
   // Git gutter behavior configuration.
   "git": {
     // Control whether the git gutter is shown. May take 2 values:

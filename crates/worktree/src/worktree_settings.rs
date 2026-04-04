@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use anyhow::Context as _;
-use settings::{RegisterSetting, Settings};
+use settings::{FileWatcherMode, RegisterSetting, Settings};
 use util::{
     ResultExt,
     paths::{PathMatcher, PathStyle},
@@ -20,6 +20,7 @@ pub struct WorktreeSettings {
     pub parent_dir_scan_inclusions: PathMatcher,
     pub private_files: PathMatcher,
     pub hidden_files: PathMatcher,
+    pub file_watcher: fs::fs_watcher::WatcherMode,
 }
 
 impl WorktreeSettings {
@@ -54,6 +55,7 @@ impl Settings for WorktreeSettings {
         let file_scan_inclusions = worktree.file_scan_inclusions.unwrap();
         let private_files = worktree.private_files.unwrap().0;
         let hidden_files = worktree.hidden_files.unwrap();
+        let file_watcher = worktree.file_watcher.unwrap();
         let parsed_file_scan_inclusions: Vec<String> = file_scan_inclusions
             .iter()
             .flat_map(|glob| {
@@ -84,6 +86,15 @@ impl Settings for WorktreeSettings {
             hidden_files: path_matchers(hidden_files, "hidden_files")
                 .log_err()
                 .unwrap_or_default(),
+            file_watcher: match file_watcher.mode {
+                Some(FileWatcherMode::Poll) => fs::fs_watcher::WatcherMode::Poll {
+                    interval_ms: file_watcher
+                        .poll_interval_ms
+                        .unwrap_or_default()
+                        .clamp(500, 30_000),
+                },
+                _ => fs::fs_watcher::WatcherMode::Native,
+            },
         }
     }
 }

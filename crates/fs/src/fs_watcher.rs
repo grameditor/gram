@@ -4,10 +4,20 @@ use std::{
     collections::{BTreeMap, HashMap},
     ops::DerefMut,
     sync::{Arc, OnceLock},
+    time::Duration,
 };
 use util::{ResultExt, paths::SanitizedPath};
 
 use crate::{PathEvent, PathEventKind, Watcher};
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum WatcherMode {
+    #[default]
+    Native,
+    Poll {
+        interval_ms: u32,
+    },
+}
 
 pub struct FsWatcher {
     tx: smol::channel::Sender<()>,
@@ -138,6 +148,93 @@ impl Watcher for FsWatcher {
         };
 
         global(|w| w.remove(registration))
+    }
+}
+
+pub(crate) struct PollFsWatcher {
+    watcher: Mutex<(notify::PollWatcher, Vec<Arc<std::path::Path>>)>,
+}
+
+impl PollFsWatcher {
+    pub fn new(
+        tx: smol::channel::Sender<()>,
+        pending_path_events: Arc<Mutex<Vec<PathEvent>>>,
+        poll_interval: Duration,
+    ) -> anyhow::Result<Self> {
+        let config = notify::Config::default().with_poll_interval(poll_interval);
+
+        let watcher = notify::PollWatcher::new(
+            move |event: Result<notify::Event, notify::Error>| {
+                let Some(event) = event
+                    .ok()
+                    .filter(|event| !matches!(event.kind, EventKind::Access(_)))
+                else {
+                    return;
+                };
+
+                let kind = match event.kind {
+                    EventKind::Create(_) => Some(PathEventKind::Created),
+                    EventKind::Modify(_) => Some(PathEventKind::Changed),
+                    EventKind::Remove(_) => Some(PathEventKind::Removed),
+                    _ => None,
+                };
+
+                let mut path_events = event
+                    .paths
+                    .iter()
+                    .map(|event_path| PathEvent {
+                        path: event_path.to_path_buf(),
+                        kind,
+                    })
+                    .collect::<Vec<_>>();
+
+                if !path_events.is_empty() {
+                    path_events.sort();
+                    let mut pending_paths = pending_path_events.lock();
+                    if pending_paths.is_empty() {
+                        tx.try_send(()).ok();
+                    }
+                    util::extend_sorted(&mut *pending_paths, path_events, usize::MAX, |a, b| {
+                        a.path.cmp(&b.path)
+                    });
+                }
+            },
+            config,
+        )?;
+
+        Ok(Self {
+            watcher: Mutex::new((watcher, Vec::new())),
+        })
+    }
+}
+
+impl Watcher for PollFsWatcher {
+    fn add(&self, path: &std::path::Path) -> anyhow::Result<()> {
+        use notify::Watcher;
+
+        if self
+            .watcher
+            .lock()
+            .1
+            .iter()
+            .any(|watched_path| path.starts_with(watched_path.as_ref()))
+        {
+            log::trace!("path to watch is covered by existing registration: {path:?}");
+            return Ok(());
+        }
+
+        let mut guard = self.watcher.lock();
+        guard.0.watch(path, notify::RecursiveMode::Recursive)?;
+        guard.1.push(path.into());
+        Ok(())
+    }
+
+    fn remove(&self, path: &std::path::Path) -> anyhow::Result<()> {
+        use notify::Watcher;
+        let mut guard = self.watcher.lock();
+        guard.0.unwatch(path)?;
+        guard.1.retain(|p| p.as_ref() != path);
+        Ok(())
     }
 }
 

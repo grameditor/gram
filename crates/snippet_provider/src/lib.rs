@@ -185,7 +185,11 @@ impl SnippetProvider {
         self.watch_tasks.push(cx.spawn(async move |this, cx| {
             let fs = this.read_with(cx, |this, _| this.fs.clone())?;
             let watched_path = path.clone();
-            let watcher = fs.watch(&watched_path, Duration::from_secs(1));
+            let watcher = fs.watch(
+                &watched_path,
+                Duration::from_secs(1),
+                fs::fs_watcher::WatcherMode::Native,
+            );
             initial_scan(this.clone(), path, cx.clone()).await?;
 
             let (mut entries, _) = watcher.await;
