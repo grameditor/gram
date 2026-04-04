@@ -194,7 +194,7 @@ impl PlatformTextSystem for CosmicTextSystem {
         _font_id: FontId,
         _font_size: Pixels,
     ) -> TextRenderingMode {
-        // Ideally, we'd use fontconfig to read the user preference.
+        // TODO: Ideally, we'd use fontconfig to read the user preference.
         TextRenderingMode::Subpixel
     }
 }
@@ -234,14 +234,14 @@ impl CosmicTextSystemState {
             .db()
             .faces()
             .filter(|face| face.families.iter().any(|family| *name == family.0))
-            .map(|face| (face.id, face.post_script_name.clone()))
+            .map(|face| (face.id, face.post_script_name.clone(), face.weight))
             .collect::<SmallVec<[_; 4]>>();
 
         let mut loaded_font_ids = SmallVec::new();
-        for (font_id, postscript_name) in families {
+        for (font_id, postscript_name, weight) in families {
             let font = self
                 .font_system
-                .get_font(font_id)
+                .get_font(font_id, weight)
                 .context("Could not load font")?;
 
             // HACK: To let the storybook run and render Windows caption icons. We should actually do better font fallback.
@@ -381,7 +381,7 @@ impl CosmicTextSystemState {
     /// `LoadedFont.features`, as it will have an arbitrarily chosen or empty value. The only
     /// current use of this field is for the *input* of `layout_line`, and so it's fine to use
     /// `font_id_for_cosmic_id` when computing the *output* of `layout_line`.
-    fn font_id_for_cosmic_id(&mut self, id: cosmic_text::fontdb::ID) -> FontId {
+    fn font_id_for_cosmic_id(&mut self, id: cosmic_text::fontdb::ID, weight: cosmic_text::Weight) -> FontId {
         if let Some(ix) = self
             .loaded_fonts
             .iter()
@@ -389,7 +389,7 @@ impl CosmicTextSystemState {
         {
             FontId(ix)
         } else {
-            let font = self.font_system.get_font(id).unwrap();
+            let font = self.font_system.get_font(id, weight).unwrap();
             let face = self.font_system.db().face(id).unwrap();
 
             let font_id = FontId(self.loaded_fonts.len());
@@ -437,9 +437,12 @@ impl CosmicTextSystemState {
             font_size.0,
             None, // We do our own wrapping
             cosmic_text::Wrap::None,
+            cosmic_text::Ellipsize::None,
             None,
             &mut layout_lines,
             None,
+            // TODO: Ideally, we'd use fontconfig to read the user preference.
+            cosmic_text::Hinting::Disabled,
         );
         let layout = layout_lines.first().unwrap();
 
@@ -448,7 +451,7 @@ impl CosmicTextSystemState {
             let mut font_id = FontId(glyph.metadata);
             let mut loaded_font = self.loaded_font(font_id);
             if loaded_font.font.id() != glyph.font_id {
-                font_id = self.font_id_for_cosmic_id(glyph.font_id);
+                font_id = self.font_id_for_cosmic_id(glyph.font_id, glyph.font_weight);
                 loaded_font = self.loaded_font(font_id);
             }
             let is_emoji = loaded_font.is_known_emoji_font;
