@@ -1,7 +1,16 @@
-use anyhow::{Result, anyhow};
+use crate::helpers::{find_cached_server_binary, with_exe};
+#[cfg(not(target_os = "linux"))]
+use crate::helpers::{verify_metadata, write_metadata};
+use anyhow::Result;
+#[cfg(not(target_os = "linux"))]
+use anyhow::anyhow;
 use async_trait::async_trait;
 use gpui::AsyncApp;
+#[cfg(target_os = "linux")]
+use http_client::github::GitHubLspBinaryVersion;
+#[cfg(not(target_os = "linux"))]
 use http_client::github::{AssetKind, GitHubLspBinaryVersion, latest_github_release};
+#[cfg(not(target_os = "linux"))]
 use http_client::github_download::download_server_binary;
 use language::{LanguageServerName, LspAdapter, LspAdapterDelegate, LspInstaller, Toolchain};
 use lsp::LanguageServerBinary;
@@ -12,10 +21,9 @@ use std::{
     path::{Path, PathBuf},
     sync::Arc,
 };
+#[cfg(not(target_os = "linux"))]
 use util::fs::{make_file_executable, remove_matching};
 use util::{ResultExt, maybe};
-
-use crate::helpers::{find_cached_server_binary, verify_metadata, with_exe, write_metadata};
 
 pub struct SuperhtmlLspAdapter;
 
@@ -23,12 +31,6 @@ pub struct SuperhtmlLspAdapter;
 impl SuperhtmlLspAdapter {
     const GITHUB_ASSET_KIND: AssetKind = AssetKind::Zip;
     const OS_NAME: &str = "macos";
-}
-
-#[cfg(target_os = "linux")]
-impl SuperhtmlLspAdapter {
-    const GITHUB_ASSET_KIND: AssetKind = AssetKind::TarGz;
-    const OS_NAME: &str = "linux-musl";
 }
 
 #[cfg(target_os = "windows")]
@@ -56,7 +58,7 @@ impl LspInstaller for SuperhtmlLspAdapter {
         })
     }
 
-    #[cfg(not(target_os = "windows"))]
+    #[cfg(target_os = "linux")]
     async fn fetch_latest_server_version(
         &self,
         _delegate: &dyn LspAdapterDelegate,
@@ -66,7 +68,7 @@ impl LspInstaller for SuperhtmlLspAdapter {
         anyhow::bail!("The superhtml language server has to be installed separately");
     }
 
-    #[cfg(target_os = "windows")]
+    #[cfg(not(target_os = "linux"))]
     async fn fetch_latest_server_version(
         &self,
         delegate: &dyn LspAdapterDelegate,
@@ -111,17 +113,17 @@ impl LspInstaller for SuperhtmlLspAdapter {
         })
     }
 
-    #[cfg(not(target_os = "windows"))]
+    #[cfg(target_os = "linux")]
     async fn fetch_server_binary(
         &self,
-        version: GitHubLspBinaryVersion,
-        container_dir: PathBuf,
-        delegate: &dyn LspAdapterDelegate,
+        _version: GitHubLspBinaryVersion,
+        _container_dir: PathBuf,
+        _delegate: &dyn LspAdapterDelegate,
     ) -> Result<LanguageServerBinary> {
         anyhow::bail!("The superhtml language server has to be installed separately");
     }
 
-    #[cfg(target_os = "windows")]
+    #[cfg(not(target_os = "linux"))]
     async fn fetch_server_binary(
         &self,
         version: GitHubLspBinaryVersion,
