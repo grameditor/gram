@@ -6284,10 +6284,9 @@ pub fn open_paths(
                             return;
                         }
                     }
-                    for window in local_workspace_windows(cx) {
+                    if let Some(window) = local_workspace_windows(cx).into_iter().next() {
                         existing = Some(window);
                         open_visible = OpenVisible::None;
-                        break;
                     }
                 })?;
             }

@@ -10,14 +10,17 @@ use futures::channel::mpsc::{Sender, UnboundedReceiver, UnboundedSender};
 use gpui::{App, AppContext as _, AsyncApp, SemanticVersion, Task};
 use release_channel::{AppVersion, ReleaseChannel};
 use rpc::proto::Envelope;
-use smol::{fs, process};
+#[cfg(debug_assertions)]
+use smol::fs;
+use smol::process;
+#[cfg(debug_assertions)]
+use std::time::Instant;
 use std::{
     ffi::OsStr,
     fmt::Write as _,
     path::{Path, PathBuf},
     process::Stdio,
     sync::Arc,
-    time::Instant,
 };
 use util::{
     paths::{PathStyle, RemotePathBuf},
@@ -133,6 +136,7 @@ impl WslRemoteConnection {
             .contains("enabled"))
     }
 
+    #[cfg(debug_assertions)]
     async fn windows_path_to_wsl_path(&self, source: &Path) -> Result<String> {
         windows_path_to_wsl_path_impl(&self.connection_options, source).await
     }
@@ -176,6 +180,12 @@ impl WslRemoteConnection {
                 .map_err(|e| anyhow!("Failed to create directory: {}", e))?;
         }
 
+        #[cfg(not(debug_assertions))]
+        {
+            let _ = delegate;
+            let _ = cx;
+        }
+
         #[cfg(debug_assertions)]
         if let Some(remote_server_path) =
             super::build_remote_server_from_source(&self.platform, delegate.as_ref(), cx).await?
@@ -206,6 +216,7 @@ impl WslRemoteConnection {
         Ok(dst_path)
     }
 
+    #[cfg(debug_assertions)]
     async fn upload_file(
         &self,
         src_path: &Path,
@@ -255,6 +266,7 @@ impl WslRemoteConnection {
         Ok(())
     }
 
+    #[cfg(debug_assertions)]
     async fn extract_and_install(
         &self,
         tmp_path: &RelPath,

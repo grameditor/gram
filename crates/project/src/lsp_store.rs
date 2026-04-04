@@ -8880,7 +8880,7 @@ impl LspStore {
         let server_id = lsp_query.server_id.map(LanguageServerId::from_proto);
         match lsp_query.request.context("invalid LSP query request")? {
             Request::GetReferences(get_references) => {
-                let position = get_references.position.clone().and_then(deserialize_anchor);
+                let position = get_references.position.and_then(deserialize_anchor);
                 Self::query_lsp_locally::<GetReferences>(
                     lsp_store,
                     server_id,
@@ -8905,7 +8905,7 @@ impl LspStore {
                 .await?;
             }
             Request::GetHover(get_hover) => {
-                let position = get_hover.position.clone().and_then(deserialize_anchor);
+                let position = get_hover.position.and_then(deserialize_anchor);
                 Self::query_lsp_locally::<GetHover>(
                     lsp_store,
                     server_id,
@@ -8930,10 +8930,7 @@ impl LspStore {
                 .await?;
             }
             Request::GetSignatureHelp(get_signature_help) => {
-                let position = get_signature_help
-                    .position
-                    .clone()
-                    .and_then(deserialize_anchor);
+                let position = get_signature_help.position.and_then(deserialize_anchor);
                 Self::query_lsp_locally::<GetSignatureHelp>(
                     lsp_store,
                     server_id,
@@ -8958,7 +8955,7 @@ impl LspStore {
                 .await?;
             }
             Request::GetDefinition(get_definition) => {
-                let position = get_definition.position.clone().and_then(deserialize_anchor);
+                let position = get_definition.position.and_then(deserialize_anchor);
                 Self::query_lsp_locally::<GetDefinitions>(
                     lsp_store,
                     server_id,
@@ -8971,10 +8968,7 @@ impl LspStore {
                 .await?;
             }
             Request::GetDeclaration(get_declaration) => {
-                let position = get_declaration
-                    .position
-                    .clone()
-                    .and_then(deserialize_anchor);
+                let position = get_declaration.position.and_then(deserialize_anchor);
                 Self::query_lsp_locally::<GetDeclarations>(
                     lsp_store,
                     server_id,
@@ -8987,10 +8981,7 @@ impl LspStore {
                 .await?;
             }
             Request::GetTypeDefinition(get_type_definition) => {
-                let position = get_type_definition
-                    .position
-                    .clone()
-                    .and_then(deserialize_anchor);
+                let position = get_type_definition.position.and_then(deserialize_anchor);
                 Self::query_lsp_locally::<GetTypeDefinitions>(
                     lsp_store,
                     server_id,
@@ -9003,10 +8994,7 @@ impl LspStore {
                 .await?;
             }
             Request::GetImplementation(get_implementation) => {
-                let position = get_implementation
-                    .position
-                    .clone()
-                    .and_then(deserialize_anchor);
+                let position = get_implementation.position.and_then(deserialize_anchor);
                 Self::query_lsp_locally::<GetImplementations>(
                     lsp_store,
                     server_id,
@@ -9064,12 +9052,10 @@ impl LspStore {
             Request::InlayHints(inlay_hints) => {
                 let query_start = inlay_hints
                     .start
-                    .clone()
                     .and_then(deserialize_anchor)
                     .context("invalid inlay hints range start")?;
                 let query_end = inlay_hints
                     .end
-                    .clone()
                     .and_then(deserialize_anchor)
                     .context("invalid inlay hints range end")?;
                 Self::deduplicate_range_based_lsp_requests::<InlayHints>(
@@ -10720,7 +10706,7 @@ impl LspStore {
                         .ranges
                         .iter()
                         .map(|range| {
-                            deserialize_anchor_range(range.clone()).context("invalid anchor range")
+                            deserialize_anchor_range(*range).context("invalid anchor range")
                         })
                         .collect();
                     ranges_map.insert(buffer_id, ranges?);

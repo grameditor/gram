@@ -1610,14 +1610,10 @@ impl Project {
 
     #[inline]
     pub fn replica_id(&self) -> ReplicaId {
-        match self.client_state {
-            _ => {
-                if self.remote_client.is_some() {
-                    ReplicaId::REMOTE_SERVER
-                } else {
-                    ReplicaId::LOCAL
-                }
-            }
+        if self.remote_client.is_some() {
+            ReplicaId::REMOTE_SERVER
+        } else {
+            ReplicaId::LOCAL
         }
     }
 

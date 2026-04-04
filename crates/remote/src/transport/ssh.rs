@@ -16,16 +16,19 @@ use parking_lot::Mutex;
 use release_channel::{AppVersion, ReleaseChannel};
 use rpc::proto::Envelope;
 pub use settings::SshPortForwardOption;
-use smol::{
-    fs,
-    process::{self, Child, Stdio},
-};
+#[cfg(debug_assertions)]
+use smol::fs;
+
+use smol::process::{self, Child, Stdio};
 use std::{
     net::IpAddr,
     path::{Path, PathBuf},
     sync::Arc,
-    time::Instant,
 };
+
+#[cfg(debug_assertions)]
+use std::time::Instant;
+
 use tempfile::TempDir;
 use util::{
     paths::{PathStyle, RemotePathBuf},
@@ -600,6 +603,13 @@ impl SshRemoteConnection {
         let dst_path =
             paths::remote_server_dir_relative().join(RelPath::unix(&binary_name).unwrap());
 
+        #[cfg(not(debug_assertions))]
+        {
+            let _ = delegate;
+            let _ = cx;
+            let _ = &self.ssh_platform;
+        }
+
         #[cfg(debug_assertions)]
         if let Some(remote_server_path) =
             super::build_remote_server_from_source(&self.ssh_platform, delegate.as_ref(), cx)
@@ -640,6 +650,7 @@ impl SshRemoteConnection {
         );
     }
 
+    #[cfg(debug_assertions)]
     async fn upload_local_server_binary(
         &self,
         src_path: &Path,
@@ -675,6 +686,7 @@ impl SshRemoteConnection {
         Ok(())
     }
 
+    #[cfg(debug_assertions)]
     async fn extract_server_binary(
         &self,
         dst_path: &RelPath,
@@ -754,6 +766,7 @@ impl SshRemoteConnection {
         command
     }
 
+    #[cfg(debug_assertions)]
     async fn upload_file(&self, src_path: &Path, dest_path: &RelPath) -> Result<()> {
         log::debug!("uploading file {:?} to {:?}", src_path, dest_path);
 
