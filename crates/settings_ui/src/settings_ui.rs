@@ -2029,7 +2029,7 @@ impl SettingsWindow {
                     if let Some(display_name) = self.display_name(&settings_ui_file) {
                         log::error!(
                             "No directory name found for settings ui_file={:?} at worktree ID: {}",
-                            self.display_name(&settings_ui_file),
+                            display_name,
                             worktree_id
                         );
                     }
