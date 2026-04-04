@@ -4247,8 +4247,8 @@ async fn test_drag_marked_entries_in_folded_directories(cx: &mut gpui::TestAppCo
             "    > a",
             "    > e",
             "    v target",
-            "        > b/c",
-            "        > f/g  <== selected  <== marked"
+            "        > b/c  <== marked",
+            "        > f/g",
         ],
         "Should move 'b/c' and 'f/g' to target, leaving 'a' and 'e'"
     );
