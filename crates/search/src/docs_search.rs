@@ -72,6 +72,7 @@ impl language::File for DocFile {
     fn disk_state(&self) -> DiskState {
         DiskState::Present {
             mtime: fs::MTime::from_seconds_and_nanos(0, 0),
+            size: 0,
         }
     }
 
