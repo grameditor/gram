@@ -19,6 +19,11 @@ unsafe impl Send for Connection {}
 
 impl Connection {
     pub(crate) fn open(uri: &str, persistent: bool) -> Result<Self> {
+        let flags = SQLITE_OPEN_CREATE | SQLITE_OPEN_NOMUTEX | SQLITE_OPEN_READWRITE;
+        Self::open_with_flags(uri, persistent, flags)
+    }
+
+    fn open_with_flags(uri: &str, persistent: bool, flags: i32) -> Result<Self> {
         let mut connection = Self {
             sqlite3: ptr::null_mut(),
             persistent,
@@ -26,7 +31,6 @@ impl Connection {
             _sqlite: PhantomData,
         };
 
-        let flags = SQLITE_OPEN_CREATE | SQLITE_OPEN_NOMUTEX | SQLITE_OPEN_READWRITE;
         unsafe {
             sqlite3_open_v2(
                 CString::new(uri)?.as_ptr(),
@@ -51,13 +55,15 @@ impl Connection {
     }
 
     pub fn open_memory(uri: Option<&str>) -> Self {
-        let in_memory_path = if let Some(uri) = uri {
-            format!("file:{}?mode=memory&cache=shared", uri)
+        if let Some(uri) = uri {
+            let in_memory_path = format!("file:{}?mode=memory&cache=shared", uri);
+            let flags =
+                SQLITE_OPEN_CREATE | SQLITE_OPEN_NOMUTEX | SQLITE_OPEN_READWRITE | SQLITE_OPEN_URI;
+            Self::open_with_flags(&in_memory_path, false, flags)
+                .expect("Could not create fallback in memory db")
         } else {
-            ":memory:".to_string()
-        };
-
-        Self::open(&in_memory_path, false).expect("Could not create fallback in memory db")
+            Self::open(":memory:", false).expect("Could not create fallback in memory db")
+        }
     }
 
     pub fn persistent(&self) -> bool {
