@@ -6,6 +6,10 @@ use std::pin::pin;
 use std::sync::Arc;
 use std::time::Duration;
 
+use crate::common::{
+    BottomResizeDrag, DEFAULT_PREVIEW_HEIGHT, DEFAULT_RESULTS_HEIGHT, DragPreview,
+    MAX_PREVIEW_HEIGHT, MIN_PANEL_HEIGHT, ResizeDrag, SEARCH_DEBOUNCE_MS, SearchDrag, SearchMatch,
+};
 use crate::{
     SearchOption, SearchOptions, SelectNextMatch, SelectPreviousMatch, ToggleCaseSensitive,
     ToggleIncludeIgnored, ToggleRegex, ToggleReplace, ToggleWholeWord,
@@ -42,8 +46,6 @@ actions!(
     [ReplaceNext, ReplaceAll, ToggleFilters, ToggleSplitMenu]
 );
 
-const SEARCH_DEBOUNCE_MS: u64 = 100;
-
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
 enum InputPanel {
     Query,
@@ -56,24 +58,19 @@ struct SearchMatchLineHighlight;
 
 /// Global state for storing the recent search query.
 struct RecentSearchState {
-    last_query: String,
+    last_query: Option<String>,
 }
 
 impl Global for RecentSearchState {}
 
 fn get_recent_query(cx: &App) -> Option<String> {
-    cx.try_global::<RecentSearchState>().and_then(|state| {
-        if state.last_query.is_empty() {
-            None
-        } else {
-            Some(state.last_query.clone())
-        }
-    })
+    cx.try_global::<RecentSearchState>()
+        .and_then(|state| state.last_query.clone())
 }
 
 fn save_recent_query(query: &str, cx: &mut App) {
     cx.set_global(RecentSearchState {
-        last_query: query.to_string(),
+        last_query: Some(query.to_string()),
     });
 }
 
@@ -81,22 +78,6 @@ fn save_recent_query(query: &str, cx: &mut App) {
 pub fn init(cx: &mut App) {
     cx.observe_new(QuickSearch::register).detach();
 }
-
-#[derive(Clone)]
-pub struct SearchMatch {
-    pub path: ProjectPath,
-    pub buffer: Entity<Buffer>,
-    pub anchor_range: Range<Anchor>,
-    pub range: Range<usize>,
-    pub relative_range: Range<usize>,
-    pub line_text: String,
-    pub line_number: u32,
-}
-
-const DEFAULT_RESULTS_HEIGHT: f32 = 180.0;
-const DEFAULT_PREVIEW_HEIGHT: f32 = 280.0;
-const MIN_PANEL_HEIGHT: f32 = 80.0;
-const MAX_PREVIEW_HEIGHT: f32 = 600.0;
 
 pub struct QuickSearch {
     picker: Entity<Picker<QuickSearchDelegate>>,
@@ -108,33 +89,6 @@ pub struct QuickSearch {
     preview_height: Pixels,
     _subscriptions: Vec<Subscription>,
     _autosave_task: Option<Task<()>>,
-}
-
-#[derive(Clone, Copy)]
-struct QuickSearchDrag {
-    mouse_start: gpui::Point<Pixels>,
-    offset_start: gpui::Point<Pixels>,
-}
-
-#[derive(Clone, Copy)]
-struct ResizeDrag {
-    mouse_start_y: Pixels,
-    results_height_start: Pixels,
-    preview_height_start: Pixels,
-}
-
-#[derive(Clone, Copy)]
-struct BottomResizeDrag {
-    mouse_start_y: Pixels,
-    preview_height_start: Pixels,
-}
-
-struct DragPreview;
-
-impl Render for DragPreview {
-    fn render(&mut self, _window: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
-        div()
-    }
 }
 
 impl ModalView for QuickSearch {}
@@ -580,14 +534,14 @@ impl Render for QuickSearch {
             .rounded_lg()
             .shadow_lg()
             .on_drag(
-                QuickSearchDrag {
+                SearchDrag {
                     mouse_start: window.mouse_position(),
                     offset_start: self.offset,
                 },
                 |_, _, _, cx| cx.new(|_| DragPreview),
             )
-            .on_drag_move::<QuickSearchDrag>(cx.listener(
-                |this, event: &DragMoveEvent<QuickSearchDrag>, _window, cx| {
+            .on_drag_move::<SearchDrag>(cx.listener(
+                |this, event: &DragMoveEvent<SearchDrag>, _window, cx| {
                     let drag = event.drag(cx);
                     this.offset = drag.offset_start + (event.event.position - drag.mouse_start);
                     cx.notify();

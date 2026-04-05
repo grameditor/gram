@@ -17,6 +17,10 @@ use util::paths::PathStyle;
 use util::rel_path::RelPath;
 use worktree::WorktreeId;
 
+use crate::common::{
+    BottomResizeDrag, DEFAULT_RESULTS_HEIGHT, DragPreview, MAX_PREVIEW_HEIGHT, MIN_PANEL_HEIGHT,
+    ResizeDrag, SEARCH_DEBOUNCE_MS, SearchDrag, SearchMatch,
+};
 use crate::{
     SearchOption, SearchOptions, SelectNextMatch, SelectPreviousMatch, ToggleCaseSensitive,
     ToggleIncludeIgnored, ToggleRegex, ToggleWholeWord,
@@ -27,7 +31,7 @@ use editor::{Editor, EditorEvent, EditorMode, RowHighlightOptions};
 use gpui::{
     Action, App, AsyncApp, Context, DismissEvent, DragMoveEvent, Entity, EventEmitter, FocusHandle,
     Focusable, Global, HighlightStyle, KeyContext, ParentElement, Render, Styled, StyledText,
-    Subscription, Task, WeakEntity, Window, actions, px, relative,
+    Subscription, Task, Window, actions, px, relative,
 };
 use language::Buffer;
 use language::language_settings::SoftWrap;
@@ -46,8 +50,6 @@ use util::{ResultExt, paths::PathMatcher};
 use workspace::{ModalView, Workspace};
 
 actions!(docs_search, [ToggleFilters]);
-
-const SEARCH_DEBOUNCE_MS: u64 = 100;
 
 struct DocFile {
     path: Arc<RelPath>,
@@ -120,25 +122,20 @@ struct SearchMatchHighlight;
 struct SearchMatchLineHighlight;
 
 /// Global state for storing the recent search query.
-struct RecentSearchState {
-    last_query: String,
+struct DocsSearchState {
+    last_query: Option<String>,
 }
 
-impl Global for RecentSearchState {}
+impl Global for DocsSearchState {}
 
 fn get_recent_query(cx: &App) -> Option<String> {
-    cx.try_global::<RecentSearchState>().and_then(|state| {
-        if state.last_query.is_empty() {
-            None
-        } else {
-            Some(state.last_query.clone())
-        }
-    })
+    cx.try_global::<DocsSearchState>()
+        .and_then(|state| state.last_query.clone())
 }
 
 fn save_recent_query(query: &str, cx: &mut App) {
-    cx.set_global(RecentSearchState {
-        last_query: query.to_string(),
+    cx.set_global(DocsSearchState {
+        last_query: Some(query.to_string()),
     });
 }
 
@@ -146,22 +143,6 @@ fn save_recent_query(query: &str, cx: &mut App) {
 pub fn init(cx: &mut App) {
     cx.observe_new(DocsSearch::register).detach();
 }
-
-#[derive(Clone, Debug)]
-pub struct SearchMatch {
-    pub path: ProjectPath,
-    pub buffer: Entity<Buffer>,
-    pub anchor_range: Range<Anchor>,
-    pub range: Range<usize>,
-    pub relative_range: Range<usize>,
-    pub line_text: String,
-    pub line_number: u32,
-}
-
-const DEFAULT_RESULTS_HEIGHT: f32 = 180.0;
-const DEFAULT_PREVIEW_HEIGHT: f32 = 280.0;
-const MIN_PANEL_HEIGHT: f32 = 80.0;
-const MAX_PREVIEW_HEIGHT: f32 = 600.0;
 
 pub struct DocsSearch {
     picker: Entity<Picker<DocsSearchDelegate>>,
@@ -172,33 +153,6 @@ pub struct DocsSearch {
     preview_height: Pixels,
     _subscriptions: Vec<Subscription>,
     _autosave_task: Option<Task<()>>,
-}
-
-#[derive(Clone, Copy)]
-struct DocsSearchDrag {
-    mouse_start: gpui::Point<Pixels>,
-    offset_start: gpui::Point<Pixels>,
-}
-
-#[derive(Clone, Copy)]
-struct ResizeDrag {
-    mouse_start_y: Pixels,
-    results_height_start: Pixels,
-    preview_height_start: Pixels,
-}
-
-#[derive(Clone, Copy)]
-struct BottomResizeDrag {
-    mouse_start_y: Pixels,
-    preview_height_start: Pixels,
-}
-
-struct DragPreview;
-
-impl Render for DragPreview {
-    fn render(&mut self, _window: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
-        div()
-    }
 }
 
 impl ModalView for DocsSearch {}
@@ -219,19 +173,13 @@ impl DocsSearch {
     ) {
         workspace.register_action(|workspace, _: &Toggle, window, cx| {
             let project = workspace.project().clone();
-            let weak_workspace = cx.entity().downgrade();
             workspace.toggle_modal(window, cx, |window, cx| {
-                DocsSearch::new(weak_workspace, project, window, cx)
+                DocsSearch::new(project, window, cx)
             });
         });
     }
 
-    fn new(
-        workspace: WeakEntity<Workspace>,
-        project: Entity<Project>,
-        window: &mut Window,
-        cx: &mut Context<Self>,
-    ) -> Self {
+    fn new(project: Entity<Project>, window: &mut Window, cx: &mut Context<Self>) -> Self {
         let capability = project.read(cx).capability();
         let preview_editor = cx.new(|cx| {
             let multi_buffer = cx.new(|_| MultiBuffer::without_headers(capability));
@@ -241,13 +189,8 @@ impl DocsSearch {
 
         let focus_handle = cx.focus_handle();
 
-        let delegate = DocsSearchDelegate::new(
-            workspace,
-            project,
-            preview_editor.clone(),
-            get_recent_query(cx),
-            cx,
-        );
+        let delegate =
+            DocsSearchDelegate::new(project, preview_editor.clone(), get_recent_query(cx), cx);
         let picker = cx.new(|cx| {
             Picker::uniform_list(delegate, window, cx)
                 .modal(false)
@@ -298,7 +241,7 @@ impl DocsSearch {
             focus_handle,
             offset: gpui::Point::default(),
             results_height: px(DEFAULT_RESULTS_HEIGHT),
-            preview_height: px(DEFAULT_PREVIEW_HEIGHT),
+            preview_height: px(crate::common::DEFAULT_PREVIEW_HEIGHT),
             _subscriptions: subscriptions,
             _autosave_task: None,
         }
@@ -400,14 +343,14 @@ impl Render for DocsSearch {
             .rounded_lg()
             .shadow_lg()
             .on_drag(
-                DocsSearchDrag {
+                SearchDrag {
                     mouse_start: window.mouse_position(),
                     offset_start: self.offset,
                 },
                 |_, _, _, cx| cx.new(|_| DragPreview),
             )
-            .on_drag_move::<DocsSearchDrag>(cx.listener(
-                |this, event: &DragMoveEvent<DocsSearchDrag>, _window, cx| {
+            .on_drag_move::<SearchDrag>(cx.listener(
+                |this, event: &DragMoveEvent<SearchDrag>, _window, cx| {
                     let drag = event.drag(cx);
                     this.offset = drag.offset_start + (event.event.position - drag.mouse_start);
                     cx.notify();
@@ -611,10 +554,8 @@ impl Render for DocsSearch {
 }
 
 pub struct DocsSearchDelegate {
-    workspace: WeakEntity<Workspace>,
     project: Entity<Project>,
     preview_editor: Entity<Editor>,
-    included_opened_only: bool,
     matches: Vec<SearchMatch>,
     selected_index: usize,
     cancel_flag: Arc<std::sync::atomic::AtomicBool>,
@@ -628,17 +569,14 @@ pub struct DocsSearchDelegate {
 
 impl DocsSearchDelegate {
     fn new(
-        workspace: WeakEntity<Workspace>,
         project: Entity<Project>,
         preview_editor: Entity<Editor>,
         initial_query: Option<String>,
         cx: &App,
     ) -> Self {
         Self {
-            workspace,
             project,
             preview_editor,
-            included_opened_only: false,
             matches: Vec::new(),
             selected_index: 0,
             cancel_flag: Arc::new(std::sync::atomic::AtomicBool::new(false)),
@@ -649,19 +587,6 @@ impl DocsSearchDelegate {
             pending_initial_query: RefCell::new(initial_query),
             panels_with_errors: HashMap::default(),
         }
-    }
-
-    fn open_buffers(&self, cx: &App) -> Vec<Entity<Buffer>> {
-        let mut buffers = Vec::new();
-        if let Some(workspace) = self.workspace.upgrade() {
-            let workspace = workspace.read(cx);
-            for editor in workspace.items_of_type::<Editor>(cx) {
-                if let Some(buffer) = editor.read(cx).buffer().read(cx).as_singleton() {
-                    buffers.push(buffer);
-                }
-            }
-        }
-        buffers
     }
 
     fn update_preview(&self, window: &mut Window, cx: &mut Context<Picker<Self>>) {
@@ -737,7 +662,6 @@ impl DocsSearchDelegate {
     fn build_search_query(
         &mut self,
         query: &str,
-        open_buffers: Option<Vec<Entity<Buffer>>>,
         cx: &mut Context<Picker<Self>>,
     ) -> Option<SearchQuery> {
         if query.is_empty() {
@@ -770,7 +694,7 @@ impl DocsSearchDelegate {
                 files_to_include,
                 files_to_exclude,
                 match_full_paths,
-                open_buffers,
+                None,
             )
         } else {
             SearchQuery::text(
@@ -781,7 +705,7 @@ impl DocsSearchDelegate {
                 files_to_include,
                 files_to_exclude,
                 match_full_paths,
-                open_buffers,
+                None,
             )
         };
 
@@ -1041,13 +965,7 @@ impl PickerDelegate for DocsSearchDelegate {
 
         let cancel_flag = self.cancel_flag.clone();
 
-        let open_buffers = if self.included_opened_only {
-            Some(self.open_buffers(cx))
-        } else {
-            None
-        };
-
-        let Some(search_query) = self.build_search_query(&query, open_buffers, cx) else {
+        let Some(search_query) = self.build_search_query(&query, cx) else {
             self.matches.clear();
             self.selected_index = 0;
             self.search_in_progress = false;
