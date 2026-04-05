@@ -16,6 +16,7 @@ use std::sync::{
 use util::path;
 
 #[gpui::test]
+#[allow(clippy::result_large_err)]
 async fn test_module_list(executor: BackgroundExecutor, cx: &mut TestAppContext) {
     init_test(cx);
 

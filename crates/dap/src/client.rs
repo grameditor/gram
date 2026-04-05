@@ -303,6 +303,7 @@ mod tests {
         .await
         .unwrap();
 
+        #[allow(clippy::result_large_err)]
         client.on_request::<Initialize, _>(move |_, _| {
             Ok(dap_types::Capabilities {
                 supports_configuration_done_request: Some(true),

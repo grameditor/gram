@@ -16,6 +16,7 @@ use crate::new_process_modal::NewProcessModal;
 use crate::tests::{init_test, init_test_workspace};
 
 #[gpui::test]
+#[allow(clippy::result_large_err)]
 async fn test_debug_session_substitutes_variables_and_relativizes_paths(
     executor: BackgroundExecutor,
     cx: &mut TestAppContext,

@@ -6220,8 +6220,6 @@ name = "migrator"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "collections",
- "convert_case 0.8.0",
  "log",
  "pretty_assertions",
  "serde_json",

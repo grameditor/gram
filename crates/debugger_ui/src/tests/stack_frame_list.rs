@@ -16,6 +16,7 @@ use unindent::Unindent as _;
 use util::{path, rel_path::rel_path};
 
 #[gpui::test]
+#[allow(clippy::result_large_err)]
 async fn test_fetch_initial_stack_frames_and_go_to_stack_frame(
     executor: BackgroundExecutor,
     cx: &mut TestAppContext,
@@ -175,6 +176,7 @@ async fn test_fetch_initial_stack_frames_and_go_to_stack_frame(
 }
 
 #[gpui::test]
+#[allow(clippy::result_large_err)]
 async fn test_select_stack_frame(executor: BackgroundExecutor, cx: &mut TestAppContext) {
     init_test(cx);
 
@@ -415,6 +417,7 @@ async fn test_select_stack_frame(executor: BackgroundExecutor, cx: &mut TestAppC
 }
 
 #[gpui::test]
+#[allow(clippy::result_large_err)]
 async fn test_collapsed_entries(executor: BackgroundExecutor, cx: &mut TestAppContext) {
     init_test(cx);
 
@@ -744,6 +747,7 @@ async fn test_collapsed_entries(executor: BackgroundExecutor, cx: &mut TestAppCo
 }
 
 #[gpui::test]
+#[allow(clippy::result_large_err)]
 async fn test_stack_frame_filter(executor: BackgroundExecutor, cx: &mut TestAppContext) {
     init_test(cx);
 

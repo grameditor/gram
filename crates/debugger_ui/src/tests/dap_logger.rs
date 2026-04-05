@@ -8,6 +8,7 @@ use std::cell::OnceCell;
 use util::path;
 
 #[gpui::test]
+#[allow(clippy::result_large_err)]
 async fn test_dap_logger_captures_all_session_rpc_messages(
     executor: BackgroundExecutor,
     cx: &mut TestAppContext,

@@ -18,6 +18,7 @@ use crate::{
 };
 
 #[gpui::test]
+#[allow(clippy::result_large_err)]
 async fn test_rust_inline_values(executor: BackgroundExecutor, cx: &mut TestAppContext) {
     init_test(cx);
 
@@ -1539,6 +1540,7 @@ fn rust_lang() -> Language {
 }
 
 #[gpui::test]
+#[allow(clippy::result_large_err)]
 async fn test_python_inline_values(executor: BackgroundExecutor, cx: &mut TestAppContext) {
     init_test(cx);
 
@@ -1885,6 +1887,7 @@ fn go_lang() -> Language {
 /// * `language` - Language configuration to use for parsing
 /// * `executor` - Background executor for async operations
 /// * `cx` - Test app context
+#[allow(clippy::result_large_err)]
 async fn test_inline_values_util(
     local_variables: &[(&str, &str)],
     global_variables: &[(&str, &str)],

@@ -13,6 +13,7 @@ use util::path;
 use workspace::{Panel, dock::DockPosition};
 
 #[gpui::test]
+#[allow(clippy::result_large_err)]
 async fn test_invert_axis_on_panel_position_change(
     executor: BackgroundExecutor,
     cx: &mut TestAppContext,

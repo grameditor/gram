@@ -11,6 +11,7 @@ use tests::{init_test, init_test_workspace};
 use util::path;
 
 #[gpui::test]
+#[allow(clippy::result_large_err)]
 async fn test_handle_output_event(executor: BackgroundExecutor, cx: &mut TestAppContext) {
     init_test(cx);
 
@@ -159,6 +160,7 @@ async fn test_handle_output_event(executor: BackgroundExecutor, cx: &mut TestApp
 }
 
 #[gpui::test]
+#[allow(clippy::result_large_err)]
 async fn test_escape_code_processing(executor: BackgroundExecutor, cx: &mut TestAppContext) {
     init_test(cx);
 

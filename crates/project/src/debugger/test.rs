@@ -26,6 +26,7 @@ pub fn intercept_debug_sessions<T: Fn(&Arc<DebugAdapterClient>) + 'static>(
     })
 }
 
+#[allow(clippy::result_large_err)]
 fn register_default_handlers(session: &Session, client: &Arc<DebugAdapterClient>, cx: &mut App) {
     client.on_request::<dap::requests::Initialize, _>(move |_, _| Ok(Default::default()));
     let paths = session.breakpoint_store.read(cx).breakpoint_paths();

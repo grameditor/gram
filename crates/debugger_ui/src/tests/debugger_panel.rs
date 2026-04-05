@@ -37,6 +37,7 @@ use workspace::item::SaveOptions;
 use workspace::{Item, dock::Panel};
 
 #[gpui::test]
+#[allow(clippy::result_large_err)]
 async fn test_basic_show_debug_panel(executor: BackgroundExecutor, cx: &mut TestAppContext) {
     init_test(cx);
 
@@ -159,6 +160,7 @@ async fn test_basic_show_debug_panel(executor: BackgroundExecutor, cx: &mut Test
 }
 
 #[gpui::test]
+#[allow(clippy::result_large_err)]
 async fn test_we_can_only_have_one_panel_per_debug_session(
     executor: BackgroundExecutor,
     cx: &mut TestAppContext,
@@ -383,6 +385,7 @@ async fn test_handle_successful_run_in_terminal_reverse_request(
 }
 
 #[gpui::test]
+#[allow(clippy::result_large_err)]
 async fn test_handle_start_debugging_request(
     executor: BackgroundExecutor,
     cx: &mut TestAppContext,
@@ -563,6 +566,7 @@ async fn test_handle_error_run_in_terminal_reverse_request(
 }
 
 #[gpui::test]
+#[allow(clippy::result_large_err)]
 async fn test_handle_start_debugging_reverse_request(
     executor: BackgroundExecutor,
     cx: &mut TestAppContext,
@@ -661,6 +665,7 @@ async fn test_handle_start_debugging_reverse_request(
 }
 
 #[gpui::test]
+#[allow(clippy::result_large_err)]
 async fn test_shutdown_children_when_parent_session_shutdown(
     executor: BackgroundExecutor,
     cx: &mut TestAppContext,
@@ -767,6 +772,7 @@ async fn test_shutdown_children_when_parent_session_shutdown(
 }
 
 #[gpui::test]
+#[allow(clippy::result_large_err)]
 async fn test_shutdown_parent_session_if_all_children_are_shutdown(
     executor: BackgroundExecutor,
     cx: &mut TestAppContext,
@@ -887,6 +893,7 @@ async fn test_shutdown_parent_session_if_all_children_are_shutdown(
 }
 
 #[gpui::test]
+#[allow(clippy::result_large_err)]
 async fn test_debug_panel_item_thread_status_reset_on_failure(
     executor: BackgroundExecutor,
     cx: &mut TestAppContext,
@@ -1080,6 +1087,7 @@ async fn test_debug_panel_item_thread_status_reset_on_failure(
 }
 
 #[gpui::test]
+#[allow(clippy::result_large_err)]
 async fn test_send_breakpoints_when_editor_has_been_saved(
     executor: BackgroundExecutor,
     cx: &mut TestAppContext,
@@ -1243,6 +1251,7 @@ async fn test_send_breakpoints_when_editor_has_been_saved(
 }
 
 #[gpui::test]
+#[allow(clippy::result_large_err)]
 async fn test_unsetting_breakpoints_on_clear_breakpoint_action(
     executor: BackgroundExecutor,
     cx: &mut TestAppContext,
@@ -1361,6 +1370,7 @@ async fn test_unsetting_breakpoints_on_clear_breakpoint_action(
 }
 
 #[gpui::test]
+#[allow(clippy::result_large_err)]
 async fn test_debug_session_is_shutdown_when_attach_and_launch_request_fails(
     executor: BackgroundExecutor,
     cx: &mut TestAppContext,
@@ -1409,6 +1419,7 @@ async fn test_debug_session_is_shutdown_when_attach_and_launch_request_fails(
 }
 
 #[gpui::test]
+#[allow(clippy::result_large_err)]
 async fn test_we_send_arguments_from_user_config(
     executor: BackgroundExecutor,
     cx: &mut TestAppContext,
@@ -1470,6 +1481,7 @@ async fn test_we_send_arguments_from_user_config(
 }
 
 #[gpui::test]
+#[allow(clippy::result_large_err)]
 async fn test_active_debug_line_setting(executor: BackgroundExecutor, cx: &mut TestAppContext) {
     init_test(cx);
 
@@ -1755,6 +1767,7 @@ async fn test_active_debug_line_setting(executor: BackgroundExecutor, cx: &mut T
 }
 
 #[gpui::test]
+#[allow(clippy::result_large_err)]
 async fn test_debug_adapters_shutdown_on_app_quit(
     executor: BackgroundExecutor,
     cx: &mut TestAppContext,
@@ -1811,6 +1824,7 @@ async fn test_debug_adapters_shutdown_on_app_quit(
 }
 
 #[gpui::test]
+#[allow(clippy::result_large_err)]
 async fn test_adapter_shutdown_with_child_sessions_on_app_quit(
     executor: BackgroundExecutor,
     cx: &mut TestAppContext,
