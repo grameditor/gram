@@ -9,7 +9,7 @@ mod quick_action_bar;
 pub(crate) mod windows_only_instance;
 
 use anyhow::Context as _;
-use app_actions::{OpenBrowser, OpenGramUrl, OpenServerSettings, OpenSettingsFile, Quit};
+use app_actions::{About, OpenBrowser, OpenGramUrl, OpenServerSettings, OpenSettingsFile, Quit};
 pub use app_menus::*;
 use assets::Assets;
 use breadcrumbs::Breadcrumbs;
@@ -25,10 +25,10 @@ use git_ui::commit_view::CommitViewToolbar;
 use git_ui::git_panel::GitPanel;
 use git_ui::project_diff::ProjectDiffToolbar;
 use gpui::{
-    Action, App, AppContext as _, Context, DismissEvent, Element, Entity, Focusable, KeyBinding,
-    ParentElement, PathPromptOptions, PromptLevel, ReadGlobal, SharedString, Task, TitlebarOptions,
-    UpdateGlobal, WeakEntity, Window, WindowKind, WindowOptions, actions, image_cache, point, px,
-    retain_all,
+    Action, App, AppContext as _, ClipboardItem, Context, DismissEvent, Element, Entity,
+    FocusHandle, Focusable, KeyBinding, ParentElement, PathPromptOptions, PromptLevel, ReadGlobal,
+    SharedString, Size, Task, TitlebarOptions, UpdateGlobal, WeakEntity, Window, WindowBounds,
+    WindowKind, WindowOptions, actions, image_cache, point, px, retain_all,
 };
 use image_viewer::ImageInfo;
 use language::Capability;
@@ -63,8 +63,11 @@ use std::{
     sync::atomic::{self, AtomicBool},
 };
 use terminal_view::terminal_panel::{self, TerminalPanel};
-use theme::{ActiveTheme, GlobalTheme, SystemAppearance, ThemeRegistry, ThemeSettings};
-use ui::{PopoverMenuHandle, prelude::*};
+use theme::{ActiveTheme, Appearance, GlobalTheme, SystemAppearance, ThemeRegistry, ThemeSettings};
+use ui::{
+    ButtonLink, CopyButton, Navigable, NavigableEntry, PopoverMenuHandle, TintColor, Vector,
+    VectorName, prelude::*,
+};
 use util::markdown::MarkdownString;
 use util::rel_path::RelPath;
 use util::{ResultExt, asset_str};
@@ -230,10 +233,8 @@ pub fn init(cx: &mut App) {
             );
         });
     })
-    .on_action(|_: &app_actions::About, cx| {
-        with_active_or_new_workspace(cx, |workspace, window, cx| {
-            about(workspace, window, cx);
-        });
+    .on_action(|_: &About, cx| {
+        open_about(cx);
     });
 }
 
@@ -1017,39 +1018,195 @@ fn initialize_pane(
     });
 }
 
-fn about(_: &mut Workspace, window: &mut Window, cx: &mut Context<Workspace>) {
-    let release_channel = ReleaseChannel::global(cx).display_name();
-    let version = env!("CARGO_PKG_VERSION");
-    let debug = if cfg!(debug_assertions) {
-        "(debug)"
-    } else {
-        ""
-    };
-    let message = format!("{release_channel} {version} {debug}");
-    let detail = AppCommitSha::try_global(cx)
-        .map(|sha| sha.full())
-        .unwrap_or("<none>".into());
-    let detail = format!(
-        "Build SHA: {detail}\n\nWhat cannot be mended must be transcended.\ngram.liten.app"
-    );
+fn open_about(cx: &mut App) {
+    struct AboutWindow {
+        focus_handle: FocusHandle,
+        ok: NavigableEntry,
+        headline: SharedString,
+        commit: Option<SharedString>,
+    }
 
-    let prompt = window.prompt(
-        PromptLevel::Info,
-        &message,
-        Some(detail.as_str()),
-        &["Copy", "OK"],
-        cx,
-    );
-    cx.spawn(async move |_, cx| {
-        if let Ok(0) = prompt.await {
-            let content = format!("{}\n{}", message, detail);
-            cx.update(|cx| {
-                cx.write_to_clipboard(gpui::ClipboardItem::new_string(content));
-            })
-            .ok();
+    impl AboutWindow {
+        fn new(cx: &mut Context<Self>) -> Self {
+            let version = env!("CARGO_PKG_VERSION");
+            let debug = if cfg!(debug_assertions) {
+                "(debug)"
+            } else {
+                ""
+            };
+            let headline: SharedString = format!("Gram v{version} {debug}").into();
+            let commit = AppCommitSha::try_global(cx)
+                .map(|sha| sha.full())
+                .filter(|commit| !commit.is_empty())
+                .map(SharedString::from);
+
+            Self {
+                focus_handle: cx.focus_handle(),
+                ok: NavigableEntry::focusable(cx),
+                headline,
+                commit,
+            }
         }
-    })
-    .detach();
+    }
+
+    impl Render for AboutWindow {
+        fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+            let ok_is_focused = self.ok.focus_handle.contains_focused(window, cx);
+            let theme_selection = ThemeSettings::get_global(cx).theme.clone();
+            let system_appearance = theme::SystemAppearance::global(cx);
+            let theme_mode = theme_selection
+                .mode()
+                .unwrap_or_else(|| match *system_appearance {
+                    Appearance::Light => theme::ThemeAppearanceMode::Light,
+                    Appearance::Dark => theme::ThemeAppearanceMode::Dark,
+                });
+            let image = match theme_mode {
+                theme::ThemeAppearanceMode::Light => VectorName::LogoLight,
+                theme::ThemeAppearanceMode::Dark => VectorName::LogoDark,
+                theme::ThemeAppearanceMode::System => match *system_appearance {
+                    Appearance::Light => VectorName::LogoLight,
+                    Appearance::Dark => VectorName::LogoDark,
+                },
+            };
+
+            Navigable::new(
+                v_flex()
+                    .id("about-window")
+                    .track_focus(&self.focus_handle)
+                    .on_action(cx.listener(|_, _: &menu::Cancel, window, _cx| {
+                        window.remove_window();
+                    }))
+                    .min_w_0()
+                    .size_full()
+                    .bg(cx.theme().colors().editor_background)
+                    .text_color(cx.theme().colors().text)
+                    .p_4()
+                    .when(cfg!(target_os = "macos"), |this| this.pt_10())
+                    .gap_4()
+                    .text_center()
+                    .justify_between()
+                    .child(
+                        v_flex()
+                            .w_full()
+                            .gap_2()
+                            .items_center()
+                            .child(Vector::square(image, rems_from_px(64.)))
+                            .child(Headline::new(self.headline.clone()).size(HeadlineSize::Small))
+                            .child(
+                                Label::new("What cannot be mended\nmust be transcended.")
+                                    .italic()
+                                    .size(LabelSize::XSmall),
+                            )
+                            .child(
+                                ButtonLink::new("gram.liten.app", "https://gram.liten.app/")
+                                    .label_size(LabelSize::XSmall),
+                            )
+                            .when_some(self.commit.clone(), |this, commit| {
+                                this.child(
+                                    h_flex()
+                                        .gap_2()
+                                        .child(
+                                            Label::new("Commit")
+                                                .color(Color::Muted)
+                                                .size(LabelSize::XSmall),
+                                        )
+                                        .child(
+                                            Label::new(commit.clone())
+                                                .inline_code(cx)
+                                                .size(LabelSize::XSmall),
+                                        )
+                                        .child(CopyButton::new(commit).custom_on_click({
+                                            let commit = self.commit.clone();
+                                            let headline = self.headline.clone();
+                                            move |_window, cx| {
+                                                let content = match commit.as_ref() {
+                                                    Some(commit) => {
+                                                        format!("{}, Commit: {}", headline, commit)
+                                                    }
+                                                    None => headline.clone().into(),
+                                                };
+                                                cx.write_to_clipboard(ClipboardItem::new_string(
+                                                    content,
+                                                ));
+                                            }
+                                        })),
+                                )
+                            }),
+                    )
+                    .child(
+                        h_flex().w_full().gap_1().child(
+                            div()
+                                .flex_1()
+                                .track_focus(&self.ok.focus_handle)
+                                .on_action(cx.listener(|_, _: &menu::Confirm, window, _cx| {
+                                    window.remove_window();
+                                }))
+                                .child(
+                                    Button::new("ok", "Ok")
+                                        .full_width()
+                                        .style(ButtonStyle::OutlinedGhost)
+                                        .toggle_state(ok_is_focused)
+                                        .selected_style(ButtonStyle::Tinted(TintColor::Accent))
+                                        .on_click(cx.listener(|_, _, window, _cx| {
+                                            window.remove_window();
+                                        })),
+                                ),
+                        ),
+                    )
+                    .into_any_element(),
+            )
+            .entry(self.ok.clone())
+        }
+    }
+
+    impl Focusable for AboutWindow {
+        fn focus_handle(&self, _cx: &App) -> FocusHandle {
+            self.ok.focus_handle.clone()
+        }
+    }
+
+    if let Some(existing) = cx
+        .windows()
+        .into_iter()
+        .find_map(|w| w.downcast::<AboutWindow>())
+    {
+        existing
+            .update(cx, |about_window, window, cx| {
+                window.activate_window();
+                about_window.ok.focus_handle.focus(window, cx);
+            })
+            .log_err();
+        return;
+    }
+
+    let window_size = Size {
+        width: px(480.),
+        height: px(340.),
+    };
+
+    cx.open_window(
+        WindowOptions {
+            titlebar: Some(TitlebarOptions {
+                title: Some("About".into()),
+                appears_transparent: true,
+                traffic_light_position: Some(point(px(12.), px(12.))),
+            }),
+            window_bounds: Some(WindowBounds::centered(window_size, cx)),
+            is_resizable: false,
+            is_minimizable: false,
+            kind: WindowKind::Normal,
+            app_id: Some(ReleaseChannel::global(cx).app_id().to_owned()),
+            ..Default::default()
+        },
+        |window, cx| {
+            let about_window = cx.new(AboutWindow::new);
+            let focus_handle = about_window.read(cx).ok.focus_handle.clone();
+            window.activate_window();
+            focus_handle.focus(window, cx);
+            about_window
+        },
+    )
+    .log_err();
 }
 
 #[cfg(not(target_os = "windows"))]
