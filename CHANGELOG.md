@@ -49,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enable panel icons if default and icon theme is changed (#172)
 - Add Arch package build
 - Upgrade cosmic-text to 0.18.2 (#199) by @esotericwitch
+- Use SSH nicknames in display names (zed#53103)
 - Update and clean up dependencies
 
 ## [1.2.1] - 2026-03-26

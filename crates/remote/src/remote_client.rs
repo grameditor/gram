@@ -1069,7 +1069,10 @@ pub enum RemoteConnectionOptions {
 impl RemoteConnectionOptions {
     pub fn display_name(&self) -> String {
         match self {
-            RemoteConnectionOptions::Ssh(opts) => opts.host.to_string(),
+            RemoteConnectionOptions::Ssh(opts) => opts
+                .nickname
+                .clone()
+                .unwrap_or_else(|| opts.host.to_string()),
             RemoteConnectionOptions::Wsl(opts) => opts.distro_name.clone(),
         }
     }
