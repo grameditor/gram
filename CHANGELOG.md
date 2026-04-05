@@ -45,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Open named in-memory databases as SQLite URIs (zed#50967)
 - Fix crash with Unicode chars whose lowercase expands to multiple codepoints (zed#52989)
 - Fix an ordering problem that led to invalid edits in display map sync (zed#52930)
+- Fix out-of-bounds indexing when diff bases contain CRLF (zed#52605)
 
 ### Changed
 
@@ -52,6 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add Arch package build
 - Upgrade cosmic-text to 0.18.2 (#199) by @esotericwitch
 - Use SSH nicknames in display names (zed#53103)
+- Bump tree-sitter for fix to wasm loading of grammars w/ reserved words (zed#52856)
 - Update and clean up dependencies
 
 ## [1.2.1] - 2026-03-26
