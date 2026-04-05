@@ -186,10 +186,10 @@ impl DisplayMap {
         diagnostics_max_severity: DiagnosticSeverity,
         cx: &mut Context<Self>,
     ) -> Self {
-        let buffer_subscription = buffer.update(cx, |buffer, _| buffer.subscribe());
-
         let tab_size = Self::tab_size(&buffer, cx);
+
         let buffer_snapshot = buffer.read(cx).snapshot(cx);
+        let buffer_subscription = buffer.update(cx, |buffer, _| buffer.subscribe());
         let crease_map = CreaseMap::new(&buffer_snapshot);
         let (inlay_map, snapshot) = InlayMap::new(buffer_snapshot);
         let (fold_map, snapshot) = FoldMap::new(snapshot);
