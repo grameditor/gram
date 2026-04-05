@@ -1242,6 +1242,7 @@ impl BufferDiff {
         language: Option<Arc<Language>>,
         cx: &App,
     ) -> Task<BufferDiffUpdate> {
+        let base_text = base_text.map(|t| text::LineEnding::normalize_arc(t));
         let prev_base_text = self.base_text(cx).as_rope().clone();
         let diff_options = build_diff_options(
             None,
