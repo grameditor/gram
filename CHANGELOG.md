@@ -9,25 +9,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add tree-sitter grammar for git rebase
 - Add "Tight" line spacing for project panel
+- Add Arch dependency check (#189) by @theDoctor
+- Add Arch package build (#177) by @theDoctor
+- Add optional FS poll watcher (based on [poll])
+- Add tree-sitter grammar for git rebase
+- RPM repository now available
+
+[poll]: https://github.com/lilith/zed/commit/0334469a57a20586b28b86187028acd36559a9d3
 
 ### Removed
 
-- cli: Remove unimplemented dev_server_token argument
+- Remove unimplemented CLI dev_server_token argument
+- Remove emmyluadoc tree-sitter grammar; it can be pulled in via extension instead
+- Remove avatar from git graph
+- Remove download support for superhtml on Linux (#194)
 
 ### Fixed
 
-- Fix environment variables failing to load when `nu` is the login shell
-- Fix edited multibuffers not saving on focus change when `autosave`
-  setting is set to `on_focus_change`
-- Fix unknown capture warning for TOML files
 - Don't terminate connection on ignorable LSP messages
+- Ensure that buffer is up to date after undo (zed#51037)
+- Fix edited multibuffers not saving on focus change when `autosave` setting is set to `on_focus_change`
+- Fix environment variables failing to load when `nu` is the login shell
+- Fix gitignore trying to watch the home directory
+- Fix markdown block quote continuation highlighting (zed#51465)
+- Fix missing icon in GNOME overview. (#198) by @topas-rec
+- Fix opening closed projects randomly when Gram restarts (zed#50961)
+- Fix rewrapping with an empty selection (zed#51742)
+- Fix scrollbar breaking when UI font size changes (zed#45099)
+- Fix unknown capture warning for TOML files
+- Fix watcher cleanup for recreated directories (zed#50412)
+- Handle FS rescan events (zed#51208)
+- Handle symlinked settings files in watcher
+- Include file size in DiskState to fix stale buffer reload (zed#48691)
+- Open named in-memory databases as SQLite URIs (zed#50967)
 
 ### Changed
 
 - Enable panel icons if default and icon theme is changed (#172)
 - Add Arch package build
+- Upgrade cosmic-text to 0.18.2 (#199) by @esotericwitch
 - Update and clean up dependencies
 
 ## [1.2.1] - 2026-03-26
