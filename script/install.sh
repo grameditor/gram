@@ -73,7 +73,11 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-version=$(curl -s -X GET -H 'accept: application/json' https://codeberg.org/api/v1/repos/GramEditor/gram/releases/latest | grep -oP '"tag_name":"\K[^"]+')
+version=$(
+  curl -s -X GET -H 'accept: application/json' https://codeberg.org/api/v1/repos/GramEditor/gram/releases/latest \
+    | grep -o '"tag_name":"[^"]\+"' \
+    | sed -e 's,"tag_name":"\([^"]\+\)",\1,g'
+)
 
 host_line="$(rustc --version --verbose | grep "host")"
 target_triple=${host_line#*: }
@@ -115,8 +119,8 @@ desktop_file_path="$GRAM_INSTALL_PREFIX/share/applications/${appid}.desktop"
 src_dir="$GRAM_INSTALL_PREFIX/gram$suffix.app/share/applications"
 cp "$src_dir/gram${suffix}.desktop" "${desktop_file_path}"
 
-sed -i "s|Icon=gram|Icon=$GRAM_INSTALL_PREFIX/gram$suffix.app/share/icons/hicolor/512x512/apps/gram.png|g" "${desktop_file_path}"
-sed -i "s|Exec=gram|Exec=$GRAM_INSTALL_PREFIX/gram$suffix.app/bin/gram|g" "${desktop_file_path}"
+sed -i -e "s|Icon=gram|Icon=$GRAM_INSTALL_PREFIX/gram$suffix.app/share/icons/hicolor/512x512/apps/gram.png|g" "${desktop_file_path}"
+sed -i -e "s|Exec=gram|Exec=$GRAM_INSTALL_PREFIX/gram$suffix.app/bin/gram|g" "${desktop_file_path}"
 
 echo "Installation to $GRAM_INSTALL_PREFIX complete."
 
