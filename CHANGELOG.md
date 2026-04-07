@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add optional FS poll watcher (based on [poll])
 - Add tree-sitter grammar for git rebase
 - RPM repository now available
+- Add Refresh Folders command (#207) (zed#46291)
 
 [poll]: https://github.com/lilith/zed/commit/0334469a57a20586b28b86187028acd36559a9d3
 
