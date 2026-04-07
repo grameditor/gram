@@ -226,10 +226,11 @@ if [ "$DO_TARBALL" = "true" ]; then
     cp "${target_dir}/${target_triple}/release/cli" "${gram_dir}/bin/gram"
 
     mkdir -p "${gram_dir}/lib"
-    ldd "${target_dir}/${target_triple}/release/gram" |
-        cut -d' ' -f3 |
-        grep -v '\<\(libstdc++.so\|libc.so\|libgcc_s.so\|libm.so\|libpthread.so\|libdl.so\)' |
-        xargs -I{} cp {} "${gram_dir}/lib/"
+    ldd "${target_dir}/${target_triple}/release/gram" \
+        | grep '^\s*.\+ => .\+ (.\+)$' \
+        | sed -e 's,\s*.\+ => \(.\+\) (.\+),\1,g' \
+        | grep -v '\<\(libstdc++.so\|libc.so\|libgcc_s.so\|libm.so\|libpthread.so\|libdl.so\)' \
+        | xargs -I{} cp {} "${gram_dir}/lib/"
 
     mkdir -p "${gram_dir}/share/icons/hicolor/scalable/apps"
     mkdir -p "${gram_dir}/share/icons/hicolor/symbolic/apps"
