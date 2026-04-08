@@ -129,11 +129,15 @@ impl PlatformInput {
                         },
                     }))
                 }
-                NSEventType::NSKeyDown => Some(Self::KeyDown(KeyDownEvent {
-                    keystroke: parse_keystroke(native_event),
-                    is_held: native_event.isARepeat() == YES,
-                    prefer_character_input: false,
-                })),
+                NSEventType::NSKeyDown => {
+                    let keystroke = parse_keystroke(native_event);
+                    let prefer_character_input = keystroke.modifiers.alt && !keystroke.is_ascii();
+                    Some(Self::KeyDown(KeyDownEvent {
+                        keystroke,
+                        is_held: native_event.isARepeat() == YES,
+                        prefer_character_input,
+                    }))
+                }
                 NSEventType::NSKeyUp => Some(Self::KeyUp(KeyUpEvent {
                     keystroke: parse_keystroke(native_event),
                 })),

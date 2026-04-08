@@ -47,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix crash with Unicode chars whose lowercase expands to multiple codepoints (zed#52989)
 - Fix an ordering problem that led to invalid edits in display map sync (zed#52930)
 - Fix out-of-bounds indexing when diff bases contain CRLF (zed#52605)
+- Fix alt keybindings capturing altgr input (Mac) (#206)
 
 ### Changed
 

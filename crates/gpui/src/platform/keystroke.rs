@@ -261,6 +261,13 @@ impl Keystroke {
         }
         self
     }
+
+    /// True if this keystroke produced an
+    /// ASCII character (used to distinguish
+    /// option from altgr / international input)
+    pub fn is_ascii(&self) -> bool {
+        self.key_char.as_ref().map_or(false, |s| s.is_ascii())
+    }
 }
 
 impl KeybindingKeystroke {
