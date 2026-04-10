@@ -3,7 +3,6 @@
 mod html_element;
 pub mod markdown;
 mod markdown_writer;
-pub mod structure;
 
 use std::io::Read;
 
