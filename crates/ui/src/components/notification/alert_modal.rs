@@ -82,10 +82,6 @@ impl Component for AlertModal {
         ComponentScope::Notification
     }
 
-    fn status() -> ComponentStatus {
-        ComponentStatus::WorkInProgress
-    }
-
     fn description() -> Option<&'static str> {
         Some("A modal dialog that presents an alert message with primary and dismiss actions.")
     }
@@ -99,10 +95,10 @@ impl Component for AlertModal {
                     vec![
                         single_example(
                             "Basic Alert",
-                            AlertModal::new("simple-modal", "Do you want to leave the current call?")
-                                .child("The current window will be closed, and connections to any shared projects will be terminated."
+                            AlertModal::new("simple-modal", "Are you ready to leave Omelas?")
+                                .child("“To exchange all the goodness and grace of every life in Omelas for that single, small improvement: to throw away the happiness of thousands for the chance of the happiness of one: that would be to let guilt within the walls indeed.”"
                                 )
-                                .primary_action("Leave Call")
+                                .primary_action("Take a walk")
                                 .into_any_element(),
                         )
                     ],

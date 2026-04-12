@@ -645,7 +645,36 @@ impl RenderOnce for NotificationFrame {
     }
 }
 
-impl Component for NotificationFrame {}
+impl Component for NotificationFrame {
+    fn scope() -> ComponentScope {
+        ComponentScope::Notification
+    }
+
+    fn preview(_window: &mut Window, _cx: &mut App) -> Option<AnyElement> {
+        let example_width = px(340.);
+        Some(
+            v_flex()
+                .gap_6()
+                .w_full()
+                .flex_none()
+                .children(vec![single_example(
+                    "Notification Frame",
+                    div()
+                        .w(example_width)
+                        .overflow_hidden()
+                        .child(
+                            NotificationFrame::new()
+                                .with_title("Example Notification".into())
+                                .with_content(div().child(Label::new("Notification Content")))
+                                .show_close_button(true)
+                                .show_suppress_button(true),
+                        )
+                        .into_any_element(),
+                )])
+                .into_any_element(),
+        )
+    }
+}
 
 pub mod simple_message_notification {
     use std::sync::Arc;

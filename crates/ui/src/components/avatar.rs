@@ -119,26 +119,28 @@ impl Component for Avatar {
     }
 
     fn preview(_window: &mut Window, cx: &mut App) -> Option<AnyElement> {
-        let example_avatar = "https://avatars.githubusercontent.com/u/1714999?v=4";
+        let example_avatar = "https://avatars.githubusercontent.com/u/270902619?v=4";
 
         Some(
             v_flex()
                 .gap_6()
                 .children(vec![
                     example_group(vec![
-                        single_example("Default", Avatar::new(example_avatar).into_any_element()),
+                        single_example("Default", Avatar::new(example_avatar).size(rems(4.)).into_any_element()),
                         single_example(
                             "Grayscale",
                             Avatar::new(example_avatar)
+                                .size(rems(4.))
                                 .grayscale(true)
                                 .into_any_element(),
                         ),
                         single_example(
                             "Border",
                             Avatar::new(example_avatar)
+                                .size(rems(4.))
                                 .border_color(cx.theme().colors().border)
                                 .into_any_element(),
-                        ).description("Can be used to create visual space by setting the border color to match the background, which creates the appearance of a gap around the avatar."),
+                        ).description("Can be used to create visual space by setting the border color\nto match the background, which creates the appearance of a gap around the avatar."),
                     ]),
                 ])
                 .into_any_element(),

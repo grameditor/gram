@@ -53,7 +53,6 @@ pub fn register_component<T: Component>() {
         preview: Some(T::preview),
         scope: T::scope(),
         sort_name: SharedString::new_static(T::sort_name()),
-        status: T::status(),
     };
 
     let mut data = COMPONENT_DATA.write();
@@ -117,7 +116,6 @@ pub struct ComponentMetadata {
     preview: Option<fn(&mut Window, &mut App) -> Option<AnyElement>>,
     scope: ComponentScope,
     sort_name: SharedString,
-    status: ComponentStatus,
 }
 
 impl ComponentMetadata {
@@ -154,10 +152,6 @@ impl ComponentMetadata {
             .to_string()
             .into()
     }
-
-    pub fn status(&self) -> ComponentStatus {
-        self.status.clone()
-    }
 }
 
 /// Implement this trait to define a UI component. This will allow you to
@@ -184,17 +178,6 @@ pub trait Component {
     /// their previews are displayed and organized.
     fn scope() -> ComponentScope {
         ComponentScope::None
-    }
-    /// The ready status of this component.
-    ///
-    /// Use this to mark when components are:
-    /// - `WorkInProgress`: Still being designed or are partially implemented.
-    /// - `EngineeringReady`: Ready to be implemented.
-    /// - `Deprecated`: No longer recommended for use.
-    ///
-    /// Defaults to [`Live`](ComponentStatus::Live).
-    fn status() -> ComponentStatus {
-        ComponentStatus::Live
     }
     /// The name of the component.
     ///
@@ -261,41 +244,6 @@ pub trait Component {
     /// tooltip on hover, or a grid of icons showcasing all the icons available.
     fn preview(_window: &mut Window, _cx: &mut App) -> Option<AnyElement> {
         None
-    }
-}
-
-/// The ready status of this component.
-///
-/// Use this to mark when components are:
-/// - `WorkInProgress`: Still being designed or are partially implemented.
-/// - `EngineeringReady`: Ready to be implemented.
-/// - `Deprecated`: No longer recommended for use.
-///
-/// Defaults to [`Live`](ComponentStatus::Live).
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Display, EnumString)]
-pub enum ComponentStatus {
-    #[strum(serialize = "Work In Progress")]
-    WorkInProgress,
-    #[strum(serialize = "Ready To Build")]
-    EngineeringReady,
-    Live,
-    Deprecated,
-}
-
-impl ComponentStatus {
-    pub fn description(&self) -> &str {
-        match self {
-            ComponentStatus::WorkInProgress => {
-                "These components are still being designed or refined. They shouldn't be used in the app yet."
-            }
-            ComponentStatus::EngineeringReady => {
-                "These components are design complete or partially implemented, and are ready for an engineer to complete their implementation."
-            }
-            ComponentStatus::Live => "These components are ready for use in the app.",
-            ComponentStatus::Deprecated => {
-                "These components are no longer recommended for use in the app, and may be removed in a future release."
-            }
-        }
     }
 }
 

@@ -6,7 +6,7 @@ mod persistence;
 
 use client::UserStore;
 use collections::HashMap;
-use component::{ComponentId, ComponentMetadata, ComponentStatus, components};
+use component::{ComponentId, ComponentMetadata, components};
 use gpui::{
     App, Entity, EventEmitter, FocusHandle, Focusable, Task, WeakEntity, Window, list, prelude::*,
 };
@@ -16,7 +16,7 @@ use notifications::status_toast::{StatusToast, ToastIcon};
 use persistence::COMPONENT_PREVIEW_DB;
 use project::Project;
 use std::{iter::Iterator, ops::Range, sync::Arc};
-use ui::{ButtonLike, Divider, HighlightedLabel, ListItem, ListSubHeader, Tooltip, prelude::*};
+use ui::{Divider, HighlightedLabel, ListItem, ListSubHeader, prelude::*};
 use ui_input::InputField;
 use workspace::{
     AppState, Item, ItemId, SerializableItem, Workspace, WorkspaceId, delete_unloaded_items,
@@ -896,43 +896,6 @@ impl ComponentPreviewPage {
         }
     }
 
-    /// Renders the component status when it would be useful
-    ///
-    /// Doesn't render if the component is `ComponentStatus::Live`
-    /// as that is the default state
-    fn render_component_status(&self, cx: &App) -> Option<impl IntoElement> {
-        let status = self.component.status();
-        let status_description = status.description().to_string();
-
-        let color = match status {
-            ComponentStatus::Deprecated => Color::Error,
-            ComponentStatus::EngineeringReady => Color::Info,
-            ComponentStatus::Live => Color::Success,
-            ComponentStatus::WorkInProgress => Color::Warning,
-        };
-
-        if status != ComponentStatus::Live {
-            Some(
-                ButtonLike::new("component_status")
-                    .child(
-                        div()
-                            .px_1p5()
-                            .rounded_sm()
-                            .bg(color.color(cx).alpha(0.12))
-                            .child(
-                                Label::new(status.to_string())
-                                    .size(LabelSize::Small)
-                                    .color(color),
-                            ),
-                    )
-                    .tooltip(Tooltip::text(status_description))
-                    .disabled(true),
-            )
-        } else {
-            None
-        }
-    }
-
     fn render_header(&self, _: &Window, cx: &App) -> impl IntoElement {
         v_flex()
             .min_w_0()
@@ -950,15 +913,9 @@ impl ComponentPreviewPage {
                             .size(LabelSize::Small)
                             .color(Color::Muted),
                     )
-                    .child(
-                        h_flex()
-                            .gap_2()
-                            .child(
-                                Headline::new(self.component.scopeless_name())
-                                    .size(HeadlineSize::XLarge),
-                            )
-                            .children(self.render_component_status(cx)),
-                    ),
+                    .child(h_flex().gap_2().child(
+                        Headline::new(self.component.scopeless_name()).size(HeadlineSize::XLarge),
+                    )),
             )
             .when_some(self.component.description(), |this, description| {
                 this.child(Label::new(description).size(LabelSize::Small))
