@@ -1449,7 +1449,6 @@ dependencies = [
  "rustls-pki-types",
  "serde",
  "settings",
- "text",
  "thiserror 2.0.18",
  "time",
  "tokio",

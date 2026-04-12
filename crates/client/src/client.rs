@@ -210,16 +210,6 @@ impl Status {
         matches!(self, Self::Connected { .. })
     }
 
-    pub fn was_connected(&self) -> bool {
-        matches!(
-            self,
-            Self::ConnectionLost
-                | Self::Reauthenticating
-                | Self::Reauthenticated
-                | Self::Reconnecting
-        )
-    }
-
     pub fn is_signed_out(&self) -> bool {
         matches!(self, Self::SignedOut | Self::UpgradeRequired)
     }
