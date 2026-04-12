@@ -61,6 +61,7 @@ use std::{
     sync::Arc,
     sync::atomic::{self, AtomicBool},
 };
+use system_specs::CopySystemSpecsIntoClipboard;
 use terminal_view::terminal_panel::{self, TerminalPanel};
 use theme::{ActiveTheme, Appearance, GlobalTheme, SystemAppearance, ThemeRegistry, ThemeSettings};
 use ui::{
@@ -84,8 +85,6 @@ use workspace::{Pane, notifications::DetachAndPromptErr};
 actions!(
     gram,
     [
-        /// Opens the element inspector for debugging UI.
-        DebugElements,
         /// Hides the application window.
         Hide,
         /// Hides all other application windows.
@@ -94,6 +93,8 @@ actions!(
         Minimize,
         /// Opens the default settings file.
         OpenDefaultSettings,
+        /// Opens the Gram repository on GitHub.
+        OpenGramRepo,
         /// Opens project-specific settings file.
         OpenProjectSettingsFile,
         /// Opens the project tasks configuration.
@@ -124,7 +125,31 @@ pub fn init(cx: &mut App) {
     cx.on_action(|_: &HideOthers, cx| cx.hide_other_apps());
     #[cfg(target_os = "macos")]
     cx.on_action(|_: &ShowAll, cx| cx.unhide_other_apps());
+    cx.on_action(|_: &OpenGramRepo, cx| cx.open_url("https://codeberg.org/GramEditor/gram"));
     cx.on_action(quit);
+
+    cx.observe_new(|workspace: &mut Workspace, _, _| {
+        workspace.register_action(|_, _: &CopySystemSpecsIntoClipboard, window, cx| {
+            let specs = system_specs::SystemSpecs::new(window, cx);
+
+            cx.spawn_in(window, async move |_, cx| {
+                let specs = specs.await.to_string();
+
+                cx.update(|_, cx| cx.write_to_clipboard(ClipboardItem::new_string(specs.clone())))
+                    .log_err();
+
+                cx.prompt(
+                    PromptLevel::Info,
+                    "Copied into clipboard",
+                    Some(&specs),
+                    &["OK"],
+                )
+                .await
+            })
+            .detach();
+        });
+    })
+    .detach();
 
     cx.spawn(async |cx| {
         if cx

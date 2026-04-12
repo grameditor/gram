@@ -32,7 +32,6 @@ members = [
     "crates/extension_cli",
     "crates/extension_host",
     "crates/extensions_ui",
-    "crates/feedback",
     "crates/file_finder",
     "crates/file_icons",
     "crates/fs",
@@ -200,7 +199,6 @@ encoding_selector = { path = "crates/encoding_selector" }
 extension = { path = "crates/extension" }
 extension_host = { path = "crates/extension_host" }
 extensions_ui = { path = "crates/extensions_ui" }
-feedback = { path = "crates/feedback" }
 file_finder = { path = "crates/file_finder" }
 file_icons = { path = "crates/file_icons" }
 fs = { path = "crates/fs" }

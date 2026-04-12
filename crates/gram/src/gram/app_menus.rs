@@ -303,7 +303,7 @@ pub fn app_menus(cx: &mut App) -> Vec<Menu> {
                         url: "gram://docs/".into(),
                     },
                 ),
-                MenuItem::action("Gram Repository", feedback::OpenGramRepo),
+                MenuItem::action("Gram Repository", super::OpenGramRepo),
             ],
         },
     ]

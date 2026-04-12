@@ -3342,16 +3342,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "feedback"
-version = "0.1.0"
-dependencies = [
- "gpui",
- "system_specs",
- "util",
- "workspace",
-]
-
-[[package]]
 name = "file_finder"
 version = "0.1.0"
 dependencies = [
@@ -4316,7 +4306,6 @@ dependencies = [
  "extension",
  "extension_host",
  "extensions_ui",
- "feedback",
  "file_finder",
  "fs",
  "futures 0.3.32",
