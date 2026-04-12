@@ -1,5 +1,3 @@
-pub mod user;
-
 use anyhow::Result;
 use async_tungstenite::tungstenite::{error::Error as WebsocketError, http::StatusCode};
 use futures::{FutureExt, Stream, TryFutureExt as _, future::BoxFuture};
@@ -25,7 +23,15 @@ use url::Url;
 use util::ResultExt;
 
 pub use rpc::*;
-pub use user::*;
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy)]
+pub struct ProjectId(pub u64);
+
+impl ProjectId {
+    pub fn to_proto(self) -> u64 {
+        self.0
+    }
+}
 
 #[derive(Deserialize, Default, RegisterSetting)]
 pub struct ProxySettings {
