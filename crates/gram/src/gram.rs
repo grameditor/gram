@@ -17,7 +17,6 @@ use collections::VecDeque;
 use debugger_ui::debugger_panel::DebugPanel;
 use editor::{Editor, MultiBuffer};
 use extension_host::ExtensionStore;
-use feature_flags::{FeatureFlagAppExt, PanicFeatureFlag};
 use fs::Fs;
 use futures::future::Either;
 use futures::{StreamExt, channel::mpsc, select_biased};
@@ -127,12 +126,10 @@ pub fn init(cx: &mut App) {
     cx.on_action(|_: &ShowAll, cx| cx.unhide_other_apps());
     cx.on_action(quit);
 
-    let flag = cx.wait_for_flag::<PanicFeatureFlag>();
     cx.spawn(async |cx| {
         if cx
             .update(|cx| ReleaseChannel::global(cx) == ReleaseChannel::Dev)
             .unwrap_or_default()
-            || flag.await
         {
             cx.update(|cx| {
                 cx.on_action(|_: &TestPanic, _| panic!("Ran the TestPanic action"))

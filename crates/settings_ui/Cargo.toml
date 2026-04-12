@@ -19,7 +19,6 @@ test-support = []
 anyhow.workspace = true
 bm25 = "2.3.2"
 editor.workspace = true
-feature_flags.workspace = true
 fs.workspace = true
 fuzzy.workspace = true
 gpui.workspace = true

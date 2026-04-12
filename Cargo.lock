@@ -2797,7 +2797,6 @@ dependencies = [
  "ctor",
  "db",
  "emojis",
- "feature_flags",
  "file_icons",
  "fs",
  "futures 0.3.32",
@@ -3340,15 +3339,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1e6853b52649d4ac5c0bd02320cddc5ba956bdb407c4b75a2c6b75bf51500f8c"
 dependencies = [
  "simd-adler32",
-]
-
-[[package]]
-name = "feature_flags"
-version = "0.1.0"
-dependencies = [
- "futures 0.3.32",
- "gpui",
- "smol",
 ]
 
 [[package]]
@@ -4326,7 +4316,6 @@ dependencies = [
  "extension",
  "extension_host",
  "extensions_ui",
- "feature_flags",
  "feedback",
  "file_finder",
  "fs",
@@ -9024,7 +9013,6 @@ dependencies = [
  "collections",
  "command_palette_hooks",
  "editor",
- "feature_flags",
  "file_icons",
  "futures 0.3.32",
  "gpui",
@@ -9909,7 +9897,6 @@ dependencies = [
  "app_actions",
  "bm25",
  "editor",
- "feature_flags",
  "fs",
  "fuzzy",
  "gpui",

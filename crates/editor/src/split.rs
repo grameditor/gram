@@ -2,7 +2,6 @@ use std::ops::Range;
 
 use buffer_diff::BufferDiff;
 use collections::HashMap;
-use feature_flags::{FeatureFlag, FeatureFlagAppExt as _};
 use gpui::{
     Action, AppContext as _, Entity, EventEmitter, Focusable, NoAction, Subscription, WeakEntity,
 };
@@ -20,16 +19,6 @@ use workspace::{
 };
 
 use crate::{Editor, EditorEvent};
-
-struct SplitDiffFeatureFlag;
-
-impl FeatureFlag for SplitDiffFeatureFlag {
-    const NAME: &'static str = "split-diff";
-
-    fn enabled_for_staff() -> bool {
-        true
-    }
-}
 
 #[derive(Clone, Copy, PartialEq, Eq, Action, Default)]
 #[action(namespace = editor)]
@@ -151,9 +140,6 @@ impl SplittableEditor {
     }
 
     fn split(&mut self, _: &SplitDiff, window: &mut Window, cx: &mut Context<Self>) {
-        if !cx.has_flag::<SplitDiffFeatureFlag>() {
-            return;
-        }
         if self.secondary.is_some() {
             return;
         }

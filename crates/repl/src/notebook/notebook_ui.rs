@@ -4,7 +4,6 @@ use std::{path::PathBuf, sync::Arc};
 
 use anyhow::{Context as _, Result};
 use collections::HashMap;
-use feature_flags::{FeatureFlagAppExt as _, NotebookFeatureFlag};
 use futures::FutureExt;
 use futures::future::Shared;
 use gpui::{
@@ -54,21 +53,7 @@ pub(crate) const CODE_BLOCK_INSET: f32 = MEDIUM_SPACING_SIZE;
 pub(crate) const CONTROL_SIZE: f32 = 20.0;
 
 pub fn init(cx: &mut App) {
-    if cx.has_flag::<NotebookFeatureFlag>() || std::env::var("LOCAL_NOTEBOOK_DEV").is_ok() {
-        workspace::register_project_item::<NotebookEditor>(cx);
-    }
-
-    cx.observe_flag::<NotebookFeatureFlag, _>({
-        move |is_enabled, cx| {
-            if is_enabled {
-                workspace::register_project_item::<NotebookEditor>(cx);
-            } else {
-                // todo: there is no way to unregister a project item, so if the feature flag
-                // gets turned off they need to restart Gram.
-            }
-        }
-    })
-    .detach();
+    workspace::register_project_item::<NotebookEditor>(cx);
 }
 
 pub struct NotebookEditor {
