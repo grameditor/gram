@@ -25,7 +25,7 @@ pub use toast_layer::{ToastAction, ToastLayer, ToastView};
 use anyhow::{Context as _, Result, anyhow};
 use app_actions::Spawn;
 use client::{
-    Client, ErrorExt, TypedEnvelope, UserStore,
+    Client, ErrorExt, TypedEnvelope,
     proto::{self, ErrorCode, PanelId},
 };
 use collections::{HashMap, HashSet, hash_map};
@@ -834,7 +834,6 @@ pub fn register_serializable_item<I: SerializableItem>(cx: &mut App) {
 pub struct AppState {
     pub languages: Arc<LanguageRegistry>,
     pub client: Arc<Client>,
-    pub user_store: Entity<UserStore>,
     pub workspace_store: Entity<WorkspaceStore>,
     pub fs: Arc<dyn fs::Fs>,
     pub build_window_options: fn(Option<Uuid>, &mut App) -> WindowOptions,
@@ -880,7 +879,6 @@ impl AppState {
         let http_client = http_client::FakeHttpClient::with_404_response();
         let client = Client::new(http_client, cx);
         let session = cx.new(|cx| AppSession::new(Session::test(), cx));
-        let user_store = cx.new(|cx| UserStore::new(client.clone(), cx));
         let workspace_store = cx.new(|cx| WorkspaceStore::new(client.clone(), cx));
 
         theme::init(theme::LoadThemes::JustBase, cx);
@@ -890,7 +888,6 @@ impl AppState {
             client,
             fs,
             languages,
-            user_store,
             workspace_store,
             node_runtime: NodeRuntime::unavailable(),
             build_window_options: |_, _| Default::default(),
@@ -1053,7 +1050,6 @@ pub struct Workspace {
     app_state: Arc<AppState>,
     dispatching_keystrokes: Rc<RefCell<DispatchingKeystrokes>>,
     _subscriptions: Vec<Subscription>,
-    _observe_current_user: Task<Result<()>>,
     _schedule_serialize_workspace: Option<Task<()>>,
     _schedule_serialize_ssh_paths: Option<Task<()>>,
     pane_history_timestamp: Arc<AtomicUsize>,
@@ -1228,13 +1224,10 @@ impl Workspace {
             store.workspaces.insert(window_handle);
         });
 
-        let mut current_user = app_state.user_store.read(cx).watch_current_user();
         let mut connection_status = app_state.client.status();
-        let _observe_current_user = cx.spawn_in(window, async move |this, cx| {
-            current_user.next().await;
+        let _observe_connection_status = cx.spawn_in(window, async move |this, cx| {
             connection_status.next().await;
-            let mut stream =
-                Stream::map(current_user, drop).merge(Stream::map(connection_status, drop));
+            let mut stream = Stream::map(connection_status, drop);
 
             while stream.recv().await.is_some() {
                 this.update(cx, |_, cx| cx.notify())?;
@@ -1367,7 +1360,6 @@ impl Workspace {
             dirty_items: Default::default(),
             database_id: workspace_id,
             app_state,
-            _observe_current_user,
             _schedule_serialize_workspace: None,
             _schedule_serialize_ssh_paths: None,
             _subscriptions: subscriptions,
@@ -1407,7 +1399,6 @@ impl Workspace {
         let project_handle = Project::local(
             app_state.client.clone(),
             app_state.node_runtime.clone(),
-            app_state.user_store.clone(),
             app_state.languages.clone(),
             app_state.fs.clone(),
             env,
@@ -1705,10 +1696,6 @@ impl Workspace {
 
     pub fn app_state(&self) -> &Arc<AppState> {
         &self.app_state
-    }
-
-    pub fn user_store(&self) -> &Entity<UserStore> {
-        &self.app_state.user_store
     }
 
     pub fn project(&self) -> &Entity<Project> {
@@ -5185,7 +5172,6 @@ impl Workspace {
         use session::Session;
 
         let client = project.read(cx).client();
-        let user_store = project.read(cx).user_store();
         let workspace_store = cx.new(|cx| WorkspaceStore::new(client.clone(), cx));
         let session = cx.new(|cx| AppSession::new(Session::test(), cx));
         window.activate_window();
@@ -5193,7 +5179,6 @@ impl Workspace {
             languages: project.read(cx).languages().clone(),
             workspace_store,
             client,
-            user_store,
             fs: project.read(cx).fs().clone(),
             build_window_options: |_, _| Default::default(),
             node_runtime: NodeRuntime::unavailable(),
@@ -6477,7 +6462,6 @@ pub fn open_remote_project_with_new_connection(
                 session,
                 app_state.client.clone(),
                 app_state.node_runtime.clone(),
-                app_state.user_store.clone(),
                 app_state.languages.clone(),
                 app_state.fs.clone(),
                 cx,

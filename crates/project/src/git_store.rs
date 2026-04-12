@@ -1705,11 +1705,6 @@ impl GitStore {
                 upstream_project_id,
                 ..
             } => {
-                if upstream_client.is_via_collab() {
-                    return Task::ready(Err(anyhow!(
-                        "Git Clone isn't supported for project guests"
-                    )));
-                }
                 let request = upstream_client.request(proto::GitClone {
                     project_id: *upstream_project_id,
                     abs_path: path.to_string_lossy().into_owned(),

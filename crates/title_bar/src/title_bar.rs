@@ -19,16 +19,13 @@ use crate::application_menu::{
 };
 
 use app_actions::{OpenRecent, OpenRemote};
-use client::{Client, UserStore};
 use gpui::{
     Action, AnyElement, App, Context, Corner, Element, Entity, Focusable, InteractiveElement,
-    IntoElement, MouseButton, ParentElement, Render, StatefulInteractiveElement, Styled,
-    Subscription, WeakEntity, Window, div,
+    IntoElement, MouseButton, ParentElement, Render, Styled, Subscription, WeakEntity, Window,
 };
 use project::{Project, WorktreeSettings, git_store::GitStoreEvent};
 use remote::RemoteConnectionOptions;
 use settings::{Settings, SettingsLocation};
-use std::sync::Arc;
 use theme::ActiveTheme;
 use title_bar_settings::TitleBarSettings;
 use ui::{
@@ -109,8 +106,6 @@ pub fn init(cx: &mut App) {
 pub struct TitleBar {
     platform_titlebar: Entity<PlatformTitleBar>,
     project: Entity<Project>,
-    user_store: Entity<UserStore>,
-    client: Arc<Client>,
     workspace: WeakEntity<Workspace>,
     application_menu: Option<Entity<ApplicationMenu>>,
     _subscriptions: Vec<Subscription>,
@@ -152,28 +147,6 @@ impl Render for TitleBar {
                         })
                 })
                 .on_mouse_down(MouseButton::Left, |_, _, cx| cx.stop_propagation())
-                .into_any_element(),
-        );
-
-        let status = self.client.status();
-        let status = &*status.borrow();
-        let user = self.user_store.read(cx).current_user();
-
-        let signed_in = user.is_some();
-
-        children.push(
-            h_flex()
-                .map(|this| {
-                    if signed_in {
-                        this.pr_1p5()
-                    } else {
-                        this.pr_1()
-                    }
-                })
-                .gap_1()
-                .on_mouse_down(MouseButton::Left, |_, _, cx| cx.stop_propagation())
-                .children(self.render_connection_status(status, cx))
-                .child(self.render_app_menu_button(cx))
                 .into_any_element(),
         );
 
@@ -222,8 +195,6 @@ impl TitleBar {
     ) -> Self {
         let project = workspace.project().clone();
         let git_store = project.read(cx).git_store().clone();
-        let user_store = workspace.app_state().user_store.clone();
-        let client = workspace.app_state().client.clone();
 
         let platform_style = PlatformStyle::platform();
         let application_menu = match platform_style {
@@ -256,7 +227,6 @@ impl TitleBar {
                 _ => {}
             }),
         );
-        subscriptions.push(cx.observe(&user_store, |_, _, cx| cx.notify()));
 
         let platform_titlebar = cx.new(|cx| PlatformTitleBar::new(id, cx));
 
@@ -265,8 +235,6 @@ impl TitleBar {
             application_menu,
             workspace: workspace.weak_handle(),
             project,
-            user_store,
-            client,
             _subscriptions: subscriptions,
         }
     }
@@ -503,27 +471,6 @@ impl TitleBar {
     }
 
     fn window_activation_changed(&mut self, _window: &mut Window, _cx: &mut Context<Self>) {}
-
-    fn render_connection_status(
-        &self,
-        status: &client::Status,
-        _cx: &mut Context<Self>,
-    ) -> Option<AnyElement> {
-        match status {
-            client::Status::ConnectionError
-            | client::Status::ConnectionLost
-            | client::Status::Reauthenticating
-            | client::Status::Reconnecting
-            | client::Status::ReconnectionError { .. } => Some(
-                div()
-                    .id("disconnected")
-                    .child(Icon::new(IconName::Disconnected).size(IconSize::Small))
-                    .tooltip(Tooltip::text("Disconnected"))
-                    .into_any_element(),
-            ),
-            _ => None,
-        }
-    }
 
     pub fn render_app_menu_button(&mut self, _cx: &mut Context<Self>) -> impl Element {
         PopoverMenu::new("user-menu")

@@ -1,6 +1,5 @@
 use crate::multibuffer_hint::MultibufferHint;
 use app_actions::OpenOnboarding;
-use client::UserStore;
 use db::kvp::KEY_VALUE_STORE;
 use fs::Fs;
 use gpui::{
@@ -170,7 +169,6 @@ pub fn show_onboarding_view(app_state: Arc<AppState>, cx: &mut App) -> Task<anyh
 struct Onboarding {
     workspace: WeakEntity<Workspace>,
     focus_handle: FocusHandle,
-    user_store: Entity<UserStore>,
     scroll_handle: ScrollHandle,
     _settings_subscription: Subscription,
 }
@@ -192,7 +190,6 @@ impl Onboarding {
                 workspace: workspace.weak_handle(),
                 focus_handle: cx.focus_handle(),
                 scroll_handle: ScrollHandle::new(),
-                user_store: workspace.user_store().clone(),
                 _settings_subscription: cx
                     .observe_global::<SettingsStore>(move |_, cx| cx.notify()),
             }
@@ -343,7 +340,6 @@ impl Item for Onboarding {
     ) -> Task<Option<Entity<Self>>> {
         Task::ready(Some(cx.new(|cx| Onboarding {
             workspace: self.workspace.clone(),
-            user_store: self.user_store.clone(),
             scroll_handle: ScrollHandle::new(),
             focus_handle: cx.focus_handle(),
             _settings_subscription: cx.observe_global::<SettingsStore>(move |_, cx| cx.notify()),

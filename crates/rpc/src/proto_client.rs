@@ -58,7 +58,6 @@ pub trait ProtoClient: Send + Sync {
 
     fn message_handler_set(&self) -> &parking_lot::Mutex<ProtoMessageHandlerSet>;
 
-    fn is_via_collab(&self) -> bool;
     fn has_wsl_interop(&self) -> bool;
 }
 
@@ -196,10 +195,6 @@ impl AnyProtoClient {
                 .clone(),
             request_ids: REQUEST_IDS.get_or_init(RequestIds::default).clone(),
         }))
-    }
-
-    pub fn is_via_collab(&self) -> bool {
-        self.0.client.is_via_collab()
     }
 
     pub fn request<T: RequestMessage>(

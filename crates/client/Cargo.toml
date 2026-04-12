@@ -13,13 +13,12 @@ path = "src/client.rs"
 doctest = false
 
 [features]
-test-support = ["collections/test-support", "gpui/test-support", "rpc/test-support"]
+test-support = ["gpui/test-support", "rpc/test-support"]
 
 [dependencies]
 anyhow.workspace = true
 async-tungstenite = { workspace = true, features = ["tokio", "tokio-rustls-manual-roots"] }
 base64.workspace = true
-collections.workspace = true
 futures.workspace = true
 gpui.workspace = true
 http_client.workspace = true
@@ -28,7 +27,6 @@ httparse = "1.10"
 log.workspace = true
 parking_lot.workspace = true
 postage.workspace = true
-rand.workspace = true
 rpc = { workspace = true, features = ["gpui"] }
 serde.workspace = true
 settings.workspace = true
@@ -40,7 +38,6 @@ url.workspace = true
 util.workspace = true
 
 [dev-dependencies]
-collections = { workspace = true, features = ["test-support"] }
 gpui = { workspace = true, features = ["test-support"] }
 http_client = { workspace = true, features = ["test-support"] }
 rpc = { workspace = true, features = ["test-support"] }

@@ -1435,7 +1435,6 @@ dependencies = [
  "anyhow",
  "async-tungstenite",
  "base64",
- "collections",
  "futures 0.3.32",
  "gpui",
  "http_client",
@@ -1444,7 +1443,6 @@ dependencies = [
  "log",
  "parking_lot",
  "postage",
- "rand 0.10.0",
  "rpc",
  "rustls-pki-types",
  "serde",
@@ -6907,7 +6905,6 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "app_actions",
- "client",
  "component",
  "db",
  "documented",
@@ -11170,7 +11167,6 @@ name = "title_bar"
 version = "0.1.0"
 dependencies = [
  "app_actions",
- "client",
  "gpui",
  "log",
  "project",

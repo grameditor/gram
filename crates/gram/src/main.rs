@@ -4,7 +4,7 @@ mod reliability;
 use anyhow::{Context as _, Error, Result};
 use clap::Parser;
 use cli::FORCE_CLI_MODE_ENV_VAR_NAME;
-use client::{Client, ProxySettings, UserStore};
+use client::{Client, ProxySettings};
 use collections::HashMap;
 use crashes::InitCrashHandler;
 use db::kvp::KEY_VALUE_STORE;
@@ -474,7 +474,6 @@ pub fn main() {
 
         debug_adapter_extension::init(extension_host_proxy.clone(), cx);
         languages::init(languages.clone(), fs.clone(), node_runtime.clone(), cx);
-        let user_store = cx.new(|cx| UserStore::new(client.clone(), cx));
         let workspace_store = cx.new(|cx| WorkspaceStore::new(client.clone(), cx));
 
         language_extension::init(
@@ -498,8 +497,6 @@ pub fn main() {
             languages.clone(),
         );
 
-        Client::set_global(client.clone(), cx);
-
         gram::init(cx);
         project::Project::init(&client, cx);
         debugger_ui::init(cx);
@@ -512,7 +509,6 @@ pub fn main() {
         let app_state = Arc::new(AppState {
             languages,
             client: client.clone(),
-            user_store,
             fs: fs.clone(),
             build_window_options,
             workspace_store,
@@ -588,7 +584,6 @@ pub fn main() {
         which_key::init(cx);
 
         cx.observe_global::<SettingsStore>({
-            let http = app_state.client.http_client();
             move |cx| {
                 for &mut window in cx.windows().iter_mut() {
                     let background_appearance = cx.theme().window_background_appearance();
@@ -610,11 +605,6 @@ pub fn main() {
                         }
                     },
                 );
-
-                let new_host = &client::ClientSettings::get_global(cx).server_url;
-                if &http.base_url() != new_host {
-                    http.set_base_url(new_host);
-                }
             }
         })
         .detach();

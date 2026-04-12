@@ -23,7 +23,6 @@ test-support = [
 ]
 
 [dependencies]
-client.workspace = true
 gpui = { workspace = true, features = [] }
 log.workspace = true
 project.workspace = true

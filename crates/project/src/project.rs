@@ -44,7 +44,7 @@ pub use project_search::{Search, SearchResults};
 
 use anyhow::{Context as _, Result, anyhow};
 use buffer_store::{BufferStore, BufferStoreEvent};
-use client::{Client, TypedEnvelope, UserStore, proto};
+use client::{Client, TypedEnvelope, proto};
 use clock::ReplicaId;
 
 use dap::client::DebugAdapterClient;
@@ -182,7 +182,6 @@ pub struct Project {
     collab_client: Arc<client::Client>,
     join_project_response_message_id: u32,
     task_store: Entity<TaskStore>,
-    user_store: Entity<UserStore>,
     fs: Arc<dyn Fs>,
     remote_client: Option<Entity<RemoteClient>>,
     client_state: ProjectClientState,
@@ -1002,7 +1001,6 @@ impl Project {
     pub fn local(
         client: Arc<Client>,
         node: NodeRuntime,
-        user_store: Entity<UserStore>,
         languages: Arc<LanguageRegistry>,
         fs: Arc<dyn Fs>,
         env: Option<HashMap<String, String>>,
@@ -1136,7 +1134,6 @@ impl Project {
                 languages,
                 collab_client: client,
                 task_store,
-                user_store,
                 settings_observer,
                 fs,
                 remote_client: None,
@@ -1165,7 +1162,6 @@ impl Project {
         remote: Entity<RemoteClient>,
         client: Arc<Client>,
         node: NodeRuntime,
-        user_store: Entity<UserStore>,
         languages: Arc<LanguageRegistry>,
         fs: Arc<dyn Fs>,
         cx: &mut App,
@@ -1325,7 +1321,6 @@ impl Project {
                 languages,
                 collab_client: client,
                 task_store,
-                user_store,
                 settings_observer,
                 fs,
                 remote_client: Some(remote.clone()),
@@ -1419,13 +1414,11 @@ impl Project {
         let client = cx
             .update(|cx| client::Client::new(http_client.clone(), cx))
             .unwrap();
-        let user_store = cx.new(|cx| UserStore::new(client.clone(), cx)).unwrap();
         let project = cx
             .update(|cx| {
                 Project::local(
                     client,
                     node_runtime::NodeRuntime::unavailable(),
-                    user_store,
                     Arc::new(languages),
                     fs,
                     None,
@@ -1457,12 +1450,10 @@ impl Project {
         let languages = LanguageRegistry::test(cx.executor());
         let http_client = http_client::FakeHttpClient::with_404_response();
         let client = cx.update(|cx| client::Client::new(http_client.clone(), cx));
-        let user_store = cx.new(|cx| UserStore::new(client.clone(), cx));
         let project = cx.update(|cx| {
             Project::local(
                 client,
                 node_runtime::NodeRuntime::unavailable(),
-                user_store,
                 Arc::new(languages),
                 fs,
                 None,
@@ -1530,11 +1521,6 @@ impl Project {
     #[inline]
     pub fn remote_client(&self) -> Option<Entity<RemoteClient>> {
         self.remote_client.clone()
-    }
-
-    #[inline]
-    pub fn user_store(&self) -> Entity<UserStore> {
-        self.user_store.clone()
     }
 
     #[inline]

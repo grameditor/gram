@@ -1,80 +1,31 @@
 pub mod user;
 
-use anyhow::{Context as _, Result};
+use anyhow::Result;
 use async_tungstenite::tungstenite::{error::Error as WebsocketError, http::StatusCode};
 use futures::{FutureExt, Stream, TryFutureExt as _, future::BoxFuture};
-use gpui::{App, AsyncApp, Entity, Global, Task, WeakEntity};
+use gpui::{App, AsyncApp, Entity, Task, WeakEntity};
 use http_client::{HttpClientWithUrl, read_proxy_from_env};
 use parking_lot::RwLock;
 use postage::watch;
-use rand::prelude::*;
 use rpc::proto::{AnyTypedEnvelope, EnvelopedMessage, PeerId, RequestMessage};
 use serde::Deserialize;
 use settings::{RegisterSetting, Settings};
-use std::cmp;
 use std::{
     any::TypeId,
     future::Future,
     marker::PhantomData,
-    path::PathBuf,
     sync::{
-        Arc, LazyLock, Weak,
+        Arc, Weak,
         atomic::{AtomicU64, Ordering},
     },
-    time::{Duration, Instant},
+    time::Instant,
 };
 use thiserror::Error;
 use url::Url;
-use util::{ConnectionResult, ResultExt};
+use util::ResultExt;
 
 pub use rpc::*;
 pub use user::*;
-
-static GRAM_SERVER_URL: LazyLock<Option<String>> =
-    LazyLock::new(|| std::env::var("GRAM_SERVER_URL").ok());
-
-pub static IMPERSONATE_LOGIN: LazyLock<Option<String>> = LazyLock::new(|| {
-    std::env::var("GRAM_IMPERSONATE")
-        .ok()
-        .and_then(|s| if s.is_empty() { None } else { Some(s) })
-});
-
-pub static USE_WEB_LOGIN: LazyLock<bool> =
-    LazyLock::new(|| std::env::var("GRAM_WEB_LOGIN").is_ok());
-
-pub static ADMIN_API_TOKEN: LazyLock<Option<String>> = LazyLock::new(|| {
-    std::env::var("GRAM_ADMIN_API_TOKEN")
-        .ok()
-        .and_then(|s| if s.is_empty() { None } else { Some(s) })
-});
-
-pub static GRAM_APP_PATH: LazyLock<Option<PathBuf>> =
-    LazyLock::new(|| std::env::var("GRAM_APP_PATH").ok().map(PathBuf::from));
-
-pub static GRAM_ALWAYS_ACTIVE: LazyLock<bool> =
-    LazyLock::new(|| std::env::var("GRAM_ALWAYS_ACTIVE").is_ok_and(|e| !e.is_empty()));
-
-pub const INITIAL_RECONNECTION_DELAY: Duration = Duration::from_millis(500);
-pub const MAX_RECONNECTION_DELAY: Duration = Duration::from_secs(30);
-pub const CONNECTION_TIMEOUT: Duration = Duration::from_secs(20);
-
-#[derive(Deserialize, RegisterSetting)]
-pub struct ClientSettings {
-    pub server_url: String,
-}
-
-impl Settings for ClientSettings {
-    fn from_settings(_content: &settings::SettingsContent) -> Self {
-        if let Some(server_url) = &*GRAM_SERVER_URL {
-            return Self {
-                server_url: server_url.clone(),
-            };
-        }
-        Self {
-            server_url: "http://localhost:9090".into(),
-        }
-    }
-}
 
 #[derive(Deserialize, Default, RegisterSetting)]
 pub struct ProxySettings {
@@ -111,10 +62,6 @@ impl Settings for ProxySettings {
 }
 
 pub fn init(_client: &Arc<Client>, _cx: &mut App) {}
-
-struct GlobalClient(Arc<Client>);
-
-impl Global for GlobalClient {}
 
 pub struct Client {
     id: AtomicU64,
@@ -322,7 +269,7 @@ impl Client {
     pub fn production(cx: &mut App) -> Arc<Self> {
         let http = Arc::new(HttpClientWithUrl::new_url(
             cx.http_client(),
-            &ClientSettings::get_global(cx).server_url,
+            "http://localhost:9090",
             cx.http_client().proxy().cloned(),
         ));
         Self::new(http, cx)
@@ -336,91 +283,8 @@ impl Client {
         self.http.clone()
     }
 
-    pub fn set_id(&self, id: u64) -> &Self {
-        self.id.store(id, Ordering::SeqCst);
-        self
-    }
-
-    #[cfg(any(test, feature = "test-support"))]
-    pub fn teardown(&self) {
-        let mut state = self.state.write();
-        state._reconnect_task.take();
-        self.handler_set.lock().clear();
-        self.peer.teardown();
-    }
-
-    pub fn global(cx: &App) -> Arc<Self> {
-        cx.global::<GlobalClient>().0.clone()
-    }
-    pub fn set_global(client: Arc<Client>, cx: &mut App) {
-        cx.set_global(GlobalClient(client))
-    }
-
     pub fn status(&self) -> watch::Receiver<Status> {
         self.state.read().status.1.clone()
-    }
-
-    fn set_status(self: &Arc<Self>, status: Status, cx: &AsyncApp) {
-        log::info!("set status on client {}: {:?}", self.id(), status);
-        let mut state = self.state.write();
-        *state.status.0.borrow_mut() = status;
-
-        match status {
-            Status::Connected { .. } => {
-                state._reconnect_task = None;
-            }
-            Status::ConnectionLost => {
-                let client = self.clone();
-                state._reconnect_task = Some(cx.spawn(async move |cx| {
-                    #[cfg(any(test, feature = "test-support"))]
-                    let mut rng = StdRng::seed_from_u64(0);
-                    #[cfg(not(any(test, feature = "test-support")))]
-                    let mut rng: rand::rngs::SmallRng = rand::make_rng();
-
-                    let mut delay = INITIAL_RECONNECTION_DELAY;
-                    loop {
-                        match client.connect(cx).await {
-                            ConnectionResult::Timeout => {
-                                log::error!("client connect attempt timed out")
-                            }
-                            ConnectionResult::ConnectionReset => {
-                                log::error!("client connect attempt reset")
-                            }
-                            ConnectionResult::Result(r) => {
-                                if let Err(error) = r {
-                                    log::error!("failed to connect: {error}");
-                                } else {
-                                    break;
-                                }
-                            }
-                        }
-
-                        if matches!(
-                            *client.status().borrow(),
-                            Status::AuthenticationError | Status::ConnectionError
-                        ) {
-                            client.set_status(
-                                Status::ReconnectionError {
-                                    next_reconnection: Instant::now() + delay,
-                                },
-                                cx,
-                            );
-                            let jitter = Duration::from_millis(
-                                rng.random_range(0..delay.as_millis() as u64),
-                            );
-                            cx.background_executor().timer(delay + jitter).await;
-                            delay = cmp::min(delay * 2, MAX_RECONNECTION_DELAY);
-                        } else {
-                            break;
-                        }
-                    }
-                }));
-            }
-            Status::SignedOut | Status::UpgradeRequired => {
-                state._reconnect_task.take();
-            }
-            _ => {}
-        }
     }
 
     pub fn subscribe_to_entity<T>(
@@ -526,36 +390,6 @@ impl Client {
                 Err(error)
             }
         }
-    }
-
-    pub async fn connect(self: &Arc<Self>, cx: &AsyncApp) -> ConnectionResult<()> {
-        let was_disconnected = match *self.status().borrow() {
-            Status::SignedOut | Status::Authenticated => true,
-            Status::ConnectionError
-            | Status::ConnectionLost
-            | Status::Authenticating
-            | Status::AuthenticationError
-            | Status::Reauthenticating
-            | Status::Reauthenticated
-            | Status::ReconnectionError { .. } => false,
-            Status::Connected { .. } | Status::Connecting | Status::Reconnecting => {
-                return ConnectionResult::Result(Ok(()));
-            }
-            Status::UpgradeRequired => {
-                return ConnectionResult::Result(
-                    Err(EstablishConnectionError::UpgradeRequired)
-                        .context("client auth and connect"),
-                );
-            }
-        };
-
-        if was_disconnected {
-            self.set_status(Status::Connecting, cx);
-        } else {
-            self.set_status(Status::Reconnecting, cx);
-        }
-
-        ConnectionResult::Result(Ok(()))
     }
 
     fn connection_id(&self) -> Result<ConnectionId> {
@@ -716,10 +550,6 @@ impl ProtoClient for Client {
 
     fn message_handler_set(&self) -> &parking_lot::Mutex<ProtoMessageHandlerSet> {
         &self.handler_set
-    }
-
-    fn is_via_collab(&self) -> bool {
-        true
     }
 
     fn has_wsl_interop(&self) -> bool {

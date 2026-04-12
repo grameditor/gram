@@ -2,7 +2,7 @@
 /// The tests in this file assume that server_cx is running on Windows too.
 /// We neead to find a way to test Windows-Non-Windows interactions.
 use crate::headless_project::HeadlessProject;
-use client::{Client, UserStore};
+use client::Client;
 use collections::HashSet;
 
 use extension::ExtensionHostProxy;
@@ -1918,7 +1918,6 @@ fn build_project(ssh: Entity<RemoteClient>, cx: &mut TestAppContext) -> Entity<P
     let client = cx.update(|cx| Client::new(FakeHttpClient::with_404_response(), cx));
 
     let node = NodeRuntime::unavailable();
-    let user_store = cx.new(|cx| UserStore::new(client.clone(), cx));
     let languages = Arc::new(LanguageRegistry::test(cx.executor()));
     let fs = FakeFs::new(cx.executor());
 
@@ -1926,5 +1925,5 @@ fn build_project(ssh: Entity<RemoteClient>, cx: &mut TestAppContext) -> Entity<P
         Project::init(&client, cx);
     });
 
-    cx.update(|cx| Project::remote(ssh, client, node, user_store, languages, fs, cx))
+    cx.update(|cx| Project::remote(ssh, client, node, languages, fs, cx))
 }

@@ -477,12 +477,8 @@ impl WorktreeStore {
                     path_style,
                     ..
                 } => {
-                    if upstream_client.is_via_collab() {
-                        Task::ready(Err(Arc::new(anyhow!("cannot create worktrees via collab"))))
-                    } else {
-                        let abs_path = RemotePathBuf::new(abs_path.to_string(), *path_style);
-                        self.create_remote_worktree(upstream_client.clone(), abs_path, visible, cx)
-                    }
+                    let abs_path = RemotePathBuf::new(abs_path.to_string(), *path_style);
+                    self.create_remote_worktree(upstream_client.clone(), abs_path, visible, cx)
                 }
                 WorktreeStoreState::Local { fs } => {
                     self.create_local_worktree(fs.clone(), abs_path.clone(), visible, cx)
@@ -819,18 +815,8 @@ impl WorktreeStore {
             worktrees: self.worktree_metadata_protos(cx),
         };
 
-        // collab has bad concurrency guarantees, so we send requests in serial.
-        let update_project = if downstream_client.is_via_collab() {
-            Some(downstream_client.request(update))
-        } else {
-            downstream_client.send(update).log_err();
-            None
-        };
+        downstream_client.send(update).log_err();
         cx.spawn(async move |this, cx| {
-            if let Some(update_project) = update_project {
-                update_project.await?;
-            }
-
             this.update(cx, |this, cx| {
                 let worktrees = this.worktrees().collect::<Vec<_>>();
 
@@ -840,16 +826,7 @@ impl WorktreeStore {
                         worktree.observe_updates(project_id, cx, {
                             move |update| {
                                 let client = client.clone();
-                                async move {
-                                    if client.is_via_collab() {
-                                        client
-                                            .request(update)
-                                            .map(|result| result.log_err().is_some())
-                                            .await
-                                    } else {
-                                        client.send(update).log_err().is_some()
-                                    }
-                                }
+                                async move { client.send(update).log_err().is_some() }
                             }
                         });
                     });

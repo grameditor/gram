@@ -201,11 +201,6 @@ impl HttpClientWithUrl {
         let base_url = base_url.into();
         *self.base_url.lock() = base_url;
     }
-
-    /// Builds a URL using the given path.
-    pub fn build_url(&self, path: &str) -> String {
-        format!("{}{}", self.base_url(), path)
-    }
 }
 
 impl HttpClient for HttpClientWithUrl {
