@@ -210,13 +210,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "app_env_vars"
-version = "0.1.0"
-dependencies = [
- "gpui",
-]
-
-[[package]]
 name = "approx"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2340,7 +2333,6 @@ name = "db"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "app_env_vars",
  "gpui",
  "indoc",
  "log",
@@ -4279,7 +4271,6 @@ dependencies = [
  "activity_indicator",
  "anyhow",
  "app_actions",
- "app_env_vars",
  "ashpd",
  "askpass",
  "assets",

@@ -305,7 +305,7 @@ pub fn main() {
 
     let (open_listener, mut open_rx) = OpenListener::new();
 
-    let failed_single_instance_check = if *app_env_vars::GRAM_STATELESS
+    let failed_single_instance_check = if std::env::var("GRAM_STATELESS").is_ok()
         || *release_channel::RELEASE_CHANNEL == ReleaseChannel::Dev
     {
         false

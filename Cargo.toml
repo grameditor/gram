@@ -3,7 +3,6 @@ resolver = "2"
 members = [
     "crates/activity_indicator",
     "crates/app_actions",
-    "crates/app_env_vars",
     "crates/askpass",
     "crates/assets",
     "crates/breadcrumbs",
@@ -171,7 +170,6 @@ edition = "2024"
 
 activity_indicator = { path = "crates/activity_indicator" }
 app_actions = { path = "crates/app_actions" }
-app_env_vars = { path = "crates/app_env_vars" }
 askpass = { path = "crates/askpass" }
 assets = { path = "crates/assets" }
 breadcrumbs = { path = "crates/breadcrumbs" }
