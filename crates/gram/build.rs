@@ -36,14 +36,6 @@ fn main() {
     };
     if let Some(git_sha) = commit_sha {
         println!("cargo:rustc-env=GRAM_COMMIT_SHA={git_sha}");
-
-        if let Ok(build_profile) = std::env::var("PROFILE")
-            && build_profile == "release"
-        {
-            // This is currently the best way to make `cargo build ...`'s build script
-            // to print something to stdout without extra verbosity.
-            println!("cargo::warning=Info: using '{git_sha}' hash for GRAM_COMMIT_SHA env var");
-        }
     }
 
     #[cfg(target_os = "windows")]
