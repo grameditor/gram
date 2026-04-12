@@ -1,6 +1,3 @@
-#[cfg(any(test, feature = "test-support"))]
-pub mod test;
-
 pub mod user;
 
 use anyhow::{Context as _, Result};
@@ -125,27 +122,6 @@ pub struct Client {
     http: Arc<HttpClientWithUrl>,
     state: RwLock<ClientState>,
     handler_set: parking_lot::Mutex<ProtoMessageHandlerSet>,
-
-    #[allow(clippy::type_complexity)]
-    #[cfg(any(test, feature = "test-support"))]
-    authenticate:
-        RwLock<Option<Box<dyn 'static + Send + Sync + Fn(&AsyncApp) -> Task<Result<Credentials>>>>>,
-
-    #[allow(clippy::type_complexity)]
-    #[cfg(any(test, feature = "test-support"))]
-    establish_connection: RwLock<
-        Option<
-            Box<
-                dyn 'static
-                    + Send
-                    + Sync
-                    + Fn(
-                        &Credentials,
-                        &AsyncApp,
-                    ) -> Task<Result<Connection, EstablishConnectionError>>,
-            >,
-        >,
-    >,
 }
 
 #[derive(Error, Debug)]
@@ -216,7 +192,6 @@ impl Status {
 }
 
 struct ClientState {
-    credentials: Option<Credentials>,
     status: (watch::Sender<Status>, watch::Receiver<Status>),
     _reconnect_task: Option<Task<()>>,
 }
@@ -236,7 +211,6 @@ impl Credentials {
 impl Default for ClientState {
     fn default() -> Self {
         Self {
-            credentials: None,
             status: watch::channel_with(Status::SignedOut),
             _reconnect_task: None,
         }
@@ -342,11 +316,6 @@ impl Client {
             http,
             state: Default::default(),
             handler_set: Default::default(),
-
-            #[cfg(any(test, feature = "test-support"))]
-            authenticate: Default::default(),
-            #[cfg(any(test, feature = "test-support"))]
-            establish_connection: Default::default(),
         })
     }
 
@@ -380,48 +349,11 @@ impl Client {
         self.peer.teardown();
     }
 
-    #[cfg(any(test, feature = "test-support"))]
-    pub fn override_authenticate<F>(&self, authenticate: F) -> &Self
-    where
-        F: 'static + Send + Sync + Fn(&AsyncApp) -> Task<Result<Credentials>>,
-    {
-        *self.authenticate.write() = Some(Box::new(authenticate));
-        self
-    }
-
-    #[cfg(any(test, feature = "test-support"))]
-    pub fn override_establish_connection<F>(&self, connect: F) -> &Self
-    where
-        F: 'static
-            + Send
-            + Sync
-            + Fn(&Credentials, &AsyncApp) -> Task<Result<Connection, EstablishConnectionError>>,
-    {
-        *self.establish_connection.write() = Some(Box::new(connect));
-        self
-    }
-
     pub fn global(cx: &App) -> Arc<Self> {
         cx.global::<GlobalClient>().0.clone()
     }
     pub fn set_global(client: Arc<Client>, cx: &mut App) {
         cx.set_global(GlobalClient(client))
-    }
-
-    pub fn user_id(&self) -> Option<u64> {
-        self.state
-            .read()
-            .credentials
-            .as_ref()
-            .map(|credentials| credentials.user_id)
-    }
-
-    pub fn peer_id(&self) -> Option<PeerId> {
-        if let Status::Connected { peer_id, .. } = &*self.status().borrow() {
-            Some(*peer_id)
-        } else {
-            None
-        }
     }
 
     pub fn status(&self) -> watch::Receiver<Status> {
@@ -515,23 +447,6 @@ impl Client {
             remote_id,
             consumed: false,
             _entity_type: PhantomData,
-        })
-    }
-
-    #[track_caller]
-    pub fn add_message_handler<M, E, H, F>(
-        self: &Arc<Self>,
-        entity: WeakEntity<E>,
-        handler: H,
-    ) -> Subscription
-    where
-        M: EnvelopedMessage,
-        E: 'static,
-        H: 'static + Sync + Fn(Entity<E>, TypedEnvelope<M>, AsyncApp) -> F + Send + Sync,
-        F: 'static + Future<Output = Result<()>>,
-    {
-        self.add_message_handler_impl(entity, move |entity, message, _, cx| {
-            handler(entity, message, cx)
         })
     }
 

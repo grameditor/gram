@@ -55,7 +55,7 @@ use workspace::{
 };
 use workspace::{
     OpenVisible, Pane, WorkspaceSettings,
-    item::{BreadcrumbText, FollowEvent, ProjectItemKind},
+    item::{BreadcrumbText, ProjectItemKind},
     searchable::SearchOptions,
 };
 
@@ -220,21 +220,6 @@ impl FollowableItem for Editor {
                 .as_ref()
                 .map(|s| serialize_selection(s, &snapshot)),
         }))
-    }
-
-    fn to_follow_event(event: &EditorEvent) -> Option<workspace::item::FollowEvent> {
-        match event {
-            EditorEvent::Edited { .. } => Some(FollowEvent::Unfollow),
-            EditorEvent::SelectionsChanged { local }
-            | EditorEvent::ScrollPositionChanged { local, .. } => {
-                if *local {
-                    Some(FollowEvent::Unfollow)
-                } else {
-                    None
-                }
-            }
-            _ => None,
-        }
     }
 
     fn add_event_to_update_proto(

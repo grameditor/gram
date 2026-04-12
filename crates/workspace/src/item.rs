@@ -8,7 +8,7 @@ use crate::{
     workspace_settings::{AutosaveSetting, WorkspaceSettings},
 };
 use anyhow::Result;
-use client::{Client, proto};
+use client::proto;
 use gpui::{
     Action, AnyElement, AnyEntity, AnyView, App, AppContext, Context, Entity, EntityId,
     EventEmitter, FocusHandle, Focusable, Font, HighlightStyle, Pixels, Point, Render,
@@ -24,7 +24,6 @@ use std::{
     any::{Any, TypeId},
     ops::Range,
     path::Path,
-    sync::Arc,
     time::Duration,
 };
 use theme::Theme;
@@ -1050,7 +1049,6 @@ pub trait FollowableItem: Item {
         window: &mut Window,
         cx: &mut App,
     ) -> Option<Task<Result<Entity<Self>>>>;
-    fn to_follow_event(event: &Self::Event) -> Option<FollowEvent>;
     fn add_event_to_update_proto(
         &self,
         event: &Self::Event,
@@ -1070,7 +1068,6 @@ pub trait FollowableItem: Item {
 }
 
 pub trait FollowableItemHandle: ItemHandle {
-    fn remote_id(&self, client: &Arc<Client>, window: &mut Window, cx: &mut App) -> Option<ViewId>;
     fn downgrade(&self) -> Box<dyn WeakFollowableItemHandle>;
     fn to_state_proto(&self, window: &mut Window, cx: &mut App) -> Option<proto::view::Variant>;
     fn add_event_to_update_proto(
@@ -1080,7 +1077,6 @@ pub trait FollowableItemHandle: ItemHandle {
         window: &mut Window,
         cx: &mut App,
     ) -> bool;
-    fn to_follow_event(&self, event: &dyn Any) -> Option<FollowEvent>;
     fn apply_update_proto(
         &self,
         project: &Entity<Project>,
@@ -1098,14 +1094,6 @@ pub trait FollowableItemHandle: ItemHandle {
 }
 
 impl<T: FollowableItem> FollowableItemHandle for Entity<T> {
-    fn remote_id(&self, client: &Arc<Client>, _: &mut Window, cx: &mut App) -> Option<ViewId> {
-        self.read(cx).remote_id().or_else(|| {
-            client.peer_id().map(|_creator| ViewId {
-                id: self.item_id().as_u64(),
-            })
-        })
-    }
-
     fn downgrade(&self) -> Box<dyn WeakFollowableItemHandle> {
         Box::new(self.downgrade())
     }
@@ -1127,10 +1115,6 @@ impl<T: FollowableItem> FollowableItemHandle for Entity<T> {
         } else {
             false
         }
-    }
-
-    fn to_follow_event(&self, event: &dyn Any) -> Option<FollowEvent> {
-        T::to_follow_event(event.downcast_ref()?)
     }
 
     fn apply_update_proto(

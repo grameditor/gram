@@ -177,10 +177,6 @@ impl FollowableItem for DebugSession {
         Task::ready(Ok(()))
     }
 
-    fn to_follow_event(_event: &Self::Event) -> Option<workspace::item::FollowEvent> {
-        None
-    }
-
     fn dedup(&self, existing: &Self, _window: &Window, cx: &App) -> Option<workspace::item::Dedup> {
         if existing.session_id(cx) == self.session_id(cx) {
             Some(item::Dedup::KeepExisting)
