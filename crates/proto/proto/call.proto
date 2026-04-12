@@ -60,13 +60,11 @@ message RejoinRoomResponse {
 
 message ResharedProject {
     uint64 id = 1;
-    repeated Collaborator collaborators = 2;
 }
 
 message RejoinedProject {
     uint64 id = 1;
     repeated WorktreeMetadata worktrees = 2;
-    repeated Collaborator collaborators = 3;
     repeated LanguageServer language_servers = 4;
     repeated string language_server_capabilities = 5;
 }
@@ -163,7 +161,6 @@ message JoinProjectResponse {
     uint64 project_id = 5;
     uint32 replica_id = 1;
     repeated WorktreeMetadata worktrees = 2;
-    repeated Collaborator collaborators = 3;
     repeated LanguageServer language_servers = 4;
     repeated string language_server_capabilities = 8;
     bool windows_paths = 9;
@@ -197,22 +194,6 @@ message RepositoryEntry {
     optional Branch branch_summary = 6;
 }
 
-message AddProjectCollaborator {
-    uint64 project_id = 1;
-    Collaborator collaborator = 2;
-}
-
-message UpdateProjectCollaborator {
-    uint64 project_id = 1;
-    PeerId old_peer_id = 2;
-    PeerId new_peer_id = 3;
-}
-
-message RemoveProjectCollaborator {
-    uint64 project_id = 1;
-    PeerId peer_id = 2;
-}
-
 message GetUsers {
     repeated uint64 user_ids = 1;
 }
@@ -223,41 +204,6 @@ message FuzzySearchUsers {
 
 message UsersResponse {
     repeated User users = 1;
-}
-
-message RequestContact {
-    uint64 responder_id = 1;
-}
-
-message RemoveContact {
-    uint64 user_id = 1;
-}
-
-message RespondToContactRequest {
-    uint64 requester_id = 1;
-    ContactRequestResponse response = 2;
-}
-
-enum ContactRequestResponse {
-    Accept = 0;
-    Decline = 1;
-    Block = 2;
-    Dismiss = 3;
-}
-
-message UpdateContacts {
-    repeated Contact contacts = 1;
-    repeated uint64 remove_contacts = 2;
-    repeated IncomingContactRequest incoming_requests = 3;
-    repeated uint64 remove_incoming_requests = 4;
-    repeated uint64 outgoing_requests = 5;
-    repeated uint64 remove_outgoing_requests = 6;
-}
-
-message ShowContacts {}
-
-message IncomingContactRequest {
-    uint64 requester_id = 1;
 }
 
 message Follow {
@@ -357,10 +303,4 @@ message Excerpt {
     Anchor context_end = 4;
     Anchor primary_start = 5;
     Anchor primary_end = 6;
-}
-
-message Contact {
-    uint64 user_id = 1;
-    bool online = 2;
-    bool busy = 3;
 }

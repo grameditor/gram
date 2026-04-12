@@ -967,7 +967,6 @@ pub enum Event {
         item: Box<dyn WeakItemHandle>,
         save_intent: SaveIntent,
     },
-    ContactRequestedJoin(u64),
     WorkspaceCreated(WeakEntity<Workspace>),
     OpenBundledFile {
         text: Cow<'static, str>,

@@ -46,9 +46,6 @@ message Envelope {
         JoinProject join_project = 26;
         JoinProjectResponse join_project_response = 27;
         LeaveProject leave_project = 28;
-        AddProjectCollaborator add_project_collaborator = 29;
-        UpdateProjectCollaborator update_project_collaborator = 30;
-        RemoveProjectCollaborator remove_project_collaborator = 31;
 
         GetDefinition get_definition = 32;
         GetDefinitionResponse get_definition_response = 33;
@@ -114,16 +111,11 @@ message Envelope {
         PerformRename perform_rename = 85;
         PerformRenameResponse perform_rename_response = 86;
 
-        UpdateContacts update_contacts = 89;
         UpdateInviteInfo update_invite_info = 90;
-        ShowContacts show_contacts = 91;
 
         GetUsers get_users = 92;
         FuzzySearchUsers fuzzy_search_users = 93;
         UsersResponse users_response = 94;
-        RequestContact request_contact = 95;
-        RespondToContactRequest respond_to_contact_request = 96;
-        RemoveContact remove_contact = 97;
 
         Follow follow = 98;
         FollowResponse follow_response = 99;

@@ -5,7 +5,6 @@ use gpui::{Context, SharedString, Task};
 use postage::watch;
 use rpc::proto::{RequestMessage, UsersResponse};
 use std::sync::{Arc, Weak};
-use text::ReplicaId;
 
 pub type UserId = u64;
 
@@ -18,24 +17,11 @@ impl ProjectId {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct ParticipantIndex(pub u32);
-
 #[derive(Default, Debug)]
 pub struct User {
     pub id: UserId,
-    pub github_login: SharedString,
+    pub email: SharedString,
     pub name: Option<String>,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Collaborator {
-    pub peer_id: proto::PeerId,
-    pub replica_id: ReplicaId,
-    pub user_id: UserId,
-    pub is_host: bool,
-    pub committer_name: Option<String>,
-    pub committer_email: Option<String>,
 }
 
 impl PartialOrd for User {
@@ -46,36 +32,21 @@ impl PartialOrd for User {
 
 impl Ord for User {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.github_login.cmp(&other.github_login)
+        self.email.cmp(&other.email)
     }
 }
 
 impl PartialEq for User {
     fn eq(&self, other: &Self) -> bool {
-        self.id == other.id && self.github_login == other.github_login
+        self.id == other.id && self.email == other.email
     }
 }
 
 impl Eq for User {}
 
-#[derive(Debug, PartialEq)]
-pub struct Contact {
-    pub user: Arc<User>,
-    pub online: bool,
-    pub busy: bool,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ContactRequestStatus {
-    None,
-    RequestSent,
-    RequestReceived,
-    RequestAccepted,
-}
-
 pub struct UserStore {
     users: HashMap<u64, Arc<User>>,
-    by_github_login: HashMap<SharedString, u64>,
+    by_email: HashMap<SharedString, u64>,
     current_user: watch::Receiver<Option<Arc<User>>>,
     client: Weak<Client>,
 }
@@ -86,7 +57,7 @@ impl UserStore {
 
         Self {
             users: Default::default(),
-            by_github_login: Default::default(),
+            by_email: Default::default(),
             current_user: current_user_rx,
             client: Arc::downgrade(&client),
         }
@@ -95,7 +66,7 @@ impl UserStore {
     #[cfg(feature = "test-support")]
     pub fn clear_cache(&mut self) {
         self.users.clear();
-        self.by_github_login.clear();
+        self.by_email.clear();
     }
 
     pub fn get_users(
@@ -181,12 +152,11 @@ impl UserStore {
         for user in users {
             let user = User::new(user);
             if let Some(old) = self.users.insert(user.id, user.clone())
-                && old.github_login != user.github_login
+                && old.email != user.email
             {
-                self.by_github_login.remove(&old.github_login);
+                self.by_email.remove(&old.email);
             }
-            self.by_github_login
-                .insert(user.github_login.clone(), user.id);
+            self.by_email.insert(user.email.clone(), user.id);
             ret.push(user)
         }
         ret
@@ -197,21 +167,8 @@ impl User {
     fn new(message: proto::User) -> Arc<Self> {
         Arc::new(User {
             id: message.id,
-            github_login: message.github_login.into(),
+            email: message.email.into(),
             name: message.name,
-        })
-    }
-}
-
-impl Collaborator {
-    pub fn from_proto(message: proto::Collaborator) -> Result<Self> {
-        Ok(Self {
-            peer_id: message.peer_id.context("invalid peer id")?,
-            replica_id: ReplicaId::new(message.replica_id as u16),
-            user_id: message.user_id as UserId,
-            is_host: message.is_host,
-            committer_name: message.committer_name,
-            committer_email: message.committer_email,
         })
     }
 }
