@@ -105,7 +105,7 @@ impl Display for SystemSpecs {
                 "".to_string()
             },
             if cfg!(debug_assertions) {
-                "(Taylor's Version)"
+                "(Debug Build)"
             } else {
                 ""
             },
