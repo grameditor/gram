@@ -8358,8 +8358,7 @@ dependencies = [
 [[package]]
 name = "protobuf-src"
 version = "2.1.1+27.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6217c3504da19b85a3a4b2e9a5183d635822d83507ba0986624b5c05b83bfc40"
+source = "git+https://codeberg.org/GramEditor/rust-protobuf-native?rev=a70e2d9986e931f2b883b661bf8f4471c5398b7e#a70e2d9986e931f2b883b661bf8f4471c5398b7e"
 dependencies = [
  "cmake",
 ]
