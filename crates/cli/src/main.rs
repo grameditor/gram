@@ -1133,7 +1133,7 @@ mod mac_os {
                                 itemURLs: CFRetained::as_ptr(&urls_to_open).as_ptr()
                                     as *const CFArray,
                                 passThruParams: ptr::null(),
-                                launchFlags: LSLaunchFlags::empty(),
+                                launchFlags: LSLaunchFlags::Defaults,
                                 asyncRefCon: ptr::null_mut(),
                             }),
                             ptr::null_mut(),
