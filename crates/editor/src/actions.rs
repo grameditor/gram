@@ -1,6 +1,6 @@
 //! This module contains all actions supported by [`Editor`].
 use super::*;
-use gpui::{Action, actions};
+use gpui::{actions, Action};
 use project::project_settings::GoToDiagnosticSeverityFilter;
 use schemars::JsonSchema;
 use util::serde::default_true;
@@ -610,6 +610,10 @@ actions!(
         MoveToBeginning,
         /// Moves cursor to the enclosing bracket.
         MoveToEnclosingBracket,
+        /// Selects the content inside the nearest enclosing delimiters (brackets, braces, parentheses, or quotes).
+        SelectInsideDelimiters,
+        /// Selects the content inside the nearest surrounding delimiters, including the delimiters themselves.
+        SelectAroundDelimiters,
         /// Moves cursor to the end of the document.
         MoveToEnd,
         /// Moves cursor to the end of the paragraph.
