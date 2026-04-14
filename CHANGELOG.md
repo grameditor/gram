@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add tree-sitter grammar for git rebase
 - RPM repository now available
 - Add Refresh Folders command (#207) (zed#46291)
+- Add SelectInsideDelimiters and SelectAroundDelimiters actions (#217) by @subeax
+- Use patched protobuf-src for Windows support (#202) by @voltagex
 
 [poll]: https://github.com/lilith/zed/commit/0334469a57a20586b28b86187028acd36559a9d3
 
@@ -48,6 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix an ordering problem that led to invalid edits in display map sync (zed#52930)
 - Fix out-of-bounds indexing when diff bases contain CRLF (zed#52605)
 - Fix alt keybindings capturing altgr input (Mac) (#206)
+- Minor fixes to the build scripts to allow a clean build on Chimera Linux (#205) by @jmc
 
 ### Changed
 
