@@ -7,7 +7,6 @@ license = "GPL-3.0-or-later"
 
 [dependencies]
 bitcode.workspace = true
-cfg-if.workspace = true
 crash-handler.workspace = true
 extension_host.workspace = true
 log.workspace = true

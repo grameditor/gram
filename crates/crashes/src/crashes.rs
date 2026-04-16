@@ -335,12 +335,13 @@ pub fn panic_hook(info: &PanicHookInfo) {
                 Ordering::SeqCst,
             );
 
-            cfg_if::cfg_if! {
-                if #[cfg(target_os = "windows")] {
+            cfg_select! {
+                windows => {
                     // https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes--0-499-
                     CrashHandler.simulate_exception(Some(234)); // (MORE_DATA_AVAILABLE)
                     break;
-                } else {
+                }
+                _ => {
                     std::process::abort();
                 }
             }

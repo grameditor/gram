@@ -2056,7 +2056,6 @@ name = "crashes"
 version = "0.1.0"
 dependencies = [
  "bitcode",
- "cfg-if",
  "crash-handler",
  "extension_host",
  "log",
