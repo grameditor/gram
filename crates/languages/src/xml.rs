@@ -72,13 +72,13 @@ impl LspInstaller for XmlLspAdapter {
         .await?;
 
         let arch = match std::env::consts::ARCH {
-            "aarch64" => "aarch64",
+            "aarch64" => "aarch_64",
             "x86_64" => "x86_64",
             other => return Err(anyhow!("unsupported architecture: {}", other)),
         };
 
         let os_name = Self::OS_NAME;
-        if os_name != "osx" && arch == "aarch64" {
+        if os_name != "osx" && arch == "aarch_64" {
             anyhow::bail!(
                 "Lemminx does not provide prebuilt {arch}-binaries for {os_name} to fetch from GitHub. Consider installing the binary manually."
             )
