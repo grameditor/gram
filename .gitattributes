@@ -1,5 +1,35 @@
-# Prevent GitHub from displaying comments within JSON files as errors.
-*.json linguist-language=JSON-with-Comments
+# .gitattributes
 
-# Ensure the WSL script always has LF line endings, even on Windows
-crates/gram/resources/windows/gram.sh text eol=lf
+# Aliases
+[attr]lfs filter=lfs diff=lfs merge=lfs -text
+[attr]crlf eol=crlf
+
+# Normalize
+* text=auto eol=lf
+
+# Windows
+*.bat crlf
+*.ps1 crlf
+
+# LFS, binary files
+*.dll lfs
+*.exe lfs
+*.png lfs
+*.ttf lfs
+
+# Codeberg & GitHub: syntax hightlight...
+*.entitlements linguist-language=XML
+*.json         linguist-language=JSONC
+*.in           linguist-language=INI
+*.iss          linguist-language=INI
+*.plist        linguist-language=XML
+/script/*      linguist-language=SHELL
+/script/*.hbs  linguist-language=HANDLEBARS
+/script/*.ps1  linguist-language=POWERSHELL
+/script/*.py   linguist-language=PYTHON
+/script/*.toml linguist-language=TOML
+
+#... and statistics
+*.json         linguist-detectable
+*.jsonc        linguist-detectable
+# *.md         linguist-detectable
