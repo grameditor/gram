@@ -23,8 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add ability to rename terminal tabs (zed#45800)
 - Add Mermaid diagram support to Markdown preview (zed#49064)
 - Add ScrollToTop and ScrollToBottom actions in Markdown preview (zed#50460)
+- Add Kintsugi theme via [Giacomo Cavalieri][kintsugi]
 
 [poll]: https://github.com/lilith/zed/commit/0334469a57a20586b28b86187028acd36559a9d3
+[kintsugi]: https://github.com/giacomocavalieri/kintsugi-zed
 
 ### Removed
 
