@@ -649,6 +649,21 @@ pub struct TypeScriptVersions {
 impl LspInstaller for TypeScriptLspAdapter {
     type BinaryVersion = TypeScriptVersions;
 
+    async fn check_if_user_installed(
+        &self,
+        delegate: &dyn LspAdapterDelegate,
+        _: Option<Toolchain>,
+        _: &AsyncApp,
+    ) -> Option<LanguageServerBinary> {
+        let path = delegate.which(Self::SERVER_NAME.as_ref()).await?;
+
+        return Some(LanguageServerBinary {
+            path: path,
+            env: None,
+            arguments: vec!["--stdio".into()],
+        });
+    }
+
     async fn fetch_latest_server_version(
         &self,
         _: &dyn LspAdapterDelegate,

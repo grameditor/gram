@@ -66,6 +66,21 @@ impl EsLintLspAdapter {
 impl LspInstaller for EsLintLspAdapter {
     type BinaryVersion = GitHubLspBinaryVersion;
 
+    async fn check_if_user_installed(
+        &self,
+        delegate: &dyn LspAdapterDelegate,
+        _: Option<Toolchain>,
+        _: &AsyncApp,
+    ) -> Option<LanguageServerBinary> {
+        let path = delegate.which("eslint-language-server".as_ref()).await?;
+
+        return Some(LanguageServerBinary {
+            path: path,
+            env: None,
+            arguments: vec!["--stdio".into()],
+        });
+    }
+
     async fn fetch_latest_server_version(
         &self,
         _delegate: &dyn LspAdapterDelegate,
