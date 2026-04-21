@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add Mermaid diagram support to Markdown preview (zed#49064)
 - Add ScrollToTop and ScrollToBottom actions in Markdown preview (zed#50460)
 - Add Kintsugi theme via [Giacomo Cavalieri][kintsugi]
+- Add support for natively installed ESLint and Typescript LSPs (#229) by @brib
 
 [poll]: https://github.com/lilith/zed/commit/0334469a57a20586b28b86187028acd36559a9d3
 [kintsugi]: https://github.com/giacomocavalieri/kintsugi-zed
@@ -72,6 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Upgrade cosmic-text to 0.18.2 (#199) by @esotericwitch
 - Use SSH nicknames in display names (zed#53103)
 - Bump tree-sitter for fix to wasm loading of grammars w/ reserved words (zed#52856)
+- Update .gitattributes (#226) by @ivankopylov6603
 
 ## [1.2.1] - 2026-03-26
 
