@@ -44,31 +44,14 @@ Requires Leap 16 (or Tumbleweed/Slowroll) or later.
 
 ### Arch
 
-Gram maintains a `PKGBUILD` file that can be used to build an Arch package from a bundled tarball:
+Arch Linux publishes official packages for Gram in their [extra](https://archlinux.org/packages/extra/x86_64/gram/) repository.
 
 ```sh
-# Install dependencies
-sudo pacman -S base-devel pacman-contrib
-./script/linux
-# Build package
-./script/bundle-linux --tarball --arch
-# Install package
-sudo pacman -U target/${target}-${arch}/arch/gram-bin-${version}.pkg.tar.zst
+sudo pacman -S gram
 ```
 
-Alternatively, there are several packages published on the AUR:
-
-- [`gram-bin`](https://aur.archlinux.org/packages/gram-bin): Binary package
-- [`gram-editor-bin`](https://aur.archlinux.org/packages/gram-editor-bin): Binary package
-- [`gram-editor-git`](https://aur.archlinux.org/packages/gram-editor-git): Source package
-
-These are community efforts and may or may not be up-to-date. If you install packages from the AUR, it is your responsibility to verify their integrity yourself.
-
-Install one of the packages using, e.g., `paru` or another AUR helper of your choice:
-
-```sh
-paru -S gram-bin
-```
+Alternatively, to build and install a development snapshot from the latest Git HEAD, build the VCS package from the aur: [`gram-git`](https://aur.archlinux.org/packages/gram-git).
+If you install packages from the AUR, it is your responsibility to verify their integrity yourself.
 
 ## Flatpak
 
