@@ -1,6 +1,6 @@
 # gram
 
-```
+```ascii
     ████             ██████
    ██  ███           ██  ██
    ████████████████████████
@@ -67,7 +67,7 @@ releases](https://codeberg.org/GramEditor/gram/releases) page.
 
 ### Linux
 
-Linux installation instructions can be found [here](docs/linux.md).
+Linux installation instructions can be found here -> [docs/linux.md](docs/linux.md).
 
 ### Mac (homebrew)
 
