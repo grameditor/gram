@@ -219,8 +219,9 @@ if [[ -n $xbps ]]; then
     exit 0
 fi
 
-# Gentoo
-# https://packages.gentoo.org/
+# Gentoo GNU/Linux
+# https://packages.gentoo.org
+# See: https://codeberg.org/GramEditor/gram-gentoo for .ebuild
 emerge=$(command -v emerge || true)
 if [[ -n $emerge ]]; then
     deps=(

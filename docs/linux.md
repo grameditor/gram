@@ -2,8 +2,10 @@
 
 ## Distro Packages
 
-The preferred way to install is via adding a Gram repository file and installing from it. This provides the user with automatic updates once new packages are released. See instructions below.
-Alternatively, Gram provides prebuilt `.deb` and `.rpm` packages as release assets which can be downloaded [here](https://codeberg.org/GramEditor/gram/releases).
+The preferred way to install is via adding a Gram repository file and installing
+from it. This provides the user with automatic updates once new packages are
+released. See instructions below. Alternatively, Gram provides prebuilt `.deb`
+and `.rpm` packages as release assets which can be downloaded at [Gram releases](https://codeberg.org/GramEditor/gram/releases).
 
 ### Debian/Ubuntu
 
@@ -53,9 +55,25 @@ sudo pacman -S gram
 Alternatively, to build and install a development snapshot from the latest Git HEAD, build the VCS package from the aur: [`gram-git`](https://aur.archlinux.org/packages/gram-git).
 If you install packages from the AUR, it is your responsibility to verify their integrity yourself.
 
+### Gentoo GNU/Linux
+
+Gentoo provided by Gram's overlay.
+
+```sh
+# replace doas if you using sudo
+doas eselect repository add gram git https://codeberg.org/GramEditor/gram-gentoo.git
+doas emerge --sync gram
+doas emerge -av app-editors/gram
+```
+
+**Note**: For more information about Gentoo package and installation ways go to
+[Gram's overlay repo](https://codeberg.org/GramEditor/gram-gentoo).
+
 ## Flatpak
 
-Gram provides a prebuilt flatpak as a release asset. It can be downloaded from [here](https://codeberg.org/GramEditor/gram/releases) and installed by running:
+Gram provides a prebuilt flatpak as a release asset. It can be downloaded from
+at [Gram releases](https://codeberg.org/GramEditor/gram/releases) and installed
+by running:
 
 ```sh
 flatpak install /path/to/app.liten.Gram-x86_64-${version}.flatpak
@@ -63,21 +81,23 @@ flatpak install /path/to/app.liten.Gram-x86_64-${version}.flatpak
 
 ## From Tarball
 
-If there is a tarball available for your architecture at the [Gram Codeberg](https://codeberg.org/GramEditor/gram/releases) repository, you can follow these instructions:
+If there is a tarball available for your architecture at the
+[Gram Codeberg](https://codeberg.org/GramEditor/gram/releases) repository, you
+can follow these instructions:
 
 1. Download the [install.sh](https://codeberg.org/GramEditor/gram/raw/branch/main/script/install.sh) script.
 2. Run the script.
 
-   ```sh
-   ./install.sh
-   ```
+```sh
+./install.sh
+```
 
-   This will download latest release of Gram and install Gram to `$HOME/.local`.
-   To install system-wide, use the `--prefix PREFIX` argument:
+This will download latest release of Gram and install Gram to `$HOME/.local`.
+To install system-wide, use the `--prefix PREFIX` argument:
 
-   ```sh
-   ./install.sh --prefix /usr/local ./gram-linux-x86_64-1.1.0.tar.gz
-   ```
+```sh
+./install.sh --prefix /usr/local ./gram-linux-x86_64-1.1.0.tar.gz
+```
 
 ## From Source
 
@@ -93,7 +113,7 @@ Gram requires a GPU to run effectively. Under the hood, it uses [Vulkan](https:/
 
 If you see a notification saying `Gram failed to open a window: NoSupportedDeviceFound` this means that Vulkan cannot find a compatible GPU. Try running [vkcube](https://github.com/krh/vkcube) (usually available as part of the `vulkaninfo` or `vulkan-tools` package on various distributions) to troubleshoot where the issue is coming from like so:
 
-```
+```text
 vkcube
 ```
 
@@ -127,13 +147,13 @@ You can use the `GRAM_DEVICE_ID={device_id}` environment variable to specify the
 
 You can obtain the device ID of your GPU by running `lspci -nn | grep VGA` which will output each GPU on one line like:
 
-```
+```sh
 08:00.0 VGA compatible controller [0300]: NVIDIA Corporation GA104 [GeForce RTX 3070] [10de:2484] (rev a1)
 ```
 
 where the device ID here is `2484`. This value is in hexadecimal, so to force Gram to use this specific GPU you would set the environment variable like so:
 
-```
+```sh
 GRAM_DEVICE_ID=0x2484 gram
 ```
 
