@@ -11643,7 +11643,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-cpp"
 version = "0.23.4"
-source = "git+https://github.com/tree-sitter/tree-sitter-cpp?branch=master#8b5b49eb196bec7040441bee33b2c9a4838d6967"
+source = "git+https://github.com/tree-sitter/tree-sitter-cpp?rev=8b5b49eb196bec7040441bee33b2c9a4838d6967#8b5b49eb196bec7040441bee33b2c9a4838d6967"
 dependencies = [
  "cc",
  "tree-sitter-language",
@@ -11691,8 +11691,8 @@ dependencies = [
 
 [[package]]
 name = "tree-sitter-erlang"
-version = "0.15.0"
-source = "git+https://github.com/WhatsApp/tree-sitter-erlang?branch=main#1d78195c4fbb1fc027eb3e4220427f1eb8bfc89e"
+version = "0.16.0"
+source = "git+https://github.com/WhatsApp/tree-sitter-erlang?rev=2ace143dea47c872b334660956742dda4efa4ea3#2ace143dea47c872b334660956742dda4efa4ea3"
 dependencies = [
  "cc",
  "tree-sitter-language",
@@ -11701,7 +11701,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-git-rebase"
 version = "0.1.0"
-source = "git+https://github.com/the-mikedavis/tree-sitter-git-rebase?branch=main#760ba8e34e7a68294ffb9c495e1388e030366188"
+source = "git+https://github.com/the-mikedavis/tree-sitter-git-rebase?rev=3db1f61fb928433381253bc5159c40f7d10c57b1#3db1f61fb928433381253bc5159c40f7d10c57b1"
 dependencies = [
  "cc",
  "tree-sitter-language",
@@ -11710,7 +11710,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-gitcommit"
 version = "0.5.0"
-source = "git+https://github.com/gbprod/tree-sitter-gitcommit?branch=main#33fe8548abcc6e374feaac5724b5a2364bf23090"
+source = "git+https://github.com/gbprod/tree-sitter-gitcommit?rev=fae7e726b8ea7f669264887aa8d9d7e9dffa8a5e#fae7e726b8ea7f669264887aa8d9d7e9dffa8a5e"
 dependencies = [
  "cc",
  "tree-sitter-language",
@@ -11719,7 +11719,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-gleam"
 version = "1.0.0"
-source = "git+https://github.com/gleam-lang/tree-sitter-gleam?branch=main#1627dc5101e63bf19717c540a56df5ef20b1fc7a"
+source = "git+https://github.com/gleam-lang/tree-sitter-gleam?rev=1627dc5101e63bf19717c540a56df5ef20b1fc7a#1627dc5101e63bf19717c540a56df5ef20b1fc7a"
 dependencies = [
  "cc",
  "tree-sitter-language",
@@ -11738,7 +11738,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-gomod"
 version = "1.1.1"
-source = "git+https://github.com/camdencheek/tree-sitter-go-mod?branch=main#2e886870578eeba1927a2dc4bd2e2b3f598c5f9a"
+source = "git+https://github.com/camdencheek/tree-sitter-go-mod?rev=2e886870578eeba1927a2dc4bd2e2b3f598c5f9a#2e886870578eeba1927a2dc4bd2e2b3f598c5f9a"
 dependencies = [
  "cc",
  "tree-sitter-language",
@@ -11747,7 +11747,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-gowork"
 version = "0.0.1"
-source = "git+https://github.com/zed-industries/tree-sitter-go-work?branch=main#acb0617bf7f4fda02c6217676cc64acb89536dc7"
+source = "git+https://github.com/zed-industries/tree-sitter-go-work?rev=acb0617bf7f4fda02c6217676cc64acb89536dc7#acb0617bf7f4fda02c6217676cc64acb89536dc7"
 dependencies = [
  "cc",
  "tree-sitter-language",
@@ -11766,7 +11766,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-heex"
 version = "0.9.0"
-source = "git+https://github.com/phoenixframework/tree-sitter-heex?branch=main#5842537f734d7c12685bf27d6005313e3e5a47a0"
+source = "git+https://github.com/phoenixframework/tree-sitter-heex?rev=5842537f734d7c12685bf27d6005313e3e5a47a0#5842537f734d7c12685bf27d6005313e3e5a47a0"
 dependencies = [
  "cc",
  "tree-sitter-language",
@@ -11811,7 +11811,7 @@ checksum = "009994f150cc0cd50ff54917d5bc8bffe8cad10ca10d81c34da2ec421ae61782"
 [[package]]
 name = "tree-sitter-lua"
 version = "0.5.0"
-source = "git+https://github.com/tree-sitter-grammars/tree-sitter-lua?branch=main#10fe0054734eec83049514ea2e718b2a56acd0c9"
+source = "git+https://github.com/tree-sitter-grammars/tree-sitter-lua?rev=10fe0054734eec83049514ea2e718b2a56acd0c9#10fe0054734eec83049514ea2e718b2a56acd0c9"
 dependencies = [
  "cc",
  "tree-sitter-language",
@@ -11820,7 +11820,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-md"
 version = "0.5.3"
-source = "git+https://github.com/tree-sitter-grammars/tree-sitter-markdown?branch=split_parser#f969cd3ae3f9fbd4e43205431d0ae286014c05b5"
+source = "git+https://github.com/tree-sitter-grammars/tree-sitter-markdown?rev=f969cd3ae3f9fbd4e43205431d0ae286014c05b5#f969cd3ae3f9fbd4e43205431d0ae286014c05b5"
 dependencies = [
  "cc",
  "tree-sitter-language",
@@ -11829,7 +11829,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-nix"
 version = "0.3.0"
-source = "git+https://github.com/nix-community/tree-sitter-nix?branch=master#eabf96807ea4ab6d6c7f09b671a88cd483542840"
+source = "git+https://github.com/nix-community/tree-sitter-nix?rev=eabf96807ea4ab6d6c7f09b671a88cd483542840#eabf96807ea4ab6d6c7f09b671a88cd483542840"
 dependencies = [
  "cc",
  "tree-sitter-language",
@@ -11838,7 +11838,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-odin"
 version = "1.3.0"
-source = "git+https://github.com/tree-sitter-grammars/tree-sitter-odin?branch=master#d2ca8efb4487e156a60d5bd6db2598b872629403"
+source = "git+https://github.com/tree-sitter-grammars/tree-sitter-odin?rev=d2ca8efb4487e156a60d5bd6db2598b872629403#d2ca8efb4487e156a60d5bd6db2598b872629403"
 dependencies = [
  "cc",
  "tree-sitter-language",
@@ -11887,7 +11887,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-scheme"
 version = "0.24.7-1"
-source = "git+https://github.com/6cdh/tree-sitter-scheme?branch=main#c6cb7c7d7a04b3f5d999c28e2e9c0c31b2d50ece"
+source = "git+https://github.com/6cdh/tree-sitter-scheme?rev=c6cb7c7d7a04b3f5d999c28e2e9c0c31b2d50ece#c6cb7c7d7a04b3f5d999c28e2e9c0c31b2d50ece"
 dependencies = [
  "cc",
  "tree-sitter-language",
@@ -11896,7 +11896,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-sequel"
 version = "0.3.11"
-source = "git+https://github.com/DerekStride/tree-sitter-sql?branch=gh-pages#851e9cb257ba7c66cc8c14214a31c44d2f1e954e"
+source = "git+https://github.com/DerekStride/tree-sitter-sql?rev=851e9cb257ba7c66cc8c14214a31c44d2f1e954e#851e9cb257ba7c66cc8c14214a31c44d2f1e954e"
 dependencies = [
  "cc",
  "tree-sitter-language",
@@ -11924,7 +11924,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-yaml"
 version = "0.6.1"
-source = "git+https://github.com/zed-industries/tree-sitter-yaml?branch=master#baff0b51c64ef6a1fb1f8390f3ad6015b83ec13a"
+source = "git+https://github.com/zed-industries/tree-sitter-yaml?rev=baff0b51c64ef6a1fb1f8390f3ad6015b83ec13a#baff0b51c64ef6a1fb1f8390f3ad6015b83ec13a"
 dependencies = [
  "cc",
  "tree-sitter-language",
@@ -11933,7 +11933,7 @@ dependencies = [
 [[package]]
 name = "tree-sitter-zig"
 version = "1.1.2"
-source = "git+https://github.com/tree-sitter-grammars/tree-sitter-zig?branch=master#6479aa13f32f701c383083d8b28360ebd682fb7d"
+source = "git+https://github.com/tree-sitter-grammars/tree-sitter-zig?rev=6479aa13f32f701c383083d8b28360ebd682fb7d#6479aa13f32f701c383083d8b28360ebd682fb7d"
 dependencies = [
  "cc",
  "tree-sitter-language",
