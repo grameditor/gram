@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove emmyluadoc tree-sitter grammar; it can be pulled in via extension instead
 - Remove avatar from git graph
 - Remove download support for superhtml on Linux (#194)
+- Remove Windows OpenConsole.exe binary from source code tree
 
 ### Fixed
 
