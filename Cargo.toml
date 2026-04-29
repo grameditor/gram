@@ -334,10 +334,10 @@ async-compat = "0.2.1"
 async-compression = { version = "0.4", features = ["gzip", "futures-io"] }
 async-dispatcher = "0.1"
 async-fs = "2.1"
-async-lock = "2.8"
+async-lock = "3.4"
 async-pipe = { git = "https://github.com/zed-industries/async-pipe-rs", rev = "82d00a04211cf4e1236029aa03e6b6ce2a74c553" }
 async-recursion = "1.0.0"
-async-tar = "0.5.1"
+async-tar = "0.6.0"
 async-task = "4.7"
 async-trait = "0.1"
 async-tungstenite = "0.34.0"
@@ -349,8 +349,8 @@ bitflags = "2.6.0"
 brotli = "8.0.2"
 bytes = "1.0"
 cargo_metadata = "0.19"
-cargo_toml = "0.21"
-chardetng = "0.1"
+cargo_toml = "0.22"
+chardetng = "1.0"
 chrono = { version = "0.4", features = ["serde"] }
 circular-buffer = "1.0"
 clap = { version = "4.4", features = ["derive", "wrap_help"] }

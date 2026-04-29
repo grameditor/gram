@@ -4803,7 +4803,7 @@ impl BackgroundScanner {
             }
         }
 
-        for (path, metadata) in relative_paths.iter().zip(metadata.into_iter()) {
+        for (path, metadata) in relative_paths.iter().zip(metadata) {
             let abs_path: Arc<Path> = root_abs_path.join(path.as_std_path()).into();
             match metadata {
                 Ok(Some((metadata, canonical_path))) => {
@@ -6144,10 +6144,10 @@ fn decode_byte_full(
     }
 
     fn detect_encoding(bytes: Vec<u8>) -> (String, &'static Encoding) {
-        let mut detector = EncodingDetector::new();
+        let mut detector = EncodingDetector::new(chardetng::Iso2022JpDetection::Allow);
         detector.feed(&bytes, true);
 
-        let encoding = detector.guess(None, true); // Use None for TLD hint to ensure neutral detection logic.
+        let encoding = detector.guess(None, chardetng::Utf8Detection::Allow); // Use None for TLD hint to ensure neutral detection logic.
 
         let (cow, _, _) = encoding.decode(&bytes);
         (cow.into_owned(), encoding)
