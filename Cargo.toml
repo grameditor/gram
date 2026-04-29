@@ -110,7 +110,6 @@ members = [
     "crates/sqlez",
     "crates/sqlez_macros",
     "crates/story",
-    "crates/storybook",
     "crates/streaming_diff",
     "crates/sum_tree",
     "crates/svg_preview",
@@ -275,7 +274,6 @@ snippets_ui = { path = "crates/snippets_ui" }
 sqlez = { path = "crates/sqlez" }
 sqlez_macros = { path = "crates/sqlez_macros" }
 story = { path = "crates/story" }
-storybook = { path = "crates/storybook" }
 streaming_diff = { path = "crates/streaming_diff" }
 sum_tree = { path = "crates/sum_tree" }
 svg_preview = { path = "crates/svg_preview" }
@@ -360,11 +358,11 @@ core-foundation = "=0.10.0"
 core-foundation-sys = "0.8.6"
 core-video = { version = "0.4.3", features = ["metal"] }
 crash-handler = "0.7"
-criterion = { version = "0.5", features = ["html_reports"] }
+criterion = { version = "0.8", features = ["html_reports"] }
 ctor = "0.11.1"
 dap-types = { git = "https://github.com/zed-industries/dap-types", rev = "1b461b310481d01e02b2603c16d7144b926339f8" }
 dashmap = "6.1"
-derive_more = "0.99.17"
+derive_more = { version = "2.1", features = ["full"] }
 dirs = "4.0"
 documented = "0.9.1"
 dotenvy = "0.15.0"
