@@ -1,7 +1,6 @@
 # .gitattributes
 
 # Aliases
-[attr]lfs filter=lfs diff=lfs merge=lfs -text
 [attr]crlf eol=crlf
 
 # Normalize
@@ -10,12 +9,6 @@
 # Windows
 *.bat crlf
 *.ps1 crlf
-
-# LFS, binary files
-*.dll lfs
-*.exe lfs
-*.png lfs
-*.ttf lfs
 
 # Codeberg & GitHub: syntax hightlight...
 *.entitlements linguist-language=XML
