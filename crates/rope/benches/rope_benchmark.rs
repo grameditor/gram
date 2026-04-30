@@ -1,8 +1,6 @@
 use std::ops::Range;
 
-use criterion::{
-    BatchSize, BenchmarkId, Criterion, Throughput, black_box, criterion_group, criterion_main,
-};
+use criterion::{BatchSize, BenchmarkId, Criterion, Throughput, criterion_group, criterion_main};
 use rand::prelude::*;
 use rand::rngs::StdRng;
 use rope::{Point, Rope};
@@ -181,8 +179,8 @@ fn rope_benchmarks(c: &mut Criterion) {
                 || generate_random_rope_points(&mut rng, &rope),
                 |offsets| {
                     for offset in offsets.iter() {
-                        black_box(rope.clip_point(*offset, Bias::Left));
-                        black_box(rope.clip_point(*offset, Bias::Right));
+                        std::hint::black_box(rope.clip_point(*offset, Bias::Left));
+                        std::hint::black_box(rope.clip_point(*offset, Bias::Right));
                     }
                 },
                 BatchSize::SmallInput,
@@ -202,7 +200,7 @@ fn rope_benchmarks(c: &mut Criterion) {
                 || generate_random_rope_points(&mut rng, &rope),
                 |offsets| {
                     for offset in offsets.iter() {
-                        black_box(rope.point_to_offset(*offset));
+                        std::hint::black_box(rope.point_to_offset(*offset));
                     }
                 },
                 BatchSize::SmallInput,
@@ -230,7 +228,7 @@ fn rope_benchmarks(c: &mut Criterion) {
                 },
                 |offsets| {
                     for offset in offsets.iter() {
-                        black_box(rope.cursor(*offset));
+                        std::hint::black_box(rope.cursor(*offset));
                     }
                 },
                 BatchSize::SmallInput,
