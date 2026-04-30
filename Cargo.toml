@@ -359,7 +359,7 @@ core-foundation-sys = "0.8.6"
 core-video = { version = "0.4.3", features = ["metal"] }
 crash-handler = "0.7"
 criterion = { version = "0.8", features = ["html_reports"] }
-ctor = "0.11.1"
+ctor = "0.12"
 dap-types = { git = "https://github.com/zed-industries/dap-types", rev = "1b461b310481d01e02b2603c16d7144b926339f8" }
 dashmap = "6.1"
 derive_more = { version = "2.1", features = ["full"] }
@@ -513,34 +513,34 @@ time = { version = "0.3", features = [
     "local-offset",
 ] }
 tokio = { version = "1" }
-toml = "0.8"
+toml = "1.1"
 trash = "5.2"
 tree-sitter = { version = "0.26.8", features = ["wasm"] }
 tree-sitter-bash = "0.25.1"
 tree-sitter-c = "0.24.1"
 tree-sitter-cpp = { git = "https://github.com/tree-sitter/tree-sitter-cpp", rev = "8b5b49eb196bec7040441bee33b2c9a4838d6967" }
-tree-sitter-css = "0.23"
+tree-sitter-css = "0.25"
 tree-sitter-diff = "0.1.0"
 tree-sitter-elixir = "0.3"
-tree-sitter-embedded-template = "0.23.0"
+tree-sitter-embedded-template = "0.25"
 tree-sitter-erlang = { git = "https://github.com/WhatsApp/tree-sitter-erlang", rev = "2ace143dea47c872b334660956742dda4efa4ea3" }
 tree-sitter-gitcommit = { git = "https://github.com/gbprod/tree-sitter-gitcommit", rev = "fae7e726b8ea7f669264887aa8d9d7e9dffa8a5e" }
 tree-sitter-git-rebase = { git = "https://github.com/the-mikedavis/tree-sitter-git-rebase", rev = "3db1f61fb928433381253bc5159c40f7d10c57b1" }
 tree-sitter-gleam = { git = "https://github.com/gleam-lang/tree-sitter-gleam", rev = "1627dc5101e63bf19717c540a56df5ef20b1fc7a" }
-tree-sitter-go = "0.23"
+tree-sitter-go = "0.25"
 tree-sitter-go-mod = { git = "https://github.com/camdencheek/tree-sitter-go-mod", rev = "2e886870578eeba1927a2dc4bd2e2b3f598c5f9a", package = "tree-sitter-gomod" }
 tree-sitter-gowork = { git = "https://github.com/zed-industries/tree-sitter-go-work", rev = "acb0617bf7f4fda02c6217676cc64acb89536dc7" }
 tree-sitter-hcl = "1.1.0"
 tree-sitter-heex = { git = "https://github.com/phoenixframework/tree-sitter-heex", rev = "5842537f734d7c12685bf27d6005313e3e5a47a0" }
 tree-sitter-html = "0.23"
-tree-sitter-jsdoc = "0.23"
+tree-sitter-jsdoc = "0.25"
 tree-sitter-json = "0.24"
 tree-sitter-lua = { git = "https://github.com/tree-sitter-grammars/tree-sitter-lua", rev = "10fe0054734eec83049514ea2e718b2a56acd0c9" }
 tree-sitter-nix = { git = "https://github.com/nix-community/tree-sitter-nix", rev = "eabf96807ea4ab6d6c7f09b671a88cd483542840" }
 tree-sitter-md = { git = "https://github.com/tree-sitter-grammars/tree-sitter-markdown", rev = "f969cd3ae3f9fbd4e43205431d0ae286014c05b5" }
 tree-sitter-odin = { git = "https://github.com/tree-sitter-grammars/tree-sitter-odin", rev = "d2ca8efb4487e156a60d5bd6db2598b872629403" }
 tree-sitter-python = "0.25"
-tree-sitter-regex = "0.24"
+tree-sitter-regex = "0.25"
 tree-sitter-ruby = "0.23"
 tree-sitter-rust = "0.24"
 tree-sitter-scheme = { git = "https://github.com/6cdh/tree-sitter-scheme", rev = "c6cb7c7d7a04b3f5d999c28e2e9c0c31b2d50ece" }
