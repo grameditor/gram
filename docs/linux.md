@@ -55,6 +55,15 @@ sudo pacman -S gram
 Alternatively, to build and install a development snapshot from the latest Git HEAD, build the VCS package from the aur: [`gram-git`](https://aur.archlinux.org/packages/gram-git).
 If you install packages from the AUR, it is your responsibility to verify their integrity yourself.
 
+### Alpine
+
+Alpine Linux publishes official packages for Gram in their [testing](https://pkgs.alpinelinux.org/package/edge/testing/x86_64/gram) repository.
+Follow the [instructions](https://wiki.alpinelinux.org/wiki/Repositories#Using_testing_repository) to enable the testing repository, then run
+
+```sh
+doas apk add gram@testing
+```
+
 ### Gentoo GNU/Linux
 
 Gentoo provided by Gram's overlay.

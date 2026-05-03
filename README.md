@@ -113,13 +113,18 @@ To build a Flatpak, you'll need flatpak installed.
 ./script/flatpak/bundle-flatpak
 ```
 
-On Arch Linux and Arch-based distributions, Gram is available in the
-[AUR](https://aur.archlinux.org/packages/gram).
-
-Install it using `paru` or another AUR helper of your choice:
+On Arch Linux, Gram is available in the [`[extra]` repository](https://archlinux.org/packages/extra/x86_64/gram/).
+Install it using `pacman`:
 
 ```sh
-paru -S gram
+pacman -S gram
+```
+
+On Alpine Linux, Gram is available in the [`[testing]` repository](https://pkgs.alpinelinux.org/package/edge/testing/x86_64/gram).
+Follow the [instructions](https://wiki.alpinelinux.org/wiki/Repositories#Using_testing_repository) to enable the testing repo, then install it using `apk`:
+
+``` sh
+apk add gram@testing
 ```
 
 #### Note on Linux and Intel GPUs
