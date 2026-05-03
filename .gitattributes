@@ -1,28 +1,28 @@
-# .gitattributes
-
-# Aliases
 [attr]crlf eol=crlf
 
-# Normalize
 * text=auto eol=lf
 
-# Windows
 *.bat crlf
 *.ps1 crlf
 
-# Codeberg & GitHub: syntax hightlight...
-*.entitlements linguist-language=XML
-*.json         linguist-language=JSONC
-*.in           linguist-language=INI
-*.iss          linguist-language=INI
-*.plist        linguist-language=XML
-/script/*      linguist-language=SHELL
-/script/*.hbs  linguist-language=HANDLEBARS
-/script/*.ps1  linguist-language=POWERSHELL
-/script/*.py   linguist-language=PYTHON
-/script/*.toml linguist-language=TOML
-
-#... and statistics
-*.json         linguist-detectable
-*.jsonc        linguist-detectable
-# *.md         linguist-detectable
+# SHELL -> Shell, json -> JSON
+*.entitlements     linguist-language=XML
+*.git*             linguist-language=Shell
+*.in               linguist-language=Shell
+*.isl              linguist-vendored
+*.json             linguist-detectable
+*.jsonc            linguist-language=JSON
+*.plist            linguist-language=XML
+*.prettierignore   linguist-language=Shell
+*.prettierrc       linguist-language=JSON
+*.provisionprofile linguist-vendored
+*.wit              linguist-language=WebAssembly
+*.xml              linguist-detectable
+*.yaml             linguist-detectable
+*.yml              linguist-language=YAML
+cargo.lock         linguist-language=TOML
+/script/*          linguist-language=Shell
+/script/*.hbs      linguist-language=Handlebars
+/script/*.ps1      linguist-language=PowerShell
+/script/*.py       linguist-language=Python
+/script/*.toml     linguist-language=TOML
