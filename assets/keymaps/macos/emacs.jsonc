@@ -161,7 +161,8 @@
       "ctrl-x ctrl-f": "file_finder::Toggle", // find-file
       "ctrl-x ctrl-s": "workspace::Save", // save-buffer
       "ctrl-x ctrl-w": "workspace::SaveAs", // write-file
-      "ctrl-x s": "workspace::SaveAll" // save-some-buffers
+      "ctrl-x s": "workspace::SaveAll", // save-some-buffers
+      "ctrl-x g": "git_panel::ToggleFocus" // magit-status
     }
   },
   {
