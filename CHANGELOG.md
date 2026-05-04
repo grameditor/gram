@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Autoclose quotes in SQL (#183)
 - Add ctrl-x g to toggle Git panel in Emacs keymap (#154)
 - Update Arch Linux in readme; Add Alpine Linux (#249) by @msrd0
+- Open file by absolute path in file finder (#212)
 
 [poll]: https://github.com/lilith/zed/commit/0334469a57a20586b28b86187028acd36559a9d3
 [kintsugi]: https://github.com/giacomocavalieri/kintsugi-zed

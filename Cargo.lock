@@ -3270,6 +3270,7 @@ dependencies = [
  "serde",
  "serde_json",
  "settings",
+ "shellexpand",
  "text",
  "theme",
  "ui",

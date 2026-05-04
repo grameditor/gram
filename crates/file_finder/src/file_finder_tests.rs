@@ -3276,6 +3276,7 @@ fn collect_search_matches(picker: &Picker<FileFinderDelegate>) -> SearchEntries 
                     .push(path_match.0.path_prefix.join(&path_match.0.path));
                 search_entries.search_matches.push(path_match.0.clone());
             }
+            Match::OpenPath(_) => {}
             Match::CreateNew(_) => {}
         }
     }
@@ -3310,6 +3311,7 @@ fn assert_match_at_position(
     let match_file_name = match &match_item {
         Match::History { path, .. } => path.absolute.file_name().and_then(|s| s.to_str()),
         Match::Search(path_match) => path_match.0.path.file_name(),
+        Match::OpenPath(path) => path.path.file_name().and_then(|s| s.to_str()),
         Match::CreateNew(project_path) => project_path.path.file_name(),
     }
     .unwrap();

@@ -27,6 +27,7 @@ schemars.workspace = true
 search.workspace = true
 settings.workspace = true
 serde.workspace = true
+shellexpand.workspace = true
 text.workspace = true
 theme.workspace = true
 ui.workspace = true

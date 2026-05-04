@@ -326,21 +326,24 @@ impl FileFinder {
                 let path = match &m {
                     Match::History { path, .. } => {
                         let worktree_id = path.project.worktree_id;
-                        ProjectPath {
+                        Some(ProjectPath {
                             worktree_id,
                             path: Arc::clone(&path.project.path),
-                        }
+                        })
                     }
-                    Match::Search(m) => ProjectPath {
+                    Match::Search(m) => Some(ProjectPath {
                         worktree_id: WorktreeId::from_usize(m.0.worktree_id),
                         path: m.0.path.clone(),
-                    },
-                    Match::CreateNew(p) => p.clone(),
+                    }),
+                    Match::CreateNew(p) => Some(p.clone()),
+                    Match::OpenPath(_) => None,
                 };
-                let open_task = workspace.update(cx, move |workspace, cx| {
-                    workspace.split_path_preview(path, false, Some(split_direction), window, cx)
-                });
-                open_task.detach_and_log_err(cx);
+                if let Some(path) = path {
+                    let open_task = workspace.update(cx, move |workspace, cx| {
+                        workspace.split_path_preview(path, false, Some(split_direction), window, cx)
+                    });
+                    open_task.detach_and_log_err(cx);
+                }
             }
         })
     }
@@ -446,6 +449,11 @@ impl PartialOrd for ProjectPanelOrdMatch {
     }
 }
 
+#[derive(Clone, Debug, Eq, PartialEq, Hash, PartialOrd, Ord)]
+pub struct ExternalPath {
+    pub path: Arc<PathBuf>,
+}
+
 #[derive(Debug, Default)]
 struct Matches {
     separate_history: bool,
@@ -459,6 +467,7 @@ enum Match {
         panel_match: Option<ProjectPanelOrdMatch>,
     },
     Search(ProjectPanelOrdMatch),
+    OpenPath(ExternalPath),
     CreateNew(ProjectPath),
 }
 
@@ -467,6 +476,7 @@ impl Match {
         match self {
             Match::History { path, .. } => Some(&path.project.path),
             Match::Search(panel_match) => Some(&panel_match.0.path),
+            Match::OpenPath(_) => None,
             Match::CreateNew(_) => None,
         }
     }
@@ -481,6 +491,7 @@ impl Match {
                     .read(cx)
                     .absolutize(&path_match.path),
             ),
+            Match::OpenPath(path) => Some((*path.path).clone()),
             Match::CreateNew(_) => None,
         }
     }
@@ -489,6 +500,7 @@ impl Match {
         match self {
             Match::History { panel_match, .. } => panel_match.as_ref(),
             Match::Search(panel_match) => Some(panel_match),
+            Match::OpenPath(_) => None,
             Match::CreateNew(_) => None,
         }
     }
@@ -601,10 +613,7 @@ impl Matches {
         // We build a sorted Vec<Match>, eliminating duplicate search matches.
         // Search matches with the same paths should have equal `ProjectPanelOrdMatch`, so we should
         // not have any duplicates after building the final list.
-        for new_match in new_history_matches
-            .into_values()
-            .chain(new_search_matches.into_iter())
-        {
+        for new_match in new_history_matches.into_values().chain(new_search_matches) {
             match self.position(&new_match, currently_opened) {
                 Ok(_duplicate) => continue,
                 Err(i) => {
@@ -624,10 +633,12 @@ impl Matches {
         a: &Match,
         b: &Match,
     ) -> cmp::Ordering {
-        // Handle CreateNew variant - always put it at the end
+        // Handle CreateNew/OpenPath variants - always put it at the end
         match (a, b) {
             (Match::CreateNew(_), _) => return cmp::Ordering::Less,
             (_, Match::CreateNew(_)) => return cmp::Ordering::Greater,
+            (Match::OpenPath(_), _) => return cmp::Ordering::Less,
+            (_, Match::OpenPath(_)) => return cmp::Ordering::Greater,
             _ => {}
         }
         debug_assert!(a.panel_match().is_some() && b.panel_match().is_some());
@@ -999,11 +1010,22 @@ impl FileFinderDelegate {
                     expect_worktree = self.project.read(cx).worktree_for_id(worktree_id, cx);
                 }
 
+                let expanded = PathBuf::from(shellexpand::tilde(&query.raw_query).as_ref());
+                let is_file = expanded.is_file();
+                if is_file {
+                    self.matches.matches.push(Match::OpenPath(ExternalPath {
+                        path: Arc::from(expanded),
+                    }));
+                }
+
                 if let Some(worktree) = expect_worktree {
                     let worktree = worktree.read(cx);
                     if worktree.entry_for_path(&query_path).is_none()
                         && !query.raw_query.ends_with("/")
                         && !(path_style.is_windows() && query.raw_query.ends_with("\\"))
+                        && !query.raw_query.starts_with("/")
+                        && !query.raw_query.starts_with("~")
+                        && !is_file
                     {
                         self.matches.matches.push(Match::CreateNew(ProjectPath {
                             worktree_id: worktree.id(),
@@ -1078,6 +1100,12 @@ impl FileFinderDelegate {
                     }
                 }
                 Match::Search(path_match) => self.labels_for_path_match(&path_match.0, path_style),
+                Match::OpenPath(external_path) => (
+                    format!("Open {}", (*external_path.path).display()),
+                    vec![],
+                    String::from(""),
+                    vec![],
+                ),
                 Match::CreateNew(project_path) => (
                     format!("Create file: {}", project_path.path.display(path_style)),
                     vec![],
@@ -1421,6 +1449,11 @@ impl PickerDelegate for FileFinderDelegate {
             let raw_query = raw_query.trim().trim_end_matches(':').to_owned();
             let path = path_position.path.clone();
             let path_str = path_position.path.to_str();
+            let is_absolute_path = if let Some(path_str) = path_str {
+                PathBuf::from(shellexpand::tilde(path_str).as_ref()).is_absolute()
+            } else {
+                path.is_absolute()
+            };
             let path_trimmed = path_str.unwrap_or(&raw_query).trim_end_matches(':');
             let file_query_end = if path_trimmed == raw_query {
                 None
@@ -1437,7 +1470,6 @@ impl PickerDelegate for FileFinderDelegate {
 
             cx.spawn_in(window, async move |this, cx| {
                 let _ = maybe!(async move {
-                    let is_absolute_path = path.is_absolute();
                     let did_resolve_abs_path = is_absolute_path
                         && this
                             .update_in(cx, |this, window, cx| {
@@ -1516,6 +1548,24 @@ impl PickerDelegate for FileFinderDelegate {
                                 true,
                                 false,
                                 true,
+                                window,
+                                cx,
+                            )
+                        }
+                    }
+
+                    Match::OpenPath(external_path) => {
+                        if secondary {
+                            workspace.split_abs_path(
+                                (*external_path.path).clone(),
+                                false,
+                                window,
+                                cx,
+                            )
+                        } else {
+                            workspace.open_abs_path(
+                                (*external_path.path).clone(),
+                                Default::default(),
                                 window,
                                 cx,
                             )
@@ -1624,6 +1674,19 @@ impl PickerDelegate for FileFinderDelegate {
                 .flex_none()
                 .size(IconSize::Small.rems())
                 .into_any_element(),
+            Match::OpenPath(external_path) => {
+                let path = (*external_path.path).as_path();
+                Icon::new(if path.is_file() {
+                    IconName::File
+                } else if path.is_dir() {
+                    IconName::Folder
+                } else {
+                    IconName::FolderSearch
+                })
+                .color(Color::Muted)
+                .size(IconSize::Small)
+                .into_any_element()
+            }
             Match::CreateNew(_) => Icon::new(IconName::Plus)
                 .color(Color::Muted)
                 .size(IconSize::Small)
