@@ -25,6 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add ScrollToTop and ScrollToBottom actions in Markdown preview (zed#50460)
 - Add Kintsugi theme via [Giacomo Cavalieri][kintsugi]
 - Add support for natively installed ESLint and Typescript LSPs (#229) by @brib
+- Autoclose quotes in SQL (#183)
+- Add ctrl-x g to toggle Git panel in Emacs keymap (#154)
+- Update Arch Linux in readme; Add Alpine Linux (#249) by @msrd0
 
 [poll]: https://github.com/lilith/zed/commit/0334469a57a20586b28b86187028acd36559a9d3
 [kintsugi]: https://github.com/giacomocavalieri/kintsugi-zed
@@ -64,6 +67,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Prevent stack overflows in Markdown parsing (zed#51637)
 - Fix Markdown preview not re-rendering on external change (zed#50583)
 - Fix table wrapping behaviour in Markdown preview (zed#50839)
+- Make non-zero number fields editable in settings (#232)
+- fix: .gitattributes stats, update langs case by @koru (#257)
 
 ### Changed
 
