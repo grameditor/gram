@@ -477,8 +477,8 @@ fn init_renderers(cx: &mut App) {
         .add_basic_renderer::<u32>(render_editable_number_field)
         .add_basic_renderer::<u64>(render_editable_number_field)
         .add_basic_renderer::<usize>(render_editable_number_field)
-        .add_basic_renderer::<NonZero<usize>>(render_number_field)
-        .add_basic_renderer::<NonZeroU32>(render_number_field)
+        .add_basic_renderer::<NonZero<usize>>(render_editable_number_field)
+        .add_basic_renderer::<NonZeroU32>(render_editable_number_field)
         .add_basic_renderer::<settings::CodeFade>(render_editable_number_field)
         .add_basic_renderer::<settings::DelayMs>(render_editable_number_field)
         .add_basic_renderer::<gpui::FontWeight>(render_editable_number_field)
@@ -3602,35 +3602,6 @@ fn render_toggle_button<B: Into<bool> + From<bool> + Copy>(
                 let state = *state == ui::ToggleState::Selected;
                 update_settings_file(file.clone(), field.json_path, cx, move |settings, _cx| {
                     (field.write)(settings, Some(state.into()));
-                })
-                .log_err(); // todo(settings_ui) don't log err
-            }
-        })
-        .into_any_element()
-}
-
-fn render_number_field<T: NumberFieldType + Send + Sync>(
-    field: SettingField<T>,
-    file: SettingsUiFile,
-    _metadata: Option<&SettingsFieldMetadata>,
-    window: &mut Window,
-    cx: &mut App,
-) -> AnyElement {
-    let (_, value) = SettingsStore::global(cx).get_value_from_file(file.to_settings(), field.pick);
-    let value = value.copied().unwrap_or_else(T::min_value);
-
-    let id = field
-        .json_path
-        .map(|p| format!("numeric_stepper_{}", p))
-        .unwrap_or_else(|| "numeric_stepper".to_string());
-
-    NumberField::new(id, value, window, cx)
-        .tab_index(0_isize)
-        .on_change({
-            move |value, _window, cx| {
-                let value = *value;
-                update_settings_file(file.clone(), field.json_path, cx, move |settings, _cx| {
-                    (field.write)(settings, Some(value));
                 })
                 .log_err(); // todo(settings_ui) don't log err
             }
