@@ -44,7 +44,7 @@ subscription fees.
 
 We promise:
 
-- NO AI
+- NO AI (see note below)
 - NO TELEMETRY
 - NO PROPRIETARY "COLLABORATION"
 - NO CLA
@@ -54,6 +54,18 @@ We promise:
 - NO AUTOMATIC INSTALLATION OR UPDATES
 
 For more thoughts on this topic, see the [mission statement](./docs/mission.md).
+
+## Note on AI in Gram
+
+Gram has no AI features in the form of LLM integration, and does not accept
+AI-generated code contributions. However, Gram is a fork of Zed which does not
+have any such policy, does contain AI features and whose codebase is more or
+less generated or otherwise made using LLMs. The generated code from Zed has to
+a large extent not been removed or replaced unless it was part of features
+removed from Gram. Thus, Gram fails the "smell-test" of checking for Claude as a
+contributor for example.
+
+Some patches have been merged from upstream after the fork.
 
 ## Links
 
