@@ -740,7 +740,7 @@ where
                 );
             };
             
-            if binary_options.disable_auto_update {  
+            if !binary_options.enable_auto_updates {  
                 if let Some(cached) = self  
                     .cached_server_binary(container_dir.to_path_buf(), delegate.as_ref())  
                     .await  

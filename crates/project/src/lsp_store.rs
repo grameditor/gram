@@ -609,11 +609,11 @@ impl LocalLspStore {
                 .as_ref()
                 .and_then(|b| b.allow_binary_download)
                 .unwrap_or_default(),
-            disable_auto_update: settings
+            enable_auto_updates: settings
                 .binary
                 .as_ref()
-                .and_then(|b| b.disable_auto_update)
-                .unwrap_or_default(),
+                .and_then(|b| b.enable_auto_updates)
+                .unwrap_or(false),
             pre_release: settings
                 .fetch
                 .as_ref()

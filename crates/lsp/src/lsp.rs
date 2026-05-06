@@ -77,7 +77,7 @@ pub struct LanguageServerBinaryOptions {
     /// Whether the adapter should download its own version
     pub allow_binary_download: bool,
     /// Whether the adapter should disable auto-update
-    pub disable_auto_update: bool,
+    pub enable_auto_updates: bool,
     /// Whether the adapter should download a pre-release version
     pub pre_release: bool,
 }
