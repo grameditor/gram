@@ -695,20 +695,20 @@ pub fn diagnostics_markdown_style(window: &Window, cx: &App) -> MarkdownStyle {
             ..Default::default()
         },
         link: TextStyleRefinement {
-            color: Some(cx.theme().colors().text_accent),
+            color: Some(cx.theme().colors().editor_foreground),
             underline: Some(gpui::UnderlineStyle {
                 thickness: px(1.),
-                color: Some(cx.theme().colors().text_accent),
+                color: Some(cx.theme().colors().editor_foreground),
                 wavy: false,
             }),
             ..Default::default()
         },
         syntax: cx.theme().syntax().clone(),
         selection_background_color: cx.theme().colors().element_selection_background,
-        height_is_multiple_of_line_height: false,
+        height_is_multiple_of_line_height: true,
         heading: StyleRefinement::default()
             .font_weight(FontWeight::BOLD)
-            .text_lg()
+            .text_base()
             .mb_0(),
         table_columns_min_size: true,
         ..Default::default()

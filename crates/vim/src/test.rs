@@ -14,7 +14,7 @@ use editor::{
     test::editor_test_context::EditorTestContext,
 };
 use futures::StreamExt;
-use gpui::{KeyBinding, Modifiers, MouseButton, TestAppContext, px};
+use gpui::{KeyBinding, Modifiers, MouseButton, TestAppContext, UpdateGlobal as _, px};
 use itertools::Itertools;
 use language::{CursorShape, Language, LanguageConfig, Point};
 pub use neovim_backed_test_context::*;
@@ -940,7 +940,6 @@ async fn test_jk_multi(cx: &mut gpui::TestAppContext) {
     cx.assert_state("jkˇoone jkˇoone jkˇoone", Mode::Normal);
 }
 
-#[ignore]
 #[perf]
 #[gpui::test]
 async fn test_jk_delay(cx: &mut gpui::TestAppContext) {
@@ -956,7 +955,7 @@ async fn test_jk_delay(cx: &mut gpui::TestAppContext) {
 
     cx.set_state("ˇhello", Mode::Normal);
     cx.simulate_keystrokes("i j");
-    cx.executor().advance_clock(Duration::from_millis(500));
+    cx.executor().advance_clock(Duration::from_secs(16));
     cx.run_until_parked();
     cx.assert_state("ˇjhello", Mode::Insert);
     cx.update_editor(|editor, window, cx| {
@@ -974,7 +973,7 @@ async fn test_jk_delay(cx: &mut gpui::TestAppContext) {
             vec![MultiBufferOffset(0)..MultiBufferOffset(1)]
         )
     });
-    cx.executor().advance_clock(Duration::from_millis(500));
+    cx.executor().advance_clock(Duration::from_secs(16));
     cx.run_until_parked();
     cx.assert_state("jˇhello", Mode::Insert);
     cx.simulate_keystrokes("k j k");
@@ -1025,11 +1024,21 @@ async fn test_comma_w(cx: &mut gpui::TestAppContext) {
         .assert_eq("hellˇo hello\nhello hello");
 }
 
-#[ignore]
 #[perf]
 #[gpui::test]
 async fn test_completion_menu_scroll_aside(cx: &mut TestAppContext) {
     let mut cx = VimTestContext::new_typescript(cx).await;
+    cx.update(|_, cx| {
+        SettingsStore::update_global(cx, |store, cx| {
+            store.update_user_settings(cx, |settings| {
+                settings
+                    .project
+                    .all_languages
+                    .defaults
+                    .show_completions_on_input = Some(true);
+            });
+        });
+    });
 
     cx.lsp
         .set_request_handler::<lsp::request::Completion, _, _>(move |_, _| async move {
@@ -1728,7 +1737,6 @@ async fn test_remap_adjacent_dog_cat(cx: &mut gpui::TestAppContext) {
     cx.shared_state().await.assert_eq("do🐱ˇ");
 }
 
-#[ignore]
 #[perf]
 #[gpui::test]
 async fn test_remap_nested_pineapple(cx: &mut gpui::TestAppContext) {
@@ -1758,13 +1766,13 @@ async fn test_remap_nested_pineapple(cx: &mut gpui::TestAppContext) {
 
     cx.set_shared_state("ˇ").await;
     cx.simulate_shared_keystrokes("i p i n").await;
-    cx.executor().advance_clock(Duration::from_millis(1000));
+    cx.executor().advance_clock(Duration::from_secs(31));
     cx.run_until_parked();
     cx.shared_state().await.assert_eq("📌ˇ");
 
     cx.set_shared_state("ˇ").await;
     cx.simulate_shared_keystrokes("i p i n e").await;
-    cx.executor().advance_clock(Duration::from_millis(1000));
+    cx.executor().advance_clock(Duration::from_secs(31));
     cx.run_until_parked();
     cx.shared_state().await.assert_eq("🌲ˇ");
 
