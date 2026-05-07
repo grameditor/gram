@@ -142,6 +142,10 @@ pub struct ItemSettingsContent {
     ///
     /// Default: false
     pub show_close_button: Option<ShowCloseButton>,
+    /// Whether to show the unsaved changes indicator.  
+    ///   
+    /// Default: true  
+    pub show_unsaved_indicator: Option<bool>,
 }
 
 #[with_fallible_options]

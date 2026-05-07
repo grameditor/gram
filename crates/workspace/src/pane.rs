@@ -4295,6 +4295,11 @@ pub fn tab_details(items: &[Box<dyn ItemHandle>], _window: &Window, cx: &App) ->
 
 pub fn render_item_indicator(item: Box<dyn ItemHandle>, cx: &App) -> Option<Indicator> {
     maybe!({
+        let settings = ItemSettings::get_global(cx);
+        if !settings.show_unsaved_indicator {
+                return None;
+        } 
+
         let indicator_color = match (item.has_conflict(cx), item.is_dirty(cx)) {
             (true, _) => Color::Warning,
             (_, true) => Color::Accent,

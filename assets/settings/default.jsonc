@@ -905,7 +905,9 @@
     //    "errors"
     // 3. Mark files with errors and warnings:
     //    "all"
-    "show_diagnostics": "off"
+    "show_diagnostics": "off",
+    // Show or hide the unsaved changes indicator.
+    "show_unsaved_indicator": true,  
   },
   // Settings related to preview tabs.
   "preview_tabs": {

@@ -541,6 +541,7 @@ impl VsCodeSettings {
                         ShowCloseButton::Hidden
                     }
                 }),
+            show_unsaved_indicator: None, 
         })
     }
 
