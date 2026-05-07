@@ -13,7 +13,7 @@ use proto::{
     status_update::Status,
     update_language_server::Variant::{RegisteredForBuffer, StatusUpdate},
 };
-use settings::{Settings, SettingsStore};
+use settings::{BinarySettings, Settings, SettingsStore};
 use theme::Theme;
 use ui::{
     ActiveTheme as _, App, Context, IntoElement, Label, LabelSize, Render, Switch, ToggleState,
@@ -195,31 +195,6 @@ impl LspConfigView {
         this
     }
 
-    fn toggle_allow_download(
-        &mut self,
-        server_name: LanguageServerName,
-        window: &mut Window,
-        cx: &mut Context<Self>,
-    ) {
-        cx.update_global(|store: &mut SettingsStore, cx| {
-            store.update_settings_file(<dyn Fs>::global(cx), move |settings, _cx| {
-                let lsp_settings = settings
-                    .project
-                    .lsp
-                    .0
-                    .entry(Arc::from(server_name.0.as_ref()))
-                    .or_insert_with(Default::default);
-
-                let binary = lsp_settings.binary.get_or_insert_with(Default::default);
-                binary.allow_binary_download =
-                    Some(!binary.allow_binary_download.unwrap_or_default());
-            });
-        });
-
-        window.refresh();
-        cx.notify();
-    }
-
     fn toggle_allow_download_node(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         cx.update_global(|store: &mut SettingsStore, cx| {
             store.update_settings_file(<dyn Fs>::global(cx), move |settings, _cx| {
@@ -232,12 +207,15 @@ impl LspConfigView {
         cx.notify();
     }
 
-    fn toggle_ignore_system_version(
+    fn update_binary_setting<F>(
         &mut self,
         server_name: LanguageServerName,
+        updater: F,
         window: &mut Window,
         cx: &mut Context<Self>,
-    ) {
+    ) where
+        F: FnOnce(&mut BinarySettings) -> () + std::marker::Send + 'static,
+    {
         cx.update_global(|store: &mut SettingsStore, cx| {
             store.update_settings_file(<dyn Fs>::global(cx), move |settings, _cx| {
                 let lsp_settings = settings
@@ -248,8 +226,7 @@ impl LspConfigView {
                     .or_insert_with(Default::default);
 
                 let binary = lsp_settings.binary.get_or_insert_with(Default::default);
-                binary.ignore_system_version =
-                    Some(!binary.ignore_system_version.unwrap_or_default());
+                updater(binary);
             });
         });
 
@@ -324,14 +301,22 @@ impl LspConfigView {
                         .on_click({
                             let server_name = server_name.clone();
                             cx.listener(move |this, _, window, cx| {
-                                this.toggle_allow_download(server_name.clone(), window, cx);
+                                this.update_binary_setting(
+                                    server_name.clone(),
+                                    |binary| {
+                                        binary.allow_binary_download =
+                                            Some(!binary.allow_binary_download.unwrap_or_default());
+                                    },
+                                    window,
+                                    cx,
+                                )
                             })
                         }),
                     )
                     .child(
                         v_flex()
                         .gap_1p5()
-                        .child(Label::new("Allow download"))
+                        .child(Label::new("Allow Download"))
                         .child(
                             Label::new(
                                 "Allow the editor to download a language server binary (if available)",
@@ -353,7 +338,15 @@ impl LspConfigView {
                         .on_click({
                             let server_name = server_name.clone();
                             cx.listener(move |this, _, window, cx| {
-                                this.toggle_ignore_system_version(server_name.clone(), window, cx);
+                                this.update_binary_setting(
+                                    server_name.clone(),
+                                    |binary| {
+                                        binary.ignore_system_version =
+                                            Some(!binary.ignore_system_version.unwrap_or_default());
+                                    },
+                                    window,
+                                    cx,
+                                )
                             })
                         }),
                     )
@@ -364,6 +357,42 @@ impl LspConfigView {
                         .child(
                             Label::new(
                                 "Ignore any language server binary installed system-wide",
+                            )
+                            .size(LabelSize::Small)
+                            .color(Color::Muted),
+                        ),
+                    ),
+            )
+            .child(
+                h_flex()
+                    .gap_2()
+                    .items_center()
+                    .child(
+                        Switch::new(
+                            format!("auto-update-{}", server_name.0),
+                            ToggleState::from(binary_settings.enable_auto_updates),
+                        )
+                        .on_click({
+                            let server_name = server_name.clone();
+                            cx.listener(move |this, _, window, cx| {
+                                this.update_binary_setting(
+                                    server_name.clone(),
+                                    |binary| {
+                                        binary.enable_auto_updates = Some(!binary.enable_auto_updates.unwrap_or_default());
+                                    },
+                                    window,
+                                    cx,
+                                )
+                            })
+                        }),
+                    )
+                    .child(
+                        v_flex()
+                        .gap_1p5()
+                        .child(Label::new("Auto Update"))
+                        .child(
+                            Label::new(
+                                "Automatically download new versions of the language server when released",
                             )
                             .size(LabelSize::Small)
                             .color(Color::Muted),
@@ -470,8 +499,6 @@ impl Render for LspConfigView {
             .p_4()
             .bg(editor_background)
             .overflow_hidden()
-            .child(self.render_header())
-            .child(self.render_node(&project_settings.node, theme, cx))
             .child(
                 v_flex()
                     .id("lsp-config-view-servers")
@@ -480,6 +507,8 @@ impl Render for LspConfigView {
                     .gap_2()
                     .overflow_y_scroll()
                     .track_scroll(&self.scroll_handle)
+                    .child(self.render_header())
+                    .child(self.render_node(&project_settings.node, theme, cx))
                     .children(
                         binary_statuses
                             .iter()
