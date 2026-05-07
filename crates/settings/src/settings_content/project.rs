@@ -185,6 +185,7 @@ pub struct BinarySettings {
     pub env: Option<BTreeMap<String, String>>,
     pub ignore_system_version: Option<bool>,
     pub allow_binary_download: Option<bool>,
+    pub enable_auto_updates: Option<bool>,
 }
 
 #[with_fallible_options]
