@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add ctrl-x g to toggle Git panel in Emacs keymap (#154)
 - Update Arch Linux in readme; Add Alpine Linux (#249) by @msrd0
 - Open file by absolute path in file finder (#212)
+- Add an option to hide the unsaved indicator (#266) by @bux
+- Add an option to disable auto-update for LSP (#267) by @bux
 
 [poll]: https://github.com/lilith/zed/commit/0334469a57a20586b28b86187028acd36559a9d3
 [kintsugi]: https://github.com/giacomocavalieri/kintsugi-zed
@@ -70,6 +72,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix table wrapping behaviour in Markdown preview (zed#50839)
 - Make non-zero number fields editable in settings (#232)
 - fix: .gitattributes stats, update langs case by @koru (#257)
+- Fix file rename on FUSE-based filesystems (#269) by @mxw
 
 ### Changed
 
