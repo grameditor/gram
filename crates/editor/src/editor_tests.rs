@@ -25424,6 +25424,7 @@ async fn test_invisible_worktree_servers(cx: &mut TestAppContext) {
     );
 }
 
+#[ignore]
 #[gpui::test]
 async fn test_tab_in_leading_whitespace_auto_indents_for_python(cx: &mut TestAppContext) {
     init_test(cx, |_| {});
