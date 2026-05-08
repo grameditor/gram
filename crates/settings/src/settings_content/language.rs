@@ -184,7 +184,7 @@ pub struct LanguageSettingsContent {
     /// Whether to automatically type closing characters for you. For example,
     /// when you type '(', Gram will automatically add a closing ')' at the correct position.
     ///
-    /// Default: true
+    /// Default: false
     pub use_autoclose: Option<bool>,
     /// Whether to automatically surround text with characters for you. For example,
     /// when you select text and type '(', Gram will automatically surround text with ().
@@ -229,7 +229,7 @@ pub struct LanguageSettingsContent {
     /// Whether to pop the completions menu while typing in an editor without
     /// explicitly requesting it.
     ///
-    /// Default: true
+    /// Default: false
     pub show_completions_on_input: Option<bool>,
     /// Whether to display inline and alongside documentation for items in the
     /// completions menu.
