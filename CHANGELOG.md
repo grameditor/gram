@@ -30,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update Arch Linux in readme; Add Alpine Linux (#249) by @msrd0
 - Open file by absolute path in file finder (#212)
 - Add an option to hide the unsaved indicator (#266) by @bux
-- Add an option to disable auto-update for LSP (#267) by @bux
+- Make LSP auto-updating an opt-in setting ((#267) by @bux
 
 [poll]: https://github.com/lilith/zed/commit/0334469a57a20586b28b86187028acd36559a9d3
 [kintsugi]: https://github.com/giacomocavalieri/kintsugi-zed
