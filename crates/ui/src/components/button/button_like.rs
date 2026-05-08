@@ -131,6 +131,9 @@ pub enum ButtonStyle {
     /// coloring like an error or success button.
     Tinted(TintColor),
 
+    /// A filled button with a background color (provided).
+    Background(Hsla),
+
     /// Usually used as a secondary action that should have more emphasis than
     /// a fully transparent button.
     Outlined,
@@ -219,6 +222,12 @@ impl ButtonStyle {
                 icon_color: Color::Default.color(cx),
             },
             ButtonStyle::Tinted(tint) => tint.button_like_style(cx),
+            ButtonStyle::Background(hsla) => ButtonLikeStyles {
+                background: hsla,
+                border_color: transparent_black(),
+                label_color: Color::Default.color(cx),
+                icon_color: Color::Default.color(cx),
+            },
             ButtonStyle::Outlined => ButtonLikeStyles {
                 background: element_bg_from_elevation(elevation, cx),
                 border_color: cx.theme().colors().border_variant,
@@ -270,6 +279,17 @@ impl ButtonStyle {
                 styles.background = theme.darken(styles.background, 0.05, 0.2);
                 styles
             }
+            ButtonStyle::Background(hsla) => {
+                let mut filled_background = hsla;
+                filled_background.fade_out(0.5);
+
+                ButtonLikeStyles {
+                    background: filled_background,
+                    border_color: transparent_black(),
+                    label_color: Color::Default.color(cx),
+                    icon_color: Color::Default.color(cx),
+                }
+            }
             ButtonStyle::Outlined => ButtonLikeStyles {
                 background: cx.theme().colors().ghost_element_hover,
                 border_color: cx.theme().colors().border,
@@ -308,6 +328,12 @@ impl ButtonStyle {
                 icon_color: Color::Default.color(cx),
             },
             ButtonStyle::Tinted(tint) => tint.button_like_style(cx),
+            ButtonStyle::Background(_) => ButtonLikeStyles {
+                background: cx.theme().colors().element_active,
+                border_color: transparent_black(),
+                label_color: Color::Default.color(cx),
+                icon_color: Color::Default.color(cx),
+            },
             ButtonStyle::Subtle => ButtonLikeStyles {
                 background: cx.theme().colors().ghost_element_active,
                 border_color: transparent_black(),
@@ -347,6 +373,12 @@ impl ButtonStyle {
                 icon_color: Color::Default.color(cx),
             },
             ButtonStyle::Tinted(tint) => tint.button_like_style(cx),
+            ButtonStyle::Background(hsla) => ButtonLikeStyles {
+                background: hsla,
+                border_color: cx.theme().colors().border_focused,
+                label_color: Color::Default.color(cx),
+                icon_color: Color::Default.color(cx),
+            },
             ButtonStyle::Subtle => ButtonLikeStyles {
                 background: cx.theme().colors().ghost_element_background,
                 border_color: cx.theme().colors().border_focused,
@@ -389,6 +421,12 @@ impl ButtonStyle {
                 icon_color: Color::Disabled.color(cx),
             },
             ButtonStyle::Tinted(tint) => tint.button_like_style(cx),
+            ButtonStyle::Background(hsla) => ButtonLikeStyles {
+                background: cx.theme().colors().element_disabled,
+                border_color: hsla,
+                label_color: Color::Disabled.color(cx),
+                icon_color: Color::Disabled.color(cx),
+            },
             ButtonStyle::Subtle => ButtonLikeStyles {
                 background: cx.theme().colors().ghost_element_disabled,
                 border_color: cx.theme().colors().border_disabled,

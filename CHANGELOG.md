@@ -94,6 +94,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump tree-sitter for fix to wasm loading of grammars w/ reserved words (zed#52856)
 - Update .gitattributes (#226) by @ivankopylov6603
 - Make status_bar.show a non-experimental setting
+- Rework vim/helix mode indicator
 
 ## [1.2.1] - 2026-03-26
 

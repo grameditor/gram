@@ -1,5 +1,5 @@
 use gpui::{Context, Element, Entity, FontWeight, Render, Subscription, WeakEntity, Window, div};
-use ui::text_for_keystrokes;
+use ui::{Tooltip, text_for_keystrokes};
 use workspace::{StatusItemView, item::ItemHandle, ui::prelude::*};
 
 use crate::{Vim, VimEvent, VimGlobals};
@@ -127,12 +127,7 @@ impl Render for ModeIndicator {
                 .pending_keys
                 .as_ref()
                 .unwrap_or(&current_operators_description);
-            let mode = if bg_color != system_transparent {
-                mode_str.into()
-            } else {
-                format!("-- {} --", mode_str).into()
-            };
-            (pending.into(), Some(mode))
+            (pending.into(), Some(mode_str.into()))
         };
         h_flex()
             .gap_1()
@@ -145,24 +140,14 @@ impl Render for ModeIndicator {
             })
             .when_some(mode, |el, mode| {
                 el.child(
-                    v_flex()
-                        .when(bg_color != system_transparent, |el| el.px_2())
-                        // match with other icons at the bottom that use default buttons
-                        .h(ButtonSize::Default.rems())
-                        .justify_center()
-                        .rounded_sm()
-                        .bg(bg_color)
-                        .child(
-                            Label::new(mode)
-                                .size(LabelSize::Small)
-                                .line_height_style(LineHeightStyle::UiLabel)
-                                .weight(FontWeight::MEDIUM)
-                                .when(
-                                    bg_color != system_transparent
-                                        && vim_mode_text != system_transparent,
-                                    |el| el.color(Color::Custom(vim_mode_text)),
-                                ),
-                        ),
+                    Button::new("vim-mode-button", &mode)
+                        .label_size(LabelSize::Small)
+                        .style(ButtonStyle::Background(bg_color))
+                        .when(
+                            bg_color != system_transparent && vim_mode_text != system_transparent,
+                            |el| el.color(Color::Custom(vim_mode_text)),
+                        )
+                        .tooltip(Tooltip::text(format!("Active mode: {}", mode))),
                 )
             })
             .into_any()
