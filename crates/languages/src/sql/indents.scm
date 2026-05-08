@@ -5,23 +5,21 @@
  (case)
  (subquery)
  (insert)
-] @indent.begin
+] @indent
 
 
-(block
-  (keyword_begin)
-) @indent.begin
+(block (keyword_begin)) @indent
 
-(column_definitions ")" @indent.branch)
+(column_definitions ")" @end) @indent
 
-(subquery ")" @indent.branch)
+(subquery ")" @end) @indent
 
-(cte ")" @indent.branch)
+(cte ")" @end) @indent
 
 [
  (keyword_end)
  (keyword_values)
  (keyword_into)
-] @indent.branch
+] @outdent
 
-(keyword_end) @indent.end
+(keyword_end) @outdent
