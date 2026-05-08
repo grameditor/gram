@@ -83,7 +83,7 @@ use remote::{
 use schemars::JsonSchema;
 use serde::Deserialize;
 use session::AppSession;
-use settings::{CenteredPaddingSettings, Settings, SettingsLocation};
+use settings::{CenteredPaddingSettings, Settings, SettingsLocation, StatusBarPosition};
 use sqlez::{
     bindable::{Bind, Column, StaticColumnCount},
     statement::Statement,
@@ -5715,6 +5715,7 @@ impl Render for Workspace {
             .map(|(_, notification)| notification.entity_id())
             .collect::<Vec<_>>();
         let bottom_dock_layout = WorkspaceSettings::get_global(cx).bottom_dock_layout;
+        let status_bar_position = StatusBarSettings::get_global(cx).position;
 
         client_side_decorations(
             self.actions(div(), window, cx)
@@ -5742,6 +5743,8 @@ impl Render for Workspace {
                         .flex_1()
                         .flex()
                         .flex_col()
+                        .when(self.status_bar_visible(cx) && status_bar_position == StatusBarPosition::Top,
+                            |parent| parent.child(self.status_bar.clone()))
                         .child(
                             div()
                                 .id("workspace")
@@ -6086,9 +6089,8 @@ impl Render for Workspace {
                                 }))
                                 .children(self.render_notifications(window, cx)),
                         )
-                        .when(self.status_bar_visible(cx), |parent| {
-                            parent.child(self.status_bar.clone())
-                        })
+                        .when(self.status_bar_visible(cx) && status_bar_position == StatusBarPosition::Bottom,
+                            |parent| parent.child(self.status_bar.clone()))
                         .child(self.modal_layer.clone())
                         .child(self.toast_layer.clone()),
                 ),

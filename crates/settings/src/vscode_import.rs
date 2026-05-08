@@ -541,7 +541,7 @@ impl VsCodeSettings {
                         ShowCloseButton::Hidden
                     }
                 }),
-            show_unsaved_indicator: None, 
+            show_unsaved_indicator: None,
         })
     }
 
@@ -580,6 +580,7 @@ impl VsCodeSettings {
             cursor_position_button: None,
             line_endings_button: None,
             active_encoding_button: None,
+            position: None,
         })
     }
 

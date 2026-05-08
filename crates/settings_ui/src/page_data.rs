@@ -2674,6 +2674,50 @@ pub(crate) fn settings_data(cx: &App) -> Vec<SettingsPage> {
             items: vec![
                 SettingsPageItem::SectionHeader("Status Bar"),
                 SettingsPageItem::SettingItem(SettingItem {
+                    title: "Show",
+                    description: "Display the status bar.",
+                    field: Box::new(SettingField {
+                        json_path: Some("status_bar.show"),
+                        pick: |settings_content| {
+                            settings_content
+                                .status_bar
+                                .as_ref()?
+                                .show
+                                .as_ref()
+                        },
+                        write: |settings_content, value| {
+                            settings_content
+                                .status_bar
+                                .get_or_insert_default()
+                                .show = value;
+                        },
+                    }),
+                    metadata: None,
+                    files: USER,
+                }),
+                SettingsPageItem::SettingItem(SettingItem {
+                    title: "Position",
+                    description: "Show the status bar at the bottom or top of the window.",
+                    field: Box::new(SettingField {
+                        json_path: Some("status_bar.position"),
+                        pick: |settings_content| {
+                            settings_content
+                                .status_bar
+                                .as_ref()?
+                                .position
+                                .as_ref()
+                        },
+                        write: |settings_content, value| {
+                            settings_content
+                                .status_bar
+                                .get_or_insert_default()
+                                .position = value;
+                        },
+                    }),
+                    metadata: None,
+                    files: USER,
+                }),
+                SettingsPageItem::SettingItem(SettingItem {
                     title: "Project Panel Button",
                     description: "Show the project panel button in the status bar.",
                     field: Box::new(SettingField {

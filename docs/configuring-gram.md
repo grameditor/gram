@@ -1436,19 +1436,13 @@ Positive `integer` value between 1 and 32. Values outside of this range will be 
 
 ```jsonc
 "status_bar": {
+  "show": true,
+  "position": "bottom",
   "active_language_button": true,
   "cursor_position_button": true,
   "line_endings_button": false,
   "active_encoding_button": "non_utf8"
 },
-```
-
-There is an experimental setting that completely hides the status bar. This causes major usability problems (you will be unable to use many of Gram's features), but is provided for those who value screen real-estate above all else.
-
-```json
-"status_bar": {
-  "experimental.show": false
-}
 ```
 
 ## LSP

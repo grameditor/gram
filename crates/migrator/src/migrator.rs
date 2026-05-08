@@ -20,6 +20,8 @@ use std::{cmp::Reverse, ops::Range};
 use streaming_iterator::StreamingIterator;
 use tree_sitter::{Query, QueryMatch};
 
+mod migrations;
+
 fn migrate(text: &str, patterns: MigrationPatterns, query: &Query) -> Result<Option<String>> {
     let mut parser = tree_sitter::Parser::new();
     parser.set_language(&tree_sitter_json::LANGUAGE.into())?;
@@ -124,7 +126,9 @@ enum MigrationType<'a> {
 }
 
 pub fn migrate_settings(text: &str) -> Result<Option<String>> {
-    let migrations: &[MigrationType] = &[];
+    let migrations: &[MigrationType] = &[MigrationType::Json(
+        migrations::m_0001::rename_status_bar_show,
+    )];
     run_migrations(text, migrations)
 }
 

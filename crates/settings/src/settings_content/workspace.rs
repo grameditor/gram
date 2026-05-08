@@ -421,7 +421,6 @@ pub struct StatusBarSettingsContent {
     /// Whether to show the status bar.
     ///
     /// Default: true
-    #[serde(rename = "experimental.show")]
     pub show: Option<bool>,
     /// Whether to display the active language button in the status bar.
     ///
@@ -439,6 +438,10 @@ pub struct StatusBarSettingsContent {
     ///
     /// Default: non_utf8
     pub active_encoding_button: Option<EncodingDisplayOptions>,
+    /// Where to show the status bar in the workspace.
+    ///
+    /// Default: bottom
+    pub position: Option<StatusBarPosition>,
 }
 
 #[derive(
@@ -473,6 +476,27 @@ impl EncodingDisplayOptions {
             }
         }
     }
+}
+
+#[derive(
+    Copy,
+    Clone,
+    Debug,
+    Default,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    MergeFrom,
+    PartialEq,
+    Eq,
+    strum::VariantNames,
+    strum::VariantArray,
+)]
+#[serde(rename_all = "snake_case")]
+pub enum StatusBarPosition {
+    #[default]
+    Bottom,
+    Top,
 }
 
 #[derive(

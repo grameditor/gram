@@ -1,9 +1,9 @@
-use crate::{ItemHandle, Pane};
+use crate::{ItemHandle, Pane, StatusBarSettings};
 use gpui::{
     AnyView, App, Context, Decorations, Entity, IntoElement, ParentElement, Render, Styled,
     Subscription, Window,
 };
-use settings::Settings;
+use settings::{Settings, StatusBarPosition};
 use std::any::TypeId;
 use theme::ThemeSettings;
 use ui::{h_flex, prelude::*};
@@ -40,6 +40,7 @@ pub struct StatusBar {
 impl Render for StatusBar {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let theme = ThemeSettings::get_global(cx);
+        let position = StatusBarSettings::get_global(cx).position;
         h_flex()
             .w_full()
             .justify_between()
@@ -50,12 +51,22 @@ impl Render for StatusBar {
             .map(|el| match window.window_decorations() {
                 Decorations::Server => el,
                 Decorations::Client { tiling, .. } => el
-                    .when(!(tiling.bottom || tiling.right), |el| {
-                        el.rounded_br(theme.client_side_decoration_rounding)
-                    })
-                    .when(!(tiling.bottom || tiling.left), |el| {
-                        el.rounded_bl(theme.client_side_decoration_rounding)
-                    })
+                    .when(
+                        position == StatusBarPosition::Bottom && !(tiling.bottom || tiling.right),
+                        |el| el.rounded_br(theme.client_side_decoration_rounding),
+                    )
+                    .when(
+                        position == StatusBarPosition::Bottom && !(tiling.bottom || tiling.left),
+                        |el| el.rounded_bl(theme.client_side_decoration_rounding),
+                    )
+                    .when(
+                        position == StatusBarPosition::Top && !(tiling.top || tiling.right),
+                        |el| el.rounded_tr(theme.client_side_decoration_rounding),
+                    )
+                    .when(
+                        position == StatusBarPosition::Top && !(tiling.top || tiling.left),
+                        |el| el.rounded_tl(theme.client_side_decoration_rounding),
+                    )
                     // This border is to avoid a transparent gap in the rounded corners
                     .mb(px(-1.))
                     .border_b(px(1.0))
