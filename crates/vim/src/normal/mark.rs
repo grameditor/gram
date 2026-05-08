@@ -1,7 +1,7 @@
 use std::{ops::Range, path::Path, sync::Arc};
 
 use editor::{
-    Anchor, Bias, DisplayPoint, Editor, MultiBuffer,
+    Anchor, Bias, DisplayPoint, Editor, MultiBuffer, SelectionEffects,
     display_map::{DisplaySnapshot, ToDisplayPoint},
     movement,
 };
@@ -118,7 +118,7 @@ impl Vim {
                     }
                 }
 
-                editor.change_selections(Default::default(), window, cx, |s| {
+                editor.change_selections(SelectionEffects::no_nav_history(), window, cx, |s| {
                     s.select_anchor_ranges(ranges)
                 });
             })
@@ -170,9 +170,12 @@ impl Vim {
                                 }
                             })
                             .collect();
-                        editor.change_selections(Default::default(), window, cx, |s| {
-                            s.select_ranges(points.into_iter().map(|p| p..p))
-                        })
+                        editor.change_selections(
+                            SelectionEffects::no_nav_history(),
+                            window,
+                            cx,
+                            |s| s.select_ranges(points.into_iter().map(|p| p..p)),
+                        )
                     })
                 }
             })

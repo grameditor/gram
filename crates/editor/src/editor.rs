@@ -1231,6 +1231,10 @@ impl Default for SelectionEffects {
     }
 }
 impl SelectionEffects {
+    pub fn no_nav_history() -> Self {
+        SelectionEffects::default().nav_history(false)
+    }
+
     pub fn scroll(scroll: Autoscroll) -> Self {
         Self {
             scroll: Some(scroll),
@@ -12615,6 +12619,11 @@ impl Editor {
                 }),
                 cx,
             );
+            log::debug!(
+                "editor::push_to_nav_history {:?} is_deactivate={:?}",
+                cursor_anchor,
+                is_deactivate,
+            );
             cx.emit(EditorEvent::PushedToNavHistory {
                 anchor: cursor_anchor,
                 is_deactivate,
@@ -15879,7 +15888,7 @@ impl Editor {
             MultibufferSelectionMode::First => {
                 if let Some(first_range) = ranges.first() {
                     editor.change_selections(
-                        SelectionEffects::no_scroll(),
+                        SelectionEffects::no_scroll().nav_history(false),
                         window,
                         cx,
                         |selections| {
@@ -15895,10 +15904,15 @@ impl Editor {
                 );
             }
             MultibufferSelectionMode::All => {
-                editor.change_selections(SelectionEffects::no_scroll(), window, cx, |selections| {
-                    selections.clear_disjoint();
-                    selections.select_anchor_ranges(ranges);
-                });
+                editor.change_selections(
+                    SelectionEffects::no_scroll().nav_history(false),
+                    window,
+                    cx,
+                    |selections| {
+                        selections.clear_disjoint();
+                        selections.select_anchor_ranges(ranges);
+                    },
+                );
             }
         });
 
@@ -19359,8 +19373,8 @@ impl Editor {
         let snapshot = self.snapshot(window, cx);
         let mut used_highlight_orders = HashMap::default();
         self.highlighted_rows
-            .iter()
-            .flat_map(|(_, highlighted_rows)| highlighted_rows.iter())
+            .values()
+            .flat_map(|highlighted_rows| highlighted_rows.iter())
             .fold(
                 BTreeMap::<DisplayRow, LineHighlight>::new(),
                 |mut unique_rows, highlight| {

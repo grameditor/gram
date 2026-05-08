@@ -79,6 +79,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Make non-zero number fields editable in settings (#232)
 - fix: .gitattributes stats, update langs case by @koru (#257)
 - Fix file rename on FUSE-based filesystems (#269) by @mxw
+- Fix history navigation in multibuffers (#275)
 
 ### Changed
 

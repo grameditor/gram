@@ -4140,6 +4140,7 @@ impl NavHistory {
         }
         .pop_back();
         if entry.is_some() {
+            log::debug!("nav_history:pop {mode:?}");
             state.did_update(cx);
         }
         entry
@@ -4153,7 +4154,9 @@ impl NavHistory {
         cx: &mut App,
     ) {
         let state = &mut *self.0.lock();
-        match state.mode {
+        let mode = state.mode;
+        let item_id = item.id();
+        match mode {
             NavigationMode::Disabled => {}
             NavigationMode::Normal | NavigationMode::ReopeningClosedItem => {
                 if state.backward_stack.len() >= MAX_NAVIGATION_HISTORY_LEN {
@@ -4202,6 +4205,7 @@ impl NavHistory {
                 });
             }
         }
+        log::debug!("nav_history:push {:?} {:?}", mode, item_id);
         state.did_update(cx);
     }
 
@@ -4297,8 +4301,8 @@ pub fn render_item_indicator(item: Box<dyn ItemHandle>, cx: &App) -> Option<Indi
     maybe!({
         let settings = ItemSettings::get_global(cx);
         if !settings.show_unsaved_indicator {
-                return None;
-        } 
+            return None;
+        }
 
         let indicator_color = match (item.has_conflict(cx), item.is_dirty(cx)) {
             (true, _) => Color::Warning,
