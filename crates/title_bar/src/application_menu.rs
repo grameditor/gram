@@ -182,6 +182,7 @@ impl ApplicationMenu {
             .iter()
             .map(|entry| entry.handle.clone())
             .collect();
+        let any_menu_deployed = all_handles.iter().any(|e| e.is_deployed());
 
         div()
             .id(format!("{}-menu-item", menu_name))
@@ -202,7 +203,7 @@ impl ApplicationMenu {
                     .with_handle(current_handle.clone()),
             )
             .on_hover(move |hover_enter, window, cx| {
-                if *hover_enter && !current_handle.is_deployed() {
+                if *hover_enter && !current_handle.is_deployed() && any_menu_deployed {
                     all_handles.iter().for_each(|h| h.hide(cx));
 
                     // We need to defer this so that this menu handle can take focus from the previous menu
