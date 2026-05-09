@@ -1493,6 +1493,23 @@ impl PickerDelegate for FileFinderDelegate {
         }
     }
 
+    fn confirm_immediately(&self) -> bool {
+        self.matches.len() == 1
+    }
+
+    fn confirm_completion(
+        &mut self,
+        _query: String,
+        _window: &mut Window,
+        _cx: &mut Context<Picker<Self>>,
+    ) -> Option<String> {
+        match self.matches.get(self.selected_index)? {
+            Match::History { path, .. } => path.project.path.file_name().map(|n| n.into()),
+            Match::Search(m) => m.0.path.file_name().map(|n| n.into()),
+            Match::OpenPath(_) | Match::CreateNew(_) => return None,
+        }
+    }
+
     fn confirm(
         &mut self,
         secondary: bool,

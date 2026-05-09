@@ -188,6 +188,9 @@ pub trait PickerDelegate: Sized + 'static {
     ) -> Option<String> {
         None
     }
+    fn confirm_immediately(&self) -> bool {
+        false
+    }
 
     fn editor_position(&self) -> PickerEditorPosition {
         PickerEditorPosition::default()
@@ -605,7 +608,10 @@ impl<D: PickerDelegate> Picker<D> {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        if let Some(new_query) = self.delegate.confirm_completion(self.query(cx), window, cx) {
+        if self.delegate.confirm_immediately() {
+            self.do_confirm(false, window, cx);
+        } else if let Some(new_query) = self.delegate.confirm_completion(self.query(cx), window, cx)
+        {
             self.set_query(new_query, window, cx);
         } else {
             cx.propagate()
