@@ -36,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update Arch Linux in readme; Add Alpine Linux (#249) by @msrd0
 - Open file by absolute path in file finder (#212)
 - Add an option to hide the unsaved indicator (#266) by @bux
-- Make LSP auto-updating an opt-in setting ((#267) by @bux
+- Make LSP auto-updating an opt-in setting (#267) by @bux
 - Add option to move status bar to top of window
 - Add ctrl/cmd-shift-o key binding to open tab switcher
 
@@ -84,6 +84,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix history navigation in multibuffers (#275)
 - Fix incorrect window size on X11 (#259)
 - Improved Supertab completion
+- Fix application menus hover behavior (#276) by @sir_nacnud
+- Fix tab completion in file finder (#270)
 
 ### Changed
 
