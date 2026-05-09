@@ -88,6 +88,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix tab completion in file finder (#270)
 - Don't install compilation artifacts when installing extension (#273)
 - Compile extension in release mode (#273)
+- Update vscode-eslint to 3.0.24 and fix ESLint 8-10 (#227) (zed#52886)
 
 ### Changed
 

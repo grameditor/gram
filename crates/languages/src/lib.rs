@@ -113,7 +113,7 @@ pub fn init(languages: Arc<LanguageRegistry>, fs: Arc<dyn Fs>, node: NodeRuntime
     let bash_lsp_adapter = Arc::new(bash::BashLspAdapter::new(node.clone()));
     let c_lsp_adapter = Arc::new(c::CLspAdapter);
     let css_lsp_adapter = Arc::new(css::CssLspAdapter::new(node.clone()));
-    let eslint_adapter = Arc::new(eslint::EsLintLspAdapter::new(node.clone()));
+    let eslint_adapter = Arc::new(eslint::EsLintLspAdapter::new(node.clone(), fs.clone()));
     let gleam_lsp_adapter = Arc::new(gleam::GleamLspAdapter);
     let gleam_context_provider = Arc::new(gleam::gleam_task_context());
     let go_context_provider = Arc::new(go::GoContextProvider);

@@ -7,8 +7,8 @@ use http_client::{
 };
 use language::{LspAdapter, LspAdapterDelegate, LspInstaller, Toolchain};
 use lsp::{CodeActionKind, LanguageServerBinary, LanguageServerName, Uri};
-use node_runtime::NodeRuntime;
-use project::lsp_store::language_server_settings_for;
+use node_runtime::{NodeRuntime, read_package_installed_version};
+use project::{Fs, lsp_store::language_server_settings_for};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use settings::SettingsLocation;
@@ -31,11 +31,12 @@ fn eslint_server_binary_arguments(server_path: &Path) -> Vec<OsString> {
 
 pub struct EsLintLspAdapter {
     node: NodeRuntime,
+    fs: Arc<dyn Fs>,
 }
 
 impl EsLintLspAdapter {
-    const CURRENT_VERSION: &'static str = "2.4.4";
-    const CURRENT_VERSION_TAG_NAME: &'static str = "release/2.4.4";
+    const CURRENT_VERSION: &'static str = "3.0.24";
+    const CURRENT_VERSION_TAG_NAME: &'static str = "release/3.0.24";
 
     #[cfg(not(windows))]
     const GITHUB_ASSET_KIND: AssetKind = AssetKind::TarGz;
@@ -45,7 +46,10 @@ impl EsLintLspAdapter {
     const SERVER_PATH: &'static str = "vscode-eslint/server/out/eslintServer.js";
     const SERVER_NAME: LanguageServerName = LanguageServerName::new_static("eslint");
 
-    const FLAT_CONFIG_FILE_NAMES: &'static [&'static str] = &[
+    const FLAT_CONFIG_FILE_NAMES_V8_21: &'static [&'static str] = &["eslint.config.js"];
+    const FLAT_CONFIG_FILE_NAMES_V8_57: &'static [&'static str] =
+        &["eslint.config.js", "eslint.config.mjs", "eslint.config.cjs"];
+    const FLAT_CONFIG_FILE_NAMES_V10: &'static [&'static str] = &[
         "eslint.config.js",
         "eslint.config.mjs",
         "eslint.config.cjs",
@@ -53,9 +57,17 @@ impl EsLintLspAdapter {
         "eslint.config.cts",
         "eslint.config.mts",
     ];
+    const LEGACY_CONFIG_FILE_NAMES: &'static [&'static str] = &[
+        ".eslintrc",
+        ".eslintrc.js",
+        ".eslintrc.cjs",
+        ".eslintrc.yaml",
+        ".eslintrc.yml",
+        ".eslintrc.json",
+    ];
 
-    pub fn new(node: NodeRuntime) -> Self {
-        EsLintLspAdapter { node }
+    pub fn new(node: NodeRuntime, fs: Arc<dyn Fs>) -> Self {
+        EsLintLspAdapter { node, fs }
     }
 
     fn build_destination_path(container_dir: &Path) -> PathBuf {
@@ -88,7 +100,7 @@ impl LspInstaller for EsLintLspAdapter {
         _: &mut AsyncApp,
     ) -> Result<GitHubLspBinaryVersion> {
         let url = build_asset_url(
-            "zed-industries/vscode-eslint",
+            "microsoft/vscode-eslint",
             Self::CURRENT_VERSION_TAG_NAME,
             Self::GITHUB_ASSET_KIND,
         )?;
@@ -171,6 +183,42 @@ impl LspInstaller for EsLintLspAdapter {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum EslintConfigKind {
+    Flat,
+    Legacy,
+}
+
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
+struct EslintSettingsOverrides {
+    use_flat_config: Option<bool>,
+    experimental_use_flat_config: Option<bool>,
+}
+
+impl EslintSettingsOverrides {
+    fn apply_to(self, workspace_configuration: &mut Value) {
+        if let Some(use_flat_config) = self.use_flat_config
+            && let Some(workspace_configuration) = workspace_configuration.as_object_mut()
+        {
+            workspace_configuration.insert("useFlatConfig".to_string(), json!(use_flat_config));
+        }
+
+        if let Some(experimental_use_flat_config) = self.experimental_use_flat_config
+            && let Some(workspace_configuration) = workspace_configuration.as_object_mut()
+        {
+            let experimental = workspace_configuration
+                .entry("experimental")
+                .or_insert_with(|| json!({}));
+            if let Some(experimental) = experimental.as_object_mut() {
+                experimental.insert(
+                    "useFlatConfig".to_string(),
+                    json!(experimental_use_flat_config),
+                );
+            }
+        }
+    }
+}
+
 #[async_trait(?Send)]
 impl LspAdapter for EsLintLspAdapter {
     fn code_action_kinds(&self) -> Option<Vec<CodeActionKind>> {
@@ -188,9 +236,27 @@ impl LspAdapter for EsLintLspAdapter {
         cx: &mut AsyncApp,
     ) -> Result<Value> {
         let worktree_root = delegate.worktree_root_path();
-        let use_flat_config = Self::FLAT_CONFIG_FILE_NAMES
-            .iter()
-            .any(|file| worktree_root.join(file).is_file());
+
+        let requested_file_path = requested_uri
+            .as_ref()
+            .filter(|uri| uri.scheme() == "file")
+            .and_then(|uri| uri.to_file_path().ok())
+            .filter(|path| path.starts_with(worktree_root));
+        let eslint_version = find_eslint_version(
+            delegate.as_ref(),
+            worktree_root,
+            requested_file_path.as_deref(),
+        )
+        .await?;
+        let config_kind = find_eslint_config_kind(
+            worktree_root,
+            requested_file_path.as_deref(),
+            eslint_version.as_ref(),
+            self.fs.as_ref(),
+        )
+        .await;
+        let eslint_settings_overrides =
+            eslint_settings_overrides_for(eslint_version.as_ref(), config_kind);
 
         let mut default_workspace_configuration = json!({
             "validate": "on",
@@ -221,25 +287,10 @@ impl LspAdapter for EsLintLspAdapter {
                     "enable": true
                 }
             },
-            "experimental": {
-                "useFlatConfig": use_flat_config,
-            }
         });
+        eslint_settings_overrides.apply_to(&mut default_workspace_configuration);
 
-        let file_path = requested_uri
-            .as_ref()
-            .and_then(|uri| {
-                (uri.scheme() == "file")
-                    .then(|| uri.to_file_path().ok())
-                    .flatten()
-            })
-            .and_then(|abs_path| {
-                abs_path
-                    .strip_prefix(&worktree_root)
-                    .ok()
-                    .map(ToOwned::to_owned)
-            });
-        let file_path = file_path
+        let file_path = requested_file_path
             .and_then(|p| RelPath::unix(&p).ok().map(ToOwned::to_owned))
             .unwrap_or_else(|| RelPath::empty().to_owned());
         let override_options = cx.update(|cx| {
@@ -284,6 +335,118 @@ impl LspAdapter for EsLintLspAdapter {
     fn name(&self) -> LanguageServerName {
         Self::SERVER_NAME
     }
+}
+
+fn ancestor_directories<'a>(
+    worktree_root: &'a Path,
+    requested_file: Option<&'a Path>,
+) -> impl Iterator<Item = &'a Path> + 'a {
+    let start = requested_file
+        .filter(|file| file.starts_with(worktree_root))
+        .and_then(Path::parent)
+        .unwrap_or(worktree_root);
+
+    start
+        .ancestors()
+        .take_while(move |dir| dir.starts_with(worktree_root))
+}
+
+fn flat_config_file_names(version: Option<&String>) -> &'static [&'static str] {
+    if let Some(version) = version
+        && let Ok(version) = semver::Version::parse(version.trim().trim_start_matches('v'))
+    {
+        match version {
+            version if version.major >= 10 => EsLintLspAdapter::FLAT_CONFIG_FILE_NAMES_V10,
+            version if version.major == 9 => EsLintLspAdapter::FLAT_CONFIG_FILE_NAMES_V8_57,
+            version if version.major == 8 && version.minor >= 57 => {
+                EsLintLspAdapter::FLAT_CONFIG_FILE_NAMES_V8_57
+            }
+            version if version.major == 8 && version.minor >= 21 => {
+                EsLintLspAdapter::FLAT_CONFIG_FILE_NAMES_V8_21
+            }
+            _ => &[],
+        }
+    } else {
+        &[]
+    }
+}
+
+async fn find_eslint_config_kind(
+    worktree_root: &Path,
+    requested_file: Option<&Path>,
+    version: Option<&String>,
+    fs: &dyn Fs,
+) -> Option<EslintConfigKind> {
+    let flat_config_file_names = flat_config_file_names(version);
+
+    for directory in ancestor_directories(worktree_root, requested_file) {
+        for file_name in flat_config_file_names {
+            if fs.is_file(&directory.join(file_name)).await {
+                return Some(EslintConfigKind::Flat);
+            }
+        }
+
+        for file_name in EsLintLspAdapter::LEGACY_CONFIG_FILE_NAMES {
+            if fs.is_file(&directory.join(file_name)).await {
+                return Some(EslintConfigKind::Legacy);
+            }
+        }
+    }
+
+    None
+}
+
+fn eslint_settings_overrides_for(
+    version: Option<&String>,
+    config_kind: Option<EslintConfigKind>,
+) -> EslintSettingsOverrides {
+    // vscode-eslint 3.x already discovers config files and chooses a working
+    // directory from the active file on its own. Only override settings
+    // for the two cases where leaving everything unset is known to be wrong:
+    //
+    // - ESLint 8.21-8.56 flat config still needs experimental.useFlatConfig.
+    // - ESLint 9.x legacy config needs useFlatConfig = false.
+    //
+    // All other cases should defer to the server's own defaults and discovery.
+    let Some(version) = version else {
+        return EslintSettingsOverrides::default();
+    };
+    if let Ok(sver) = semver::Version::parse(version.trim().trim_start_matches('v')) {
+        match config_kind {
+            Some(EslintConfigKind::Flat) if sver.major == 8 && (21..57).contains(&sver.minor) => {
+                EslintSettingsOverrides {
+                    use_flat_config: None,
+                    experimental_use_flat_config: Some(true),
+                }
+            }
+            Some(EslintConfigKind::Legacy) if sver.major == 9 => EslintSettingsOverrides {
+                use_flat_config: Some(false),
+                experimental_use_flat_config: None,
+            },
+            _ => EslintSettingsOverrides::default(),
+        }
+    } else {
+        EslintSettingsOverrides::default()
+    }
+}
+
+async fn find_eslint_version(
+    delegate: &dyn LspAdapterDelegate,
+    worktree_root: &Path,
+    requested_file: Option<&Path>,
+) -> Result<Option<String>> {
+    for directory in ancestor_directories(worktree_root, requested_file) {
+        if let Some(version) =
+            read_package_installed_version(directory.join("node_modules"), "eslint").await?
+        {
+            return Ok(Some(version));
+        }
+    }
+
+    Ok(delegate
+        .npm_package_installed_version("eslint")
+        .await?
+        .map(|(_, version)| version))
 }
 
 /// On Windows, converts Unix-style separators (/) to Windows-style (\).
