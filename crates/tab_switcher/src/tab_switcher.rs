@@ -38,13 +38,16 @@ pub struct Toggle {
     #[serde(default)]
     pub select_last: bool,
 }
+
 actions!(
     tab_switcher,
     [
         /// Closes the selected item in the tab switcher.
         CloseSelectedItem,
         /// Toggles between showing all tabs or just the current pane's tabs.
-        ToggleAll
+        ToggleAll,
+        /// Open tab switcher as a search view for open tabs.
+        Open,
     ]
 );
 
@@ -88,6 +91,9 @@ impl TabSwitcher {
                     .picker
                     .update(cx, |picker, cx| picker.cycle_selection(window, cx))
             });
+        });
+        workspace.register_action(|workspace, _: &Open, window, cx| {
+            Self::open(workspace, false, true, window, cx);
         });
     }
 
