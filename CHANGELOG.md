@@ -86,6 +86,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved Supertab completion
 - Fix application menus hover behavior (#276) by @sir_nacnud
 - Fix tab completion in file finder (#270)
+- Don't install compilation artifacts when installing extension (#273)
+- Compile extension in release mode (#273)
 
 ### Changed
 

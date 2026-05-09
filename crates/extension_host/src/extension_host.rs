@@ -638,7 +638,7 @@ impl ExtensionStore {
                         .compile_extension(
                             &extension_source_path,
                             &mut extension_manifest,
-                            CompileExtensionOptions { release: false },
+                            CompileExtensionOptions { release: true },
                             fs,
                         )
                         .await
@@ -1510,16 +1510,17 @@ fn load_plugin_queries(root_path: &Path) -> LanguageQueries {
 }
 
 /// cp -r from to, but also skipping hidden files (like .git)
+/// as well as the target/ dir
 async fn copy_dir(from: &Path, to: &Path) -> Result<()> {
     create_dir_all(to)?;
     for entry in read_dir(from)? {
         let entry = entry?;
+        let filetype = entry.file_type()?;
         if let Some(name) = entry.file_name().to_str()
-            && name.starts_with(".")
+            && (name.starts_with(".") || (name == "target" && filetype.is_dir()))
         {
             continue;
         }
-        let filetype = entry.file_type()?;
         if filetype.is_dir() {
             Box::pin(copy_dir(
                 entry.path().as_path(),
