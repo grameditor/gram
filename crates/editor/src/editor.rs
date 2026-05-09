@@ -96,12 +96,12 @@ use git::blame::{GitBlame, GlobalBlameRenderer};
 use gpui::{
     Action, AnyElement, App, AppContext, AsyncWindowContext, Background, Bounds, ClickEvent,
     ClipboardEntry, ClipboardItem, Context, DispatchPhase, Entity, EntityInputHandler,
-    EventEmitter, FocusHandle, FocusOutEvent, Focusable, FontId, FontWeight, Global,
-    HighlightStyle, Hsla, KeyContext, Modifiers, MouseButton, MouseDownEvent, MouseMoveEvent,
-    PaintQuad, ParentElement, Pixels, PressureStage, Render, ScrollHandle, SharedString, Size,
-    Styled, Subscription, Task, TextRun, TextStyle, TextStyleRefinement, UTF16Selection,
-    UnderlineStyle, UniformListScrollHandle, WeakEntity, WeakFocusHandle, Window, div, point,
-    prelude::*, px, relative, size,
+    EventEmitter, FocusHandle, FocusOutEvent, Focusable, FontId, FontWeight, FutureExt as _,
+    Global, HighlightStyle, Hsla, KeyContext, Modifiers, MouseButton, MouseDownEvent,
+    MouseMoveEvent, PaintQuad, ParentElement, Pixels, PressureStage, Render, ScrollHandle,
+    SharedString, Size, Styled, Subscription, Task, TextRun, TextStyle, TextStyleRefinement,
+    UTF16Selection, UnderlineStyle, UniformListScrollHandle, WeakEntity, WeakFocusHandle, Window,
+    div, point, prelude::*, px, relative, size,
 };
 use hover_links::{HoverLink, HoveredLinkState, find_file};
 use hover_popover::{HoverState, hide_hover};
@@ -5336,7 +5336,11 @@ impl Editor {
 
         let mut ignore_word_threshold = false;
         let provider = match requested_source {
-            Some(CompletionsMenuSource::Normal) | None => self.completion_provider.clone(),
+            Some(CompletionsMenuSource::Normal { ignore_threshold }) => {
+                ignore_word_threshold = ignore_threshold;
+                self.completion_provider.clone()
+            }
+            None => self.completion_provider.clone(),
             Some(CompletionsMenuSource::Words { ignore_threshold }) => {
                 ignore_word_threshold = ignore_threshold;
                 None
@@ -5482,21 +5486,17 @@ impl Editor {
 
         let load_word_completions = if !self.word_completions_enabled {
             false
-        } else if requested_source
-            == Some(CompletionsMenuSource::Words {
-                ignore_threshold: true,
-            })
-        {
+        } else if ignore_word_threshold {
             true
         } else {
-            load_provider_completions
-                && completion_settings.words != WordsCompletionMode::Disabled
-                && (ignore_word_threshold || {
-                    let words_min_length = completion_settings.words_min_length;
-                    // check whether word has at least `words_min_length` characters
-                    let query_chars = query.iter().flat_map(|q| q.chars());
-                    query_chars.take(words_min_length).count() == words_min_length
-                })
+            let words_min_length = completion_settings.words_min_length;
+            // check whether word has at least `words_min_length` characters
+            let query_chars = query.iter().flat_map(|q| q.chars());
+            let threshold_met = query_chars.take(words_min_length).count() == words_min_length;
+            let provider_completions = load_provider_completions
+                && completion_settings.words != WordsCompletionMode::Disabled;
+            let has_source = requested_source.is_some();
+            threshold_met && (provider_completions || has_source)
         };
 
         let mut words = if load_word_completions {
@@ -5535,6 +5535,7 @@ impl Editor {
         let snippet_sort_order = EditorSettings::get_global(cx).snippet_sort_order;
 
         let id = post_inc(&mut self.next_completion_id);
+
         let task = cx.spawn_in(window, async move |editor, cx| {
             let Ok(()) = editor.update(cx, |this, _| {
                 this.completion_tasks.retain(|(task_id, _)| *task_id >= id);
@@ -5547,7 +5548,12 @@ impl Editor {
             let mut completions = Vec::new();
             let mut is_incomplete = false;
             let mut display_options: Option<CompletionDisplayOptions> = None;
-            if let Some(provider_responses) = provider_responses.await.log_err()
+            if let Some(provider_responses) = provider_responses
+                .with_timeout(Duration::from_millis(200), &cx.background_executor())
+                .await
+                .context("Timed out waiting for LSP completions")
+                .flatten()
+                .log_err()
                 && !provider_responses.is_empty()
             {
                 for response in provider_responses {
@@ -5608,7 +5614,9 @@ impl Editor {
                     let menu = CompletionsMenu::new(
                         id,
                         requested_source.unwrap_or(if load_provider_completions {
-                            CompletionsMenuSource::Normal
+                            CompletionsMenuSource::Normal {
+                                ignore_threshold: false,
+                            }
                         } else {
                             CompletionsMenuSource::SnippetsOnly
                         }),
@@ -8381,9 +8389,14 @@ impl Editor {
     }
 
     pub fn supertab(&mut self, _: &SuperTab, window: &mut Window, cx: &mut Context<Self>) {
+        const TERMINATORS: &[char] = &[' ', '\t', '\n', ',', ')', ']', '}', ';'];
+        const TRIGGERS: &[char] = &['.', ':', '>'];
+
         if self.mode.is_single_line() {
             self.open_or_update_completions_menu(
-                Some(CompletionsMenuSource::Normal),
+                Some(CompletionsMenuSource::Normal {
+                    ignore_threshold: true,
+                }),
                 None,
                 false,
                 window,
@@ -8419,18 +8432,21 @@ impl Editor {
         let selections = self.selections.all::<Point>(&self.display_snapshot(cx));
         let snapshot = self.buffer.read(cx).snapshot(cx);
         for selection in selections {
-            let Some(following) = snapshot.chars_at(selection.start).next() else {
-                continue;
-            };
+            let following = snapshot.chars_at(selection.start).next();
+
             let Some(preceding) = snapshot.reversed_chars_at(selection.start).next() else {
                 continue;
             };
 
-            if (!preceding.is_whitespace() && following.is_whitespace())
-                || preceding.is_ascii_punctuation()
-            {
+            let word_end = !preceding.is_whitespace()
+                && following.map_or(true, |c| c.is_whitespace() || TERMINATORS.contains(&c));
+            let trigger_end = TRIGGERS.contains(&preceding);
+
+            if word_end || trigger_end {
                 self.open_or_update_completions_menu(
-                    Some(CompletionsMenuSource::Normal),
+                    Some(CompletionsMenuSource::Normal {
+                        ignore_threshold: true,
+                    }),
                     None,
                     false,
                     window,

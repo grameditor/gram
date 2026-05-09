@@ -267,7 +267,7 @@ enum MarkdownCacheKey {
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum CompletionsMenuSource {
     /// Show all completions (words, snippets, LSP)
-    Normal,
+    Normal { ignore_threshold: bool },
     /// Show only snippets (not words or LSP)
     ///
     /// Used after typing a non-word character
