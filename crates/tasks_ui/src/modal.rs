@@ -194,7 +194,11 @@ impl TasksModal {
                 TaskSourceKind::Worktree {
                     directory_in_worktree: dir,
                     ..
-                } => !(hide_vscode && dir.file_name().is_some_and(|name| name == ".vscode")),
+                } => {
+                    !(hide_vscode
+                        && (dir.file_name().is_some_and(|name| name == ".vscode")
+                            || dir.file_name().is_some_and(|name| name == ".vscodium")))
+                }
                 TaskSourceKind::Language { .. } => add_current_language_tasks,
                 _ => true,
             }

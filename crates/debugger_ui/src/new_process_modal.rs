@@ -1013,6 +1013,9 @@ impl DebugDelegate {
                         Some(".vscode") => {
                             path.push(RelPath::unix("launch.json").unwrap());
                         }
+                        Some(".vscodium") => {
+                            path.push(RelPath::unix("launch.json").unwrap());
+                        }
                         _ => {}
                     }
                     path.display(project.path_style(cx)).to_string()
@@ -1125,7 +1128,8 @@ impl DebugDelegate {
                                     id_base: _,
                                 } => {
                                     !(hide_vscode
-                                        && dir.ends_with(RelPath::unix(".vscode").unwrap()))
+                                        && (dir.ends_with(RelPath::unix(".vscode").unwrap())
+                                            || dir.ends_with(RelPath::unix(".vscodium").unwrap())))
                                 }
                                 _ => true,
                             })

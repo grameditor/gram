@@ -8,7 +8,8 @@ use lsp::LanguageServerName;
 use paths::{
     EDITORCONFIG_NAME, local_debug_file_relative_path, local_settings_file_relative_path,
     local_tasks_file_relative_path, local_vscode_launch_file_relative_path,
-    local_vscode_tasks_file_relative_path, task_file_name,
+    local_vscode_tasks_file_relative_path, local_vscodium_launch_file_relative_path,
+    local_vscodium_tasks_file_relative_path, task_file_name,
 };
 use rpc::{
     AnyProtoClient, TypedEnvelope,
@@ -748,6 +749,18 @@ impl SettingsObserver {
                     .unwrap()
                     .into();
                 (settings_dir, LocalSettingsKind::Tasks)
+            } else if path.ends_with(local_vscodium_tasks_file_relative_path()) {
+                let settings_dir = path
+                    .ancestors()
+                    .nth(
+                        local_vscodium_tasks_file_relative_path()
+                            .components()
+                            .count()
+                            .saturating_sub(1),
+                    )
+                    .unwrap()
+                    .into();
+                (settings_dir, LocalSettingsKind::Tasks)
             } else if path.ends_with(local_debug_file_relative_path()) {
                 let settings_dir = path
                     .ancestors()
@@ -764,7 +777,19 @@ impl SettingsObserver {
                 let settings_dir = path
                     .ancestors()
                     .nth(
-                        local_vscode_tasks_file_relative_path()
+                        local_vscode_launch_file_relative_path()
+                            .components()
+                            .count()
+                            .saturating_sub(1),
+                    )
+                    .unwrap()
+                    .into();
+                (settings_dir, LocalSettingsKind::Debug)
+            } else if path.ends_with(local_vscodium_launch_file_relative_path()) {
+                let settings_dir = path
+                    .ancestors()
+                    .nth(
+                        local_vscodium_launch_file_relative_path()
                             .components()
                             .count()
                             .saturating_sub(1),
@@ -794,16 +819,16 @@ impl SettingsObserver {
                         Some(
                             async move {
                                 let content = fs.load(&abs_path).await?;
-                                if abs_path.ends_with(local_vscode_tasks_file_relative_path().as_std_path()) {
+                                if abs_path.ends_with(local_vscode_tasks_file_relative_path().as_std_path()) || abs_path.ends_with(local_vscodium_tasks_file_relative_path().as_std_path())  {
                                     let vscode_tasks =
                                         parse_json_with_comments::<VsCodeTaskFile>(&content)
                                             .with_context(|| {
-                                                format!("parsing VSCode tasks, file {abs_path:?}")
+                                                format!("parsing VSCode/VSCodium tasks, file {abs_path:?}")
                                             })?;
                                     let gram_tasks = TaskTemplates::try_from(vscode_tasks)
                                         .with_context(|| {
                                             format!(
-                                        "converting VSCode tasks into Gram ones, file {abs_path:?}"
+                                        "converting VSCode/VSCodium tasks into Gram ones, file {abs_path:?}"
                                     )
                                         })?;
                                     serde_json::to_string(&gram_tasks).with_context(|| {
@@ -811,16 +836,16 @@ impl SettingsObserver {
                                             "serializing Gram tasks into JSON, file {abs_path:?}"
                                         )
                                     })
-                                } else if abs_path.ends_with(local_vscode_launch_file_relative_path().as_std_path()) {
+                                } else if abs_path.ends_with(local_vscode_launch_file_relative_path().as_std_path()) || abs_path.ends_with(local_vscodium_launch_file_relative_path().as_std_path())  {
                                     let vscode_tasks =
                                         parse_json_with_comments::<VsCodeDebugTaskFile>(&content)
                                             .with_context(|| {
-                                                format!("parsing VSCode debug tasks, file {abs_path:?}")
+                                                format!("parsing VSCode/VSCodium debug tasks, file {abs_path:?}")
                                             })?;
                                     let gram_tasks = DebugTaskFile::try_from(vscode_tasks)
                                         .with_context(|| {
                                             format!(
-                                        "converting VSCode debug tasks into Gram ones, file {abs_path:?}"
+                                        "converting VSCode/VSCodium debug tasks into Gram ones, file {abs_path:?}"
                                     )
                                         })?;
                                     serde_json::to_string(&gram_tasks).with_context(|| {

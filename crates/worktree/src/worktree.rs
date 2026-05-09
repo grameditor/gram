@@ -31,7 +31,7 @@ use ignore::IgnoreStack;
 use language::DiskState;
 
 use parking_lot::Mutex;
-use paths::{local_settings_folder_name, local_vscode_folder_name};
+use paths::{local_settings_folder_name, local_vscode_folder_name, local_vscodium_folder_name};
 use postage::{
     barrier,
     prelude::{Sink as _, Stream as _},
@@ -2866,6 +2866,7 @@ impl BackgroundScannerState {
             || entry.path.file_name() == Some(DOT_GIT)
             || entry.path.file_name() == Some(local_settings_folder_name())
             || entry.path.file_name() == Some(local_vscode_folder_name())
+            || entry.path.file_name() == Some(local_vscodium_folder_name())
             || self.scanned_dirs.contains(&entry.id) // If we've ever scanned it, keep scanning
             || self
                 .paths_to_scan

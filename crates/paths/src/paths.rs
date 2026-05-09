@@ -317,6 +317,11 @@ pub fn local_vscode_folder_name() -> &'static str {
     ".vscode"
 }
 
+/// Returns the relative path to a `.vscodium` folder within a project.
+pub fn local_vscodium_folder_name() -> &'static str {
+    ".vscodium"
+}
+
 /// Returns the relative path to a `settings.jsonc` file within a project.
 pub fn local_settings_file_relative_path() -> &'static RelPath {
     static CACHED: LazyLock<&'static RelPath> =
@@ -335,6 +340,13 @@ pub fn local_tasks_file_relative_path() -> &'static RelPath {
 pub fn local_vscode_tasks_file_relative_path() -> &'static RelPath {
     static CACHED: LazyLock<&'static RelPath> =
         LazyLock::new(|| RelPath::unix(".vscode/tasks.json").unwrap());
+    *CACHED
+}
+
+/// Returns the relative path to a `.vscode/tasks.json` file within a project.
+pub fn local_vscodium_tasks_file_relative_path() -> &'static RelPath {
+    static CACHED: LazyLock<&'static RelPath> =
+        LazyLock::new(|| RelPath::unix(".vscodium/tasks.json").unwrap());
     *CACHED
 }
 
@@ -358,6 +370,13 @@ pub fn local_debug_file_relative_path() -> &'static RelPath {
 pub fn local_vscode_launch_file_relative_path() -> &'static RelPath {
     static CACHED: LazyLock<&'static RelPath> =
         LazyLock::new(|| RelPath::unix(".vscode/launch.json").unwrap());
+    *CACHED
+}
+
+/// Returns the relative path to a `.vscode/launch.json` file within a project.
+pub fn local_vscodium_launch_file_relative_path() -> &'static RelPath {
+    static CACHED: LazyLock<&'static RelPath> =
+        LazyLock::new(|| RelPath::unix(".vscodium/launch.json").unwrap());
     *CACHED
 }
 
