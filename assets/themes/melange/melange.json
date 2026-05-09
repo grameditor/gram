@@ -139,10 +139,12 @@
             "color": "#78997a"
           },
           "comment": {
-            "color": "#867462"
+            "color": "#867462",
+            "font_style": "italic"
           },
           "comment.doc": {
-            "color": "#867462"
+            "color": "#867462",
+            "font_style": "italic"
           },
           "constant": {
             "color": "#b380b0"
@@ -230,7 +232,16 @@
           "variable.special": {
             "color": "#ebc06d"
           }
-        }
+        },
+        "vim.normal.background": "#837464",
+        "vim.insert.background": "#ebc06d",
+        "vim.replace.background": "#b380b0",
+        "vim.visual.background": "#a3a9ce",
+        "vim.visual_line.background": "#a3a9ce",
+        "vim.visual_block.background": "#a3a9ce",
+        "vim.helix_normal.background": "#837464",
+        "vim.helix_select.background": "#ebc06d",
+        "vim.mode.text": "#292522"
       }
     },
     {
@@ -369,10 +380,12 @@
             "color": "#6e9b72"
           },
           "comment": {
-            "color": "#9d8576"
+            "color": "#9d8576",
+            "font_style": "italic"
           },
           "comment.doc": {
-            "color": "#9d8576"
+            "color": "#9d8576",
+            "font_style": "italic"
           },
           "constant": {
             "color": "#be79bb"
@@ -460,7 +473,16 @@
           "variable.special": {
             "color": "#bc5c00"
           }
-        }
+        },
+        "vim.normal.background": "#a48b7a",
+        "vim.insert.background": "#a06d00",
+        "vim.replace.background": "#bf0021",
+        "vim.visual.background": "#3a684a",
+        "vim.visual_line.background": "#3d6568",
+        "vim.visual_block.background": "#3d6568",
+        "vim.helix_normal.background": "#a48b7a",
+        "vim.helix_select.background": "#a06d00",
+        "vim.mode.text": "#f1f1f1"
       }
     }
   ]
