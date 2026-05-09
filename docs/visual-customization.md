@@ -223,6 +223,12 @@ TBD: Centered layout related settings
     "background_coloring": "disabled" // disabled, indent_aware
   },
 
+  // Smooth scrolling
+  "smooth_scroll": {
+    "enabled": false // Whether to animate scrolling with a smooth easing effect. Disabled by default.
+    "duration": 160 // Duration of the scrolling animation (ms)
+  },
+
   "sticky_scroll": {
     "enabled": false // Whether to stick scopes to the top of the editor. Disabled by default.
   }

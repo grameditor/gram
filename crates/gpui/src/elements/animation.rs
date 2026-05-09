@@ -234,6 +234,11 @@ mod easing {
         move |delta| 1.0 - (1.0 - delta).powi(5)
     }
 
+    /// Cubic easing
+    pub fn ease_out_cubic() -> impl Fn(f32) -> f32 {
+        move |delta| 1.0 - (1.0 - delta).powi(3)
+    }
+
     /// Apply the given easing function, first in the forward direction and then in the reverse direction
     pub fn bounce(easing: impl Fn(f32) -> f32) -> impl Fn(f32) -> f32 {
         move |delta| {

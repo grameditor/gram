@@ -33,6 +33,7 @@ pub struct EditorSettings {
     pub horizontal_scroll_margin: f32,
     pub scroll_sensitivity: f32,
     pub fast_scroll_sensitivity: f32,
+    pub smooth_scroll: SmoothScroll,
     pub sticky_scroll: StickyScroll,
     pub relative_line_numbers: RelativeLineNumbers,
     pub seed_search_query_from_cursor: SeedQuerySetting,
@@ -64,6 +65,12 @@ pub struct Jupyter {
     ///
     /// Default: true
     pub enabled: bool,
+}
+
+#[derive(Copy, Clone, Debug)]
+pub struct SmoothScroll {
+    pub enabled: bool,
+    pub duration: DelayMs,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -195,6 +202,7 @@ impl Settings for EditorSettings {
         let toolbar = editor.toolbar.unwrap();
         let search = editor.search.unwrap();
         let drag_and_drop_selection = editor.drag_and_drop_selection.unwrap();
+        let smooth_scroll = editor.smooth_scroll.unwrap();
         let sticky_scroll = editor.sticky_scroll.unwrap();
         Self {
             cursor_blink: editor.cursor_blink.unwrap(),
@@ -245,6 +253,10 @@ impl Settings for EditorSettings {
             horizontal_scroll_margin: editor.horizontal_scroll_margin.unwrap(),
             scroll_sensitivity: editor.scroll_sensitivity.unwrap(),
             fast_scroll_sensitivity: editor.fast_scroll_sensitivity.unwrap(),
+            smooth_scroll: SmoothScroll {
+                enabled: smooth_scroll.enabled.unwrap(),
+                duration: smooth_scroll.duration.unwrap(),
+            },
             sticky_scroll: StickyScroll {
                 enabled: sticky_scroll.enabled.unwrap(),
             },

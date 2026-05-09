@@ -40,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add option to move status bar to top of window
 - Add ctrl/cmd-shift-o key binding to open tab switcher
 - Improve support for VSCodium task/debug import (#261)
+- Smooth scrolling animation support (#140) (zed#44827)
 
 [poll]: https://github.com/lilith/zed/commit/0334469a57a20586b28b86187028acd36559a9d3
 [kintsugi]: https://github.com/giacomocavalieri/kintsugi-zed

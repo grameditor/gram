@@ -30,6 +30,13 @@ const SCROLLBAR_SHOW_INTERVAL: Duration = Duration::from_secs(1);
 
 pub struct WasScrolled(pub(crate) bool);
 
+#[derive(Clone, Copy, Debug)]
+pub struct ScrollAnimation {
+    pub start_position: gpui::Point<ScrollOffset>,
+    pub target_position: gpui::Point<ScrollOffset>,
+    pub start_time: Instant,
+}
+
 pub type ScrollOffset = f64;
 pub type ScrollPixelOffset = f64;
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -171,12 +178,15 @@ pub struct ScrollManager {
     visible_column_count: Option<f64>,
     forbid_vertical_scroll: bool,
     minimap_thumb_state: Option<ScrollbarThumbState>,
+    pub(crate) scroll_animation: Option<ScrollAnimation>,
+    pub(crate) scroll_animation_duration: Duration,
 }
 
 impl ScrollManager {
     pub fn new(cx: &mut App) -> Self {
+        let editor_settings = EditorSettings::get_global(cx);
         ScrollManager {
-            vertical_scroll_margin: EditorSettings::get_global(cx).vertical_scroll_margin,
+            vertical_scroll_margin: editor_settings.vertical_scroll_margin,
             anchor: ScrollAnchor::new(),
             ongoing: OngoingScroll::new(),
             sticky_header_line_count: 0,
@@ -189,6 +199,10 @@ impl ScrollManager {
             visible_column_count: None,
             forbid_vertical_scroll: false,
             minimap_thumb_state: None,
+            scroll_animation: None,
+            scroll_animation_duration: Duration::from_millis(
+                editor_settings.smooth_scroll.duration.0,
+            ),
         }
     }
 
@@ -221,6 +235,81 @@ impl ScrollManager {
 
     pub fn set_sticky_header_line_count(&mut self, count: usize) {
         self.sticky_header_line_count = count;
+    }
+
+    pub fn scroll_animation(&self) -> Option<&ScrollAnimation> {
+        self.scroll_animation.as_ref()
+    }
+
+    pub fn start_animation(
+        &mut self,
+        current_position: gpui::Point<ScrollOffset>,
+        target_position: gpui::Point<ScrollOffset>,
+    ) {
+        let start_position = if let Some(animation) = &self.scroll_animation {
+            let elapsed = animation.start_time.elapsed().as_secs_f32();
+            let duration = self.scroll_animation_duration.as_secs_f32();
+            let progress = (elapsed / duration).min(1.0);
+            let easing_fn = gpui::ease_out_cubic();
+            let eased = easing_fn(progress);
+
+            gpui::Point::new(
+                animation.start_position.x
+                    + (animation.target_position.x - animation.start_position.x) * eased as f64,
+                animation.start_position.y
+                    + (animation.target_position.y - animation.start_position.y) * eased as f64,
+            )
+        } else {
+            current_position
+        };
+
+        self.scroll_animation = Some(ScrollAnimation {
+            start_position,
+            target_position,
+            start_time: Instant::now(),
+        });
+    }
+
+    pub fn cancel_animation(&mut self) {
+        self.scroll_animation = None;
+    }
+
+    pub fn update_animation(&mut self) -> Option<gpui::Point<ScrollOffset>> {
+        let Some(animation) = self.scroll_animation else {
+            return None;
+        };
+
+        let progress = {
+            let elapsed = animation.start_time.elapsed().as_secs_f32();
+            let duration = self.scroll_animation_duration.as_secs_f32();
+            (elapsed / duration).min(1.0)
+        };
+
+        let easing_fn = gpui::ease_out_cubic();
+        let eased_progress = easing_fn(progress);
+
+        let start = animation.start_position;
+        let target = animation.target_position;
+
+        let current_x = start.x + (target.x - start.x) * eased_progress as f64;
+        let current_y = start.y + (target.y - start.y) * eased_progress as f64;
+        let interpolated_position = point(current_x, current_y);
+
+        if progress >= 1.0 {
+            self.cancel_animation();
+
+            Some(target)
+        } else {
+            Some(interpolated_position)
+        }
+    }
+
+    pub fn animation_progress(&self) -> Option<f32> {
+        self.scroll_animation.as_ref().map(|animation| {
+            let elapsed = animation.start_time.elapsed().as_secs_f32();
+            let duration = self.scroll_animation_duration.as_secs_f32();
+            (elapsed / duration).min(1.0)
+        })
     }
 
     fn set_scroll_position(
@@ -549,6 +638,7 @@ impl Editor {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> WasScrolled {
+        self.scroll_manager.cancel_animation();
         let mut position = scroll_position;
         if self.scroll_manager.forbid_vertical_scroll {
             let current_position = self.scroll_position(cx);
@@ -639,6 +729,7 @@ impl Editor {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
+        self.scroll_manager.cancel_animation();
         hide_hover(self, cx);
         let workspace_id = self.workspace.as_ref().and_then(|workspace| workspace.1);
         let top_row = scroll_anchor
