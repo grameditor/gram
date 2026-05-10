@@ -21,7 +21,7 @@ use cocoa::{
         NSArray, NSAutoreleasePool, NSBundle, NSInteger, NSProcessInfo, NSString, NSUInteger, NSURL,
     },
 };
-use core_foundation::{ base::CFRelease, runloop::CFRunLoopRun, string::CFStringRef};
+use core_foundation::{base::CFRelease, runloop::CFRunLoopRun, string::CFStringRef};
 use ctor::ctor;
 use futures::channel::oneshot;
 use itertools::Itertools;
@@ -67,7 +67,7 @@ unsafe fn build_classes() {
         }
     };
     unsafe {
-        APP_DELEGATE_CLASS = unsafe {
+        APP_DELEGATE_CLASS = {
             let mut decl = ClassDecl::new("GPUIApplicationDelegate", class!(NSResponder)).unwrap();
             decl.add_ivar::<*mut c_void>(MAC_PLATFORM_IVAR);
             decl.add_method(
