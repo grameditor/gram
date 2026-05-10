@@ -207,7 +207,7 @@ assets = [
 [package.metadata.generate-rpm]
 name = "gram"
 summary = "A code editor for humanoid apes and grumpy toads"
-url = "https://gram.liten.app"
+url = "https://gram-editor.com"
 assets = [
     { source = "target/release/gram", dest = "/usr/libexec/gram-editor", mode = "755" },
     { source = "target/release/cli", dest = "/usr/bin/gram", mode = "755" },

@@ -1120,7 +1120,7 @@ fn open_about(cx: &mut App) {
                                     .size(LabelSize::XSmall),
                             )
                             .child(
-                                ButtonLink::new("gram.liten.app", "https://gram.liten.app/")
+                                ButtonLink::new("gram-editor.com", "https://gram-editor.com/")
                                     .label_size(LabelSize::XSmall),
                             )
                             .when_some(self.commit.clone(), |this, commit| {

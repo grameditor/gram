@@ -32,7 +32,7 @@
         <color type="primary" scheme_preference="dark">$BRANDING_DARK</color>
     </branding>
 
-    <url type="homepage">https://gram.liten.app</url>
+    <url type="homepage">https://gram-editor.com</url>
     <url type="bugtracker">https://codeberg.org/GramEditor/gram/issues</url>
     <url type="vcs-browser">https://codeberg.org/GramEditor/gram</url>
 

@@ -1670,7 +1670,7 @@ impl Render for GitCloneModal {
                                             .icon_size(IconSize::XSmall)
                                             .on_click(|_, _, cx| {
                                                 cx.open_url(
-                                                    "https://gram.liten.app/docs/extensions/installing-extensions/",
+                                                    "https://gram-editor.com/docs/extensions/installing-extensions/",
                                                 );
                                             }),
                                     ),

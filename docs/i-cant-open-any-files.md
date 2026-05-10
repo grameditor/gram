@@ -25,4 +25,4 @@ It is also possible that you are running out of file descriptors. You can check 
 If you build and run from source and haven't already installed Gram as an
 application, the `gram://` links will not work properly. To get them working,
 you will need to either build an application bundle yourself or install one of
-the pre-built bundles from the [Gram website](https://gram.liten.app).
+the pre-built bundles from the [Gram website](https://gram-editor.com).

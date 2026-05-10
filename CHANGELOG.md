@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Downloaded language servers no longer auto update (#267)
 - Emmyluadoc tree-sitter grammar was removed (it was broken)
 - Remove download support for superhtml on Linux (#194) (it was broken)
+- New website URL: <https://gram-editor.com>
 
 ### Added
 
