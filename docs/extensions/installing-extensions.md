@@ -21,15 +21,16 @@ sysroot instead.
 > precompiled Wasm bundle from the Zed website when installing an extension, to
 > avoid having to build the extension locally.
 
-You can search for extensions by launching the Gram Extension Gallery by
-pressing {#kb gram::Extensions} , opening the command palette and selecting
-{#action gram::Extensions} or by selecting "Gram > Extensions" from the menu
+You can manage your extensions by launching the Gram Extension Gallery.
+
+Press {#kb gram::Extensions} , open the command palette and select
+{#action gram::Extensions} or select "Gram > Extensions" from the menu
 bar.
 
-Here you can view the extensions that you currently have installed or search and
-install new ones.
-
-You can also install extensions for your local file system, or via a git URL.
+Here you can view the extensions that you currently have installed, and you can
+also install extensions for your local file system, or via a git URL. To get the
+git URL for a Zed extension, go to the Zed extensions website, find the
+extension you want to use and copy the "Visit Repository" link.
 
 ## Requirements
 
