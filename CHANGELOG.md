@@ -47,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - List all buffers in tab switcher (zed#47079)
 - Add ctrl/cmd-shift-o key binding to open tab switcher
 - Add pane join actions for vim-like split close workflows (zed#50035)
+- Make filenames clickable in git graph
 
 [poll]: https://github.com/lilith/zed/commit/0334469a57a20586b28b86187028acd36559a9d3
 [kintsugi]: https://github.com/giacomocavalieri/kintsugi-zed
@@ -99,6 +100,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Don't install compilation artifacts when installing extension (#273)
 - Compile extension in release mode (#273)
 - Update vscode-eslint to 3.0.24 and fix ESLint 8-10 (#227) (zed#52886)
+- Fix git graph text getting squashed (#272)
 
 ### Changed
 

@@ -346,7 +346,7 @@ pub struct CommitDiff {
     pub files: Vec<CommitFile>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CommitFile {
     pub path: RepoPath,
     pub old_text: Option<String>,

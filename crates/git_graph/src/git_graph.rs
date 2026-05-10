@@ -503,7 +503,9 @@ pub fn init(cx: &mut App) {
                         workspace
                             .update(cx, |workspace, cx| {
                                 let project = workspace.project().clone();
-                                let git_graph = cx.new(|cx| GitGraph::new(project, window, cx));
+                                let workspace_handle = workspace.weak_handle();
+                                let git_graph = cx
+                                    .new(|cx| GitGraph::new(project, workspace_handle, window, cx));
                                 workspace.add_item_to_active_pane(
                                     Box::new(git_graph),
                                     None,
@@ -566,6 +568,7 @@ fn draw_commit_circle(center_x: Pixels, center_y: Pixels, color: Hsla, window: &
 }
 
 pub struct GitGraph {
+    workspace: WeakEntity<Workspace>,
     focus_handle: FocusHandle,
     graph_data: GraphData,
     project: Entity<Project>,
@@ -593,7 +596,12 @@ impl GitGraph {
         (LANE_WIDTH * self.graph_data.max_lanes.min(8) as f32) + LEFT_PADDING * 2.0
     }
 
-    pub fn new(project: Entity<Project>, window: &mut Window, cx: &mut Context<Self>) -> Self {
+    pub fn new(
+        project: Entity<Project>,
+        workspace: WeakEntity<Workspace>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> Self {
         let focus_handle = cx.focus_handle();
         cx.on_focus(&focus_handle, window, |_, _, cx| cx.notify())
             .detach();
@@ -648,6 +656,7 @@ impl GitGraph {
         .detach();
 
         GitGraph {
+            workspace,
             focus_handle,
             project,
             graph_data: graph,
@@ -1131,19 +1140,70 @@ impl GitGraph {
                                         .parent()
                                         .map(|p| p.as_unix_str().to_string())
                                         .unwrap_or_default();
+                                    let tooltip: String = file.path.to_proto();
 
+                                    let (icon_name, icon_color) = if file.is_binary {
+                                        (IconName::Binary, Color::Disabled)
+                                    } else if file.old_text.is_none() {
+                                        (IconName::SquarePlus, Color::VersionControlAdded)
+                                    } else if file.new_text.is_none() {
+                                        (IconName::SquareMinus, Color::VersionControlDeleted)
+                                    } else {
+                                        (IconName::SquareDot, Color::VersionControlModified)
+                                    };
+
+                                    let file = file.clone();
                                     h_flex()
                                         .gap_1()
                                         .overflow_hidden()
                                         .child(
-                                            Icon::new(IconName::File)
-                                                .size(IconSize::Small)
-                                                .color(Color::Accent),
-                                        )
-                                        .child(
-                                            Label::new(file_name)
-                                                .size(LabelSize::Small)
-                                                .single_line(),
+                                            Button::new(file_name.clone(), &file_name)
+                                                .icon(Some(icon_name))
+                                                .icon_position(Some(IconPosition::Start))
+                                                .icon_color(Some(icon_color))
+                                                .style(ButtonStyle::Subtle)
+                                                .label_size(LabelSize::Small)
+                                                .tooltip(Tooltip::text(tooltip))
+                                                .on_click(cx.listener(
+                                                    move |this, _, window, cx| {
+                                                        if file.is_binary || file.new_text.is_none()
+                                                        {
+                                                            return;
+                                                        }
+                                                        let Some(workspace) =
+                                                            this.workspace.upgrade()
+                                                        else {
+                                                            return;
+                                                        };
+
+                                                        let Some(repository) = this
+                                                            .project
+                                                            .read(cx)
+                                                            .active_repository(cx)
+                                                        else {
+                                                            return;
+                                                        };
+                                                        let Some(project_path) = repository
+                                                            .read(cx)
+                                                            .repo_path_to_project_path(
+                                                                &file.path, cx,
+                                                            )
+                                                        else {
+                                                            return;
+                                                        };
+                                                        workspace.update(cx, |workspace, cx| {
+                                                            workspace
+                                                                .open_path(
+                                                                    project_path,
+                                                                    None,
+                                                                    true,
+                                                                    window,
+                                                                    cx,
+                                                                )
+                                                                .detach();
+                                                        });
+                                                    },
+                                                )),
                                         )
                                         .when(!dir_path.is_empty(), |this| {
                                             this.child(
@@ -1487,7 +1547,7 @@ impl Render for GitGraph {
                                 .p_2()
                                 .border_b_1()
                                 .border_color(cx.theme().colors().border)
-                                .child(Label::new("Graph").color(Color::Muted)),
+                                .child(Label::new("Graph").color(Color::Muted).truncate()),
                         )
                         .child(
                             div()
@@ -1614,7 +1674,7 @@ impl SerializableItem for GitGraph {
 
     fn deserialize(
         project: Entity<Project>,
-        _: WeakEntity<Workspace>,
+        workspace_handle: WeakEntity<Workspace>,
         workspace_id: workspace::WorkspaceId,
         item_id: workspace::ItemId,
         window: &mut Window,
@@ -1625,7 +1685,7 @@ impl SerializableItem for GitGraph {
             .ok()
             .is_some_and(|is_open| is_open)
         {
-            let git_graph = cx.new(|cx| GitGraph::new(project, window, cx));
+            let git_graph = cx.new(|cx| GitGraph::new(project, workspace_handle, window, cx));
             Task::ready(Ok(git_graph))
         } else {
             Task::ready(Err(anyhow::anyhow!("No git graph to deserialize")))
