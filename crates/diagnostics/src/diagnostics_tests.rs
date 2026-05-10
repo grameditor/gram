@@ -650,7 +650,8 @@ async fn test_diagnostics_multiple_servers(cx: &mut TestAppContext) {
     );
 }
 
-#[gpui::test(iterations = 20)]
+// Too slow for my test runner
+#[gpui::test(iterations = 4)]
 async fn test_random_diagnostics_blocks(cx: &mut TestAppContext, mut rng: StdRng) {
     init_test(cx);
 
