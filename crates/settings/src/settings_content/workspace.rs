@@ -422,6 +422,10 @@ pub struct StatusBarSettingsContent {
     ///
     /// Default: true
     pub show: Option<bool>,
+    /// Whether  to show the active file name in the status bar.
+    ///
+    /// Default: true
+    pub active_file: Option<bool>,
     /// Whether to display the active language button in the status bar.
     ///
     /// Default: true

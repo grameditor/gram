@@ -2749,6 +2749,28 @@ pub(crate) fn settings_data(cx: &App) -> Vec<SettingsPage> {
                     files: USER,
                 }),
                 SettingsPageItem::SettingItem(SettingItem {
+                    title: "Active File",
+                    description: "Show the active file name in the status bar.",
+                    field: Box::new(SettingField {
+                        json_path: Some("status_bar.active_file"),
+                        pick: |settings_content| {
+                            settings_content
+                                .status_bar
+                                .as_ref()?
+                                .active_file
+                                .as_ref()
+                        },
+                        write: |settings_content, value| {
+                            settings_content
+                                .status_bar
+                                .get_or_insert_default()
+                                .active_file = value;
+                        },
+                    }),
+                    metadata: None,
+                    files: USER,
+                }),
+                SettingsPageItem::SettingItem(SettingItem {
                     title: "Project Panel Button",
                     description: "Show the project panel button in the status bar.",
                     field: Box::new(SettingField {
