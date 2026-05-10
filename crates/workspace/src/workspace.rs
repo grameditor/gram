@@ -73,7 +73,6 @@ pub use persistence::{
 use postage::stream::Stream;
 use project::{
     DirectoryLister, Project, ProjectEntryId, ProjectPath, ResolvedPath, Worktree, WorktreeId,
-    WorktreeSettings,
     debugger::{breakpoint_store::BreakpointStoreEvent, session::ThreadStatus},
     toolchain_store::ToolchainStoreEvent,
 };
@@ -84,7 +83,7 @@ use remote::{
 use schemars::JsonSchema;
 use serde::Deserialize;
 use session::AppSession;
-use settings::{CenteredPaddingSettings, Settings, SettingsLocation, StatusBarPosition};
+use settings::{CenteredPaddingSettings, Settings, StatusBarPosition};
 use sqlez::{
     bindable::{Bind, Column, StaticColumnCount},
     statement::Statement,
@@ -4247,22 +4246,10 @@ impl Workspace {
         let mut title = String::new();
 
         for (i, worktree) in project.visible_worktrees(cx).enumerate() {
-            let name = {
-                let settings_location = SettingsLocation {
-                    worktree_id: worktree.read(cx).id(),
-                    path: RelPath::empty(),
-                };
-
-                let settings = WorktreeSettings::get(Some(settings_location), cx);
-                match &settings.project_name {
-                    Some(name) => name.as_str(),
-                    None => worktree.read(cx).root_name_str(),
-                }
-            };
             if i > 0 {
                 title.push_str(", ");
             }
-            title.push_str(name);
+            title.push_str(worktree.read(cx).root_name_str());
         }
 
         if title.is_empty() {

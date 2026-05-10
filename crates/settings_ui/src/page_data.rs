@@ -9,11 +9,6 @@ use crate::{
     SettingsPage, SettingsPageItem, SubPageLink, USER, all_language_names, sub_page_stack,
 };
 
-const DEFAULT_STRING: String = String::new();
-/// A default empty string reference. Useful in `pick` functions for cases either in dynamic item fields, or when dealing with `settings::Maybe`
-/// to avoid the "NO DEFAULT" case.
-const DEFAULT_EMPTY_STRING: Option<&String> = Some(&DEFAULT_STRING);
-
 const DEFAULT_SHARED_STRING: SharedString = SharedString::new_static("");
 /// A default empty string reference. Useful in `pick` functions for cases either in dynamic item fields, or when dealing with `settings::Maybe`
 /// to avoid the "NO DEFAULT" case.
@@ -25,23 +20,6 @@ pub(crate) fn settings_data(cx: &App) -> Vec<SettingsPage> {
             title: "General",
             items: vec![
                 SettingsPageItem::SectionHeader("General Settings"),
-                SettingsPageItem::SettingItem(SettingItem {
-                    files: PROJECT,
-                    title: "Project Name",
-                    description: "The displayed name of this project. If left empty, the root directory name will be displayed.",
-                    field: Box::new(
-                        SettingField {
-                            json_path: Some("project_name"),
-                            pick: |settings_content| {
-                                settings_content.project.worktree.project_name.as_ref().or(DEFAULT_EMPTY_STRING)
-                            },
-                            write: |settings_content, value| {
-                                settings_content.project.worktree.project_name = value.filter(|name| !name.is_empty());
-                            },
-                        }
-                    ),
-                    metadata: Some(Box::new(SettingsFieldMetadata { placeholder: Some("Project Name"), ..Default::default() })),
-                }),
                 SettingsPageItem::SettingItem(SettingItem {
                     title: "When Closing With No Tabs",
                     description: "What to do when using the 'close active item' action with no tabs.",

@@ -56,6 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove download support for superhtml on Linux (#194)
 - Remove Windows OpenConsole.exe binary from source code tree
 - Removed unused message_editor and notification_panel settings
+- Remove project name setting (#278)
 
 ### Fixed
 

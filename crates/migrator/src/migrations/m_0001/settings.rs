@@ -17,6 +17,7 @@ pub fn removed_settings(settings: &mut Value) -> Result<()> {
     if let Some(settings) = settings.as_object_mut() {
         settings.remove("message_editor");
         settings.remove("notification_panel");
+        settings.remove("project_name");
     };
     Ok(())
 }

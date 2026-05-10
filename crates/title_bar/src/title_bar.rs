@@ -23,16 +23,15 @@ use gpui::{
     Action, AnyElement, App, Context, Corner, Element, Entity, Focusable, InteractiveElement,
     IntoElement, MouseButton, ParentElement, Render, Styled, Subscription, WeakEntity, Window,
 };
-use project::{Project, WorktreeSettings, git_store::GitStoreEvent};
+use project::{Project, git_store::GitStoreEvent};
 use remote::RemoteConnectionOptions;
-use settings::{Settings, SettingsLocation};
+use settings::Settings;
 use theme::ActiveTheme;
 use title_bar_settings::TitleBarSettings;
 use ui::{
     Button, ButtonLike, ButtonStyle, ContextMenu, Icon, IconName, IconSize, IconWithIndicator,
     Indicator, PopoverMenu, Tooltip, h_flex, prelude::*,
 };
-use util::rel_path::RelPath;
 use workspace::Workspace;
 
 #[cfg(feature = "stories")]
@@ -243,20 +242,7 @@ impl TitleBar {
         self.project
             .read(cx)
             .visible_worktrees(cx)
-            .map(|worktree| {
-                let worktree = worktree.read(cx);
-                let settings_location = SettingsLocation {
-                    worktree_id: worktree.id(),
-                    path: RelPath::empty(),
-                };
-
-                let settings = WorktreeSettings::get(Some(settings_location), cx);
-                let name = match &settings.project_name {
-                    Some(name) => name.as_str(),
-                    None => worktree.root_name_str(),
-                };
-                SharedString::new(name)
-            })
+            .map(|worktree| SharedString::new(worktree.read(cx).root_name_str()))
             .next()
     }
 
