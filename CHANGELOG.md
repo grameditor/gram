@@ -46,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Show active file name in the status bar (zed#52381)
 - List all buffers in tab switcher (zed#47079)
 - Add ctrl/cmd-shift-o key binding to open tab switcher
+- Add pane join actions for vim-like split close workflows (zed#50035)
 
 [poll]: https://github.com/lilith/zed/commit/0334469a57a20586b28b86187028acd36559a9d3
 [kintsugi]: https://github.com/giacomocavalieri/kintsugi-zed

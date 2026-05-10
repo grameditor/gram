@@ -212,6 +212,12 @@ actions!(
         GoForward,
         /// Joins this pane into the next pane.
         JoinIntoNext,
+        /// Joins this pane into the next pane. The destination pane's active tab remains active.
+        JoinIntoNextAsInactive,
+        /// Joins this pane into the previous pane. The source pane's active tab remains active.
+        JoinIntoPrevious,
+        /// Joins this pane into the previous pane. The destination pane's active tab remains active.
+        JoinIntoPreviousAsInactive,
         /// Joins all panes into one.
         JoinAll,
         /// Reopens the most recently closed item.
@@ -283,6 +289,9 @@ pub enum Event {
     ItemUnpinned,
     JoinAll,
     JoinIntoNext,
+    JoinIntoNextAsInactive,
+    JoinIntoPrevious,
+    JoinIntoPreviousAsInactive,
     ChangeItemTitle,
     Focus,
     ZoomIn,
@@ -319,6 +328,9 @@ impl fmt::Debug for Event {
                 .finish(),
             Event::JoinAll => f.write_str("JoinAll"),
             Event::JoinIntoNext => f.write_str("JoinIntoNext"),
+            Event::JoinIntoNextAsInactive => f.write_str("JoinIntoNextAsInactive"),
+            Event::JoinIntoPrevious => f.write_str("JoinIntoPrevious"),
+            Event::JoinIntoPreviousAsInactive => f.write_str("JoinIntoPreviousAsInactive"),
             Event::ChangeItemTitle => f.write_str("ChangeItemTitle"),
             Event::Focus => f.write_str("Focus"),
             Event::ZoomIn => f.write_str("ZoomIn"),
@@ -3803,6 +3815,15 @@ impl Render for Pane {
             }))
             .on_action(cx.listener(|_, _: &JoinIntoNext, _, cx| {
                 cx.emit(Event::JoinIntoNext);
+            }))
+            .on_action(cx.listener(|_, _: &JoinIntoNextAsInactive, _, cx| {
+                cx.emit(Event::JoinIntoNextAsInactive);
+            }))
+            .on_action(cx.listener(|_, _: &JoinIntoPrevious, _, cx| {
+                cx.emit(Event::JoinIntoPrevious);
+            }))
+            .on_action(cx.listener(|_, _: &JoinIntoPreviousAsInactive, _, cx| {
+                cx.emit(Event::JoinIntoPreviousAsInactive);
             }))
             .on_action(cx.listener(|_, _: &JoinAll, _, cx| {
                 cx.emit(Event::JoinAll);
