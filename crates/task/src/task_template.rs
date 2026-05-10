@@ -4,13 +4,13 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::path::PathBuf;
-use util::schemars::DefaultDenyUnknownFields;
+use util::schemars::{AllowTrailingCommas, DefaultDenyUnknownFields};
 use util::serde::default_true;
 use util::{ResultExt, truncate_and_remove_front};
 
 use crate::{
-    AttachRequest, ResolvedTask, RevealTarget, Shell, SpawnInTerminal, TaskContext, TaskId,
-    VariableName, GRAM_VARIABLE_NAME_PREFIX, serde_helpers::non_empty_string_vec,
+    AttachRequest, GRAM_VARIABLE_NAME_PREFIX, ResolvedTask, RevealTarget, Shell, SpawnInTerminal,
+    TaskContext, TaskId, VariableName, serde_helpers::non_empty_string_vec,
 };
 
 /// A template definition of a Gram task to run.
@@ -118,6 +118,7 @@ impl TaskTemplates {
     pub fn generate_json_schema() -> serde_json::Value {
         let schema = schemars::generate::SchemaSettings::draft2019_09()
             .with_transform(DefaultDenyUnknownFields)
+            .with_transform(AllowTrailingCommas)
             .into_generator()
             .root_schema_for::<Self>();
 

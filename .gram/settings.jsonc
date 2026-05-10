@@ -40,7 +40,7 @@
   },
   "file_types": {
     "Dockerfile": ["Dockerfile*[!dockerignore]"],
-    "JSONC": ["**/assets/{settings,keymaps}/**/*.json", "renovate.json"],
+    "JSONC": ["**/assets/{settings,keymaps}/**/*.json", "**/assets/{settings,keymaps}/**/*.jsonc", "renovate.json"],
     "Git Ignore": ["dockerignore"],
   },
   "hard_tabs": false,
