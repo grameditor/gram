@@ -9,11 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Breaking
 
-- New website: <https://gram-editor.com>
-- Modified default settings to be more sensible (#184)
+- New website at <https://gram-editor.com>
 - Downloaded language servers no longer auto update (#267)
 - Emmyluadoc tree-sitter grammar was removed (it was broken)
-- Remove download support for superhtml on Linux (#194) (it was broken)
+- Modified default settings to be more sensible (#184)
+- Removed download support for superhtml on Linux (#194) (it was broken)
+- Removed settings for features that had been removed
 
 ### Added
 
@@ -110,6 +111,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update .gitattributes (#226) by @ivankopylov6603
 - Make status_bar.show a non-experimental setting
 - Rework vim/helix mode indicator
+- Added screenshot to the README (#263) by @arisunz
+- Updated README (#279) by @koru
 
 ## [1.2.1] - 2026-03-26
 
