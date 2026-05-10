@@ -100,7 +100,6 @@ To disable this behavior use:
   // "project_panel": {"button": false },
   // "outline_panel": {"button": false },
   // "git_panel": {"button": false },
-  // "notification_panel": {"button": false },
   // "debugger": {"button": false },
   // "diagnostics": {"button": false },
   // "search": {"button": false },

@@ -1014,7 +1014,6 @@ pub struct Editor {
     >,
     use_autoclose: bool,
     use_auto_surround: bool,
-    auto_replace_emoji_shortcode: bool,
     jsx_tag_auto_close_enabled_in_any_buffer: bool,
     show_git_blame_gutter: bool,
     show_git_blame_inline: bool,
@@ -2148,7 +2147,6 @@ impl Editor {
             read_only: is_minimap,
             use_autoclose: true,
             use_auto_surround: true,
-            auto_replace_emoji_shortcode: false,
             jsx_tag_auto_close_enabled_in_any_buffer: false,
             remote_id: None,
             hover_state: HoverState::default(),
@@ -2909,10 +2907,6 @@ impl Editor {
 
     pub fn set_use_auto_surround(&mut self, auto_surround: bool) {
         self.use_auto_surround = auto_surround;
-    }
-
-    pub fn set_auto_replace_emoji_shortcode(&mut self, auto_replace: bool) {
-        self.auto_replace_emoji_shortcode = auto_replace;
     }
 
     pub fn set_should_serialize(&mut self, should_serialize: bool, cx: &App) {
@@ -4217,43 +4211,6 @@ impl Editor {
                 }
             }
 
-            if self.auto_replace_emoji_shortcode
-                && selection.is_empty()
-                && text.as_ref().ends_with(':')
-                && let Some(possible_emoji_short_code) =
-                    Self::find_possible_emoji_shortcode_at_position(&snapshot, selection.start)
-                && !possible_emoji_short_code.is_empty()
-                && let Some(emoji) = emojis::get_by_shortcode(&possible_emoji_short_code)
-            {
-                let emoji_shortcode_start = Point::new(
-                    selection.start.row,
-                    selection.start.column - possible_emoji_short_code.len() as u32 - 1,
-                );
-
-                // Remove shortcode from buffer
-                edits.push((
-                    emoji_shortcode_start..selection.start,
-                    "".to_string().into(),
-                ));
-                new_selections.push((
-                    Selection {
-                        id: selection.id,
-                        start: snapshot.anchor_after(emoji_shortcode_start),
-                        end: snapshot.anchor_before(selection.start),
-                        reversed: selection.reversed,
-                        goal: selection.goal,
-                    },
-                    0,
-                ));
-
-                // Insert emoji
-                let selection_start_anchor = snapshot.anchor_after(selection.start);
-                new_selections.push((selection.map(|_| selection_start_anchor), 0));
-                edits.push((selection.start..selection.end, emoji.to_string().into()));
-
-                continue;
-            }
-
             // If not handling any auto-close operation, then just replace the selected
             // text with the given input and move the selection to the end of the
             // newly inserted text.
@@ -4411,53 +4368,6 @@ impl Editor {
             refresh_linked_ranges(this, window, cx);
             jsx_tag_auto_close::handle_from(this, initial_buffer_versions, window, cx);
         });
-    }
-
-    fn find_possible_emoji_shortcode_at_position(
-        snapshot: &MultiBufferSnapshot,
-        position: Point,
-    ) -> Option<String> {
-        let mut chars = Vec::new();
-        let mut found_colon = false;
-        for char in snapshot.reversed_chars_at(position).take(100) {
-            // Found a possible emoji shortcode in the middle of the buffer
-            if found_colon {
-                if char.is_whitespace() {
-                    chars.reverse();
-                    return Some(chars.iter().collect());
-                }
-                // If the previous character is not a whitespace, we are in the middle of a word
-                // and we only want to complete the shortcode if the word is made up of other emojis
-                let mut containing_word = String::new();
-                for ch in snapshot
-                    .reversed_chars_at(position)
-                    .skip(chars.len() + 1)
-                    .take(100)
-                {
-                    if ch.is_whitespace() {
-                        break;
-                    }
-                    containing_word.push(ch);
-                }
-                let containing_word = containing_word.chars().rev().collect::<String>();
-                if util::word_consists_of_emojis(containing_word.as_str()) {
-                    chars.reverse();
-                    return Some(chars.iter().collect());
-                }
-            }
-
-            if char.is_whitespace() || !char.is_ascii() {
-                return None;
-            }
-            if char == ':' {
-                found_colon = true;
-            } else {
-                chars.push(char);
-            }
-        }
-        // Found a possible emoji shortcode at the beginning of the buffer
-        chars.reverse();
-        Some(chars.iter().collect())
     }
 
     pub fn newline(&mut self, _: &Newline, window: &mut Window, cx: &mut Context<Self>) {

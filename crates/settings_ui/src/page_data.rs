@@ -6640,22 +6640,6 @@ fn language_settings_data() -> Vec<SettingsPageItem> {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Auto Replace Emoji Shortcode",
-                description: "Whether to automatically replace emoji shortcodes with emoji characters.",
-                field: Box::new(SettingField {
-                    json_path: Some("message_editor.auto_replace_emoji_shortcode"),
-                    pick: |settings_content| {
-                        settings_content.message_editor.as_ref().and_then(|message_editor| message_editor.auto_replace_emoji_shortcode.as_ref())
-                    },
-                    write: |settings_content, value| {
-                        settings_content.message_editor.get_or_insert_default().auto_replace_emoji_shortcode = value;
-
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
                 title: "Drop Size Target",
                 description: "Relative size of the drop target in the editor that will open dropped file as a split pane.",
                 field: Box::new(SettingField {

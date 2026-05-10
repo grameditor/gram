@@ -18,7 +18,7 @@
   // The name of a base set of key bindings to use.
   // See crates/settings/src/base_keymap_setting.rs BaseKeymap
   // for possible values.
-  "base_keymap": "Emacs",
+  "base_keymap": "VSCode",
   // Features that can be globally enabled or disabled
   "features": {},
   // The name of a font to use for rendering text in the editor
@@ -32,7 +32,7 @@
     "calt": false,
   },
   // The default font size for text in the editor
-  "buffer_font_size": 16,
+  "buffer_font_size": 14,
   // The weight of the editor font in standard CSS units from 100 to 900.
   "buffer_font_weight": 400,
   // Set the buffer's line height.
@@ -62,7 +62,7 @@
   // The weight of the UI font in standard CSS units from 100 to 900.
   "ui_font_weight": 400,
   // The default font size for text in the UI
-  "ui_font_size": 15,
+  "ui_font_size": 14,
   // How much to fade out unused code.
   "unnecessary_code_fade": 0.3,
   /// Defines window border radius for platforms that use client side decorations.
@@ -260,7 +260,7 @@
   "minimum_contrast_for_highlights": 45,
   // Whether to pop the completions menu while typing in an editor without
   // explicitly requesting it.
-  "show_completions_on_input": false,
+  "show_completions_on_input": true,
   // Whether to display inline and alongside documentation for items in the
   // completions menu
   "show_completion_documentation": true,
@@ -340,7 +340,7 @@
   // Whether to automatically add matching closing characters when typing
   // opening parenthesis, bracket, brace, single or double quote characters.
   // For example, when you type '(', Gram will add a closing ) at the correct position.
-  "use_autoclose": false,
+  "use_autoclose": true,
   // Whether to automatically surround selected text when typing opening parenthesis,
   // bracket, brace, single or double quote characters.
   // For example, when you select text and type '(', Gram will surround the text with ().
@@ -411,7 +411,7 @@
   // Titlebar related settings
   "title_bar": {
     // Whether to show the branch icon beside branch switcher in the titlebar.
-    "show_branch_icon": false,
+    "show_branch_icon": true,
     // Whether to show the branch name button in the titlebar.
     "show_branch_name": true,
     // Whether to show the project host and name in the titlebar.
@@ -534,7 +534,7 @@
   },
   "indent_guides": {
     // Whether to show indent guides in the editor.
-    "enabled": false,
+    "enabled": true,
     // The width of the indent guides in pixels, between 1 and 10.
     "line_width": 1,
     // The width of the active indent guide in pixels, between 1 and 10.
@@ -578,7 +578,8 @@
     // Whether to stick scopes to the top of the editor.
     "enabled": false,
   },
-  "relative_line_numbers": "enabled",
+  // Show relative line numbers: "disabled", "enabled" or "wrapped"
+  "relative_line_numbers": "disabled",
   // If 'search_wrap' is disabled, search result do not wrap around the end of the file.
   "search_wrap": true,
   // Search options to enable by default when opening new project and buffer searches.
@@ -594,7 +595,7 @@
     // Whether to interpret the search query as a regular expression.
     "regex": false,
     // Whether to center the cursor on each search match when navigating.
-    "center_on_match": false,
+    "center_on_match": true,
   },
   // When to populate a new search's query based on the text under the cursor.
   // This setting can take the following three values:
@@ -652,12 +653,12 @@
     "default_width": 240,
     // Where to dock the project panel. Can be 'left' or 'right'.
     "dock": "left",
-    // Spacing between worktree entries in the project panel. Can be 'comfortable' or 'standard'.
-    "entry_spacing": "comfortable",
+    // Spacing between worktree entries in the project panel. Can be 'comfortable', 'standard' or 'tight'.
+    "entry_spacing": "standard",
     // Whether to show file icons in the project panel.
-    "file_icons": false,
+    "file_icons": true,
     // Whether to show folder icons or chevrons for directories in the project panel.
-    "folder_icons": false,
+    "folder_icons": true,
     // Whether to show the git status in the project panel.
     "git_status": true,
     // Amount of indentation for nested items.
@@ -826,19 +827,6 @@
       // Default: inherits editor scrollbar settings
       // "show": null
     },
-  },
-  "message_editor": {
-    // Whether to automatically replace emoji shortcodes with emoji characters.
-    // For example: typing `:wave:` gets replaced with `👋`.
-    "auto_replace_emoji_shortcode": true,
-  },
-  "notification_panel": {
-    // Whether to show the notification panel button in the status bar.
-    "button": true,
-    // Where to dock the notification panel. Can be 'left' or 'right'.
-    "dock": "right",
-    // Default width of the notification panel.
-    "default_width": 380,
   },
   // Whether to use language servers to provide code intelligence.
   "enable_language_server": true,
@@ -1143,7 +1131,7 @@
     // Control whether the git blame information is shown inline,
     // in the currently focused line.
     "inline_blame": {
-      "enabled": false,
+      "enabled": true,
       // Sets a delay after which the inline blame information is shown.
       // Delay is restarted with every cursor movement.
       "delay_ms": 0,
@@ -1198,7 +1186,7 @@
     // May take 2 values:
     // 1. hour12
     // 2. hour24
-    "hour_format": "hour12",
+    "hour_format": "hour24",
   },
   // Status bar-related settings.
   "status_bar": {

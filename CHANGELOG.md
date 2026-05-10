@@ -9,10 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Breaking
 
+- New website: <https://gram-editor.com>
+- Modified default settings to be more sensible (#184)
 - Downloaded language servers no longer auto update (#267)
 - Emmyluadoc tree-sitter grammar was removed (it was broken)
 - Remove download support for superhtml on Linux (#194) (it was broken)
-- New website URL: <https://gram-editor.com>
 
 ### Added
 
@@ -54,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove avatar from git graph
 - Remove download support for superhtml on Linux (#194)
 - Remove Windows OpenConsole.exe binary from source code tree
+- Removed unused message_editor and notification_panel settings
 
 ### Fixed
 
@@ -96,6 +98,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Modified default settings to be more sensible (#184)
 - Update to Rust 1.95
 - Update and clean up dependencies
 - Enable panel icons if default and icon theme is changed (#172)
