@@ -31,6 +31,17 @@ install new ones.
 
 You can also install extensions for your local file system, or via a git URL.
 
+## Requirements
+
+The exact requirements for compiling Wasm extensions varies by OS and
+architecture, so giving exact instructions is very difficult.
+
+You will probably need to install `clang`.
+
+On Chimera Linux, you will need to install `wasm-component-ld` and `wasi-clang`.
+
+On Manjaro, you will need `rust-wasm` and `wasi-compiler-rt`.
+
 ## Installing Local Extensions
 
 From the extensions page, click the `Install Local` button (or the {#action
