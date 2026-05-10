@@ -12,7 +12,7 @@ use crate::{
 };
 pub use autoscroll::{Autoscroll, AutoscrollStrategy};
 use core::fmt::Debug;
-use gpui::{Along, App, Axis, Context, Pixels, Task, Window, point, px};
+use gpui::{Along, App, Axis, Context, Pixels, Task, Window, ease_out_cubic, point, px};
 use language::language_settings::{AllLanguageSettings, SoftWrap};
 use language::{Bias, Point};
 pub use scroll_amount::ScrollAmount;
@@ -250,8 +250,7 @@ impl ScrollManager {
             let elapsed = animation.start_time.elapsed().as_secs_f32();
             let duration = self.scroll_animation_duration.as_secs_f32();
             let progress = (elapsed / duration).min(1.0);
-            let easing_fn = gpui::ease_out_cubic();
-            let eased = easing_fn(progress);
+            let eased = ease_out_cubic(progress);
 
             gpui::Point::new(
                 animation.start_position.x
@@ -285,8 +284,7 @@ impl ScrollManager {
             (elapsed / duration).min(1.0)
         };
 
-        let easing_fn = gpui::ease_out_cubic();
-        let eased_progress = easing_fn(progress);
+        let eased_progress = ease_out_cubic(progress);
 
         let start = animation.start_position;
         let target = animation.target_position;

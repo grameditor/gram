@@ -51,7 +51,7 @@ pub trait DefaultAnimations: Styled + Sized + Element {
 
         self.with_animation(
             animation_id,
-            gpui::Animation::new(AnimationDuration::Fast.into()).with_easing(ease_out_quint()),
+            gpui::Animation::new(AnimationDuration::Fast.into()).with_easing(ease_out_quint),
             move |mut this, delta| {
                 let start_opacity = 0.4;
                 let start_pos = 0.0;
