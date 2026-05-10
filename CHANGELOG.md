@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0-rc1] - 2026-05-11
+
 ### Breaking
 
-- New website at <https://gram-editor.com>
+- Website now at <https://gram-editor.com>
 - Downloaded language servers no longer auto update (#267)
 - Emmyluadoc tree-sitter grammar was removed (it was broken)
 - Modified default settings to be more sensible (#184)

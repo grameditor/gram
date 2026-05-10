@@ -203,7 +203,7 @@ function BuildInstaller {
             $regValueName = "Gram"
             $appUserId = "Gram.Gram"
             $appShellNameShort = "G&ram"
-            $appAppxFullName = "Gram.Gram_1.2.1.0_neutral__mspublisherid"
+            $appAppxFullName = "Gram.Gram_2.0.0.0_neutral__mspublisherid"
         }
         "dev" {
             $appId = "{{4FEF353A-EA46-468C-95DD-2B343A71416F}"
@@ -217,7 +217,7 @@ function BuildInstaller {
             $regValueName = "GramDev"
             $appUserId = "Gram.Gram.Dev"
             $appShellNameShort = "G&ram Dev"
-            $appAppxFullName = "Gram.Gram.Dev_1.2.1.0_neutral__mspublisherid"
+            $appAppxFullName = "Gram.Gram.Dev_2.0.0.0_neutral__mspublisherid"
         }
         default {
             Write-Error "can't bundle installer for $channel."
