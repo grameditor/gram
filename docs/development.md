@@ -10,7 +10,7 @@ See the platform-specific instructions for building Gram from source:
 
 Rust is notoriously memory hungry, and Gram is a huge Rust project. The minimum
 requirement for compiling the project seems to be somewhere around 16GB of RAM,
-and at least 12GB available for compilation.
+and at least 8GB available for compilation.
 
 Linking is the part of the process which takes the most RAM, and alternative
 linkers may offer better performance and lower RAM usage. Check the platform
@@ -23,6 +23,16 @@ by setting the `CARGO_BUILD_JOBS` environment variable. For example, if you have
 16 CPU cores available, Cargo will run up to 16 jobs in parallel. By setting
 `CARGO_BUILD_JOBS=8` you can reduce RAM usage by only running up to 8 jobs in
 parallel.
+
+To build with less than 12GB of RAM, try setting these environment variables:
+
+```sh
+MAKEOPTS="-j2 -l2"
+CARGO_BUILD_JOBS=1
+```
+
+It's also possible that using an alternative linker like `wild` or `mold` may
+use less memory.
 
 ## Performance Measurements
 
