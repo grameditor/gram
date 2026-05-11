@@ -1,8 +1,8 @@
-name: build release (linux amd64)
+name: build test build (linux amd64)
 on:
   push:
-    tags:
-      - "*"
+    branches:
+      - "test/*"
 
 env:
   CARGO_TERM_COLOR: always
@@ -53,14 +53,14 @@ jobs:
           rpm_base="$(basename $rpm_name)"
           deb_name="$(find target -name '*.deb' | head -1)"
           echo "deb: $deb_name"
-          mv target/release/gram-linux-x86_64.tar.gz "./gram-linux-x86_64${version}.tar.gz"
-          mv target/gram-remote-server-linux-x86_64.gz "./gram-remote-server-linux-x86_64${version}.gz"
-          mv $deb_name "./gram_${debversion}-1_x86_64.deb"
-          mv $rpm_name "./gram_${debversion}-1_x86_64.rpm"
-          echo "tarball_amd64=gram-linux-x86_64${version}.tar.gz" >> $FORGEJO_OUTPUT
-          echo "remote_server_amd64=gram-remote-server-linux-x86_64${version}.gz" >> $FORGEJO_OUTPUT
-          echo "deb_amd64=gram_${debversion}-1_x86_64.deb" >> $FORGEJO_OUTPUT
-          echo "rpm_amd64=gram_${debversion}-1_x86_64.rpm" >> $FORGEJO_OUTPUT
+          mv target/release/gram-linux-x86_64.tar.gz "./gram-linux-x86_64${version}-dev.tar.gz"
+          mv target/gram-remote-server-linux-x86_64.gz "./gram-remote-server-linux-x86_64${version}-dev.gz"
+          mv $deb_name "./gram_${debversion}.dev-1_x86_64.deb"
+          mv $rpm_name "./gram_${debversion}.dev-1_x86_64.rpm"
+          echo "tarball_amd64=gram-linux-x86_64${version}-dev.tar.gz" >> $FORGEJO_OUTPUT
+          echo "remote_server_amd64=gram-remote-server-linux-x86_64${version}-dev.gz" >> $FORGEJO_OUTPUT
+          echo "deb_amd64=gram_${debversion}.dev-1_x86_64.deb" >> $FORGEJO_OUTPUT
+          echo "rpm_amd64=gram_${debversion}.dev-1_x86_64.rpm" >> $FORGEJO_OUTPUT
 
       - id: upload_tarball_amd64
         name: upload tarball
@@ -86,13 +86,6 @@ jobs:
           path: ${{steps.set_artifact_name.outputs.deb_amd64}}
           compression-level: 0
 
-      - id: upload_deb_amd64_repo
-        name: publish deb to package registry
-        run: |
-          curl --user krig:${{secrets.CODEBERG_PACKAGE_TOKEN}} \
-               --upload-file ${{steps.set_artifact_name.outputs.deb_amd64}} \
-               https://codeberg.org/api/packages/GramEditor/debian/pool/gram/release/upload
-
       - id: upload_rpm_amd64
         name: upload rpm
         uses: forgejo/upload-artifact@v4
@@ -100,10 +93,3 @@ jobs:
           name: ${{steps.set_artifact_name.outputs.rpm_amd64}}
           path: ${{steps.set_artifact_name.outputs.rpm_amd64}}
           compression-level: 0
-
-      - id: upload_rpm_amd64_repo
-        name: publish rpm to package registry
-        run: |
-          curl --user krig:${{secrets.CODEBERG_PACKAGE_TOKEN}} \
-               --upload-file ${{steps.set_artifact_name.outputs.rpm_amd64}} \
-               https://codeberg.org/api/packages/GramEditor/rpm/upload
