@@ -262,11 +262,24 @@ impl Keystroke {
         self
     }
 
-    /// True if this keystroke produced an
-    /// ASCII character (used to distinguish
-    /// option from altgr / international input)
-    pub fn is_ascii(&self) -> bool {
-        self.key_char.as_ref().map_or(false, |s| s.is_ascii())
+    /// True if all chars in keystroke are ASCII
+    /// graphic
+    pub fn is_ascii_graphic(&self) -> bool {
+        self.key_char
+            .as_ref()
+            .map_or(false, |s| s.chars().all(|c| c.is_ascii_graphic()))
+    }
+
+    /// True if all chars in keystroke are alphanumeric
+    pub fn is_alphanumeric(&self) -> bool {
+        self.key_char
+            .as_ref()
+            .map_or(false, |s| s.chars().all(|c| c.is_alphanumeric()))
+    }
+
+    /// Used to detect when altgr/right option is used for text input
+    pub fn prefer_character_input(&self) -> bool {
+        self.modifiers.altgr && !self.is_ascii_graphic() && self.is_alphanumeric()
     }
 }
 
@@ -474,6 +487,10 @@ pub struct Modifiers {
     /// The function key
     #[serde(default)]
     pub function: bool,
+
+    /// The altgr key (used on mac)
+    #[serde(default)]
+    pub altgr: bool,
 }
 
 impl Modifiers {

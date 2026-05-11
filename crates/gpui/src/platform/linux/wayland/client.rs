@@ -628,6 +628,7 @@ impl WaylandClient {
                 alt: false,
                 function: false,
                 platform: false,
+                altgr: false,
             },
             capslock: Capslock { on: false },
             scroll_event_received: false,

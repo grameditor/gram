@@ -959,6 +959,8 @@ impl crate::Modifiers {
     pub(super) fn from_xkb(keymap_state: &State) -> Self {
         let shift = keymap_state.mod_name_is_active(xkb::MOD_NAME_SHIFT, xkb::STATE_MODS_EFFECTIVE);
         let alt = keymap_state.mod_name_is_active(xkb::MOD_NAME_ALT, xkb::STATE_MODS_EFFECTIVE);
+        let altgr = keymap_state
+            .mod_name_is_active(xkb::MOD_NAME_ISO_LEVEL3_SHIFT, xkb::STATE_MODS_EFFECTIVE);
         let control =
             keymap_state.mod_name_is_active(xkb::MOD_NAME_CTRL, xkb::STATE_MODS_EFFECTIVE);
         let platform =
@@ -969,6 +971,7 @@ impl crate::Modifiers {
             control,
             platform,
             function: false,
+            altgr,
         }
     }
 }
