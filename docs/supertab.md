@@ -23,3 +23,16 @@ To enable SuperTab, bind the tab key to {#action editor::SuperTab} in your
   },
 }
 ```
+
+## Fallback mode
+
+By default, Supertab will fall back to inserting a literal `tab` character when
+not at the beginning of the line or at a completion point. To have it always
+indent unless completing, you can configure `supertab_fallback` in
+`settings.jsonc` or via the Settings interface:
+
+```jsonc
+{
+  "supertab_fallback": "indent", // default is "tab"
+}
+```

@@ -6228,6 +6228,19 @@ fn language_settings_data() -> Vec<SettingsPageItem> {
             metadata: None,
             files: USER,
         }),
+        SettingsPageItem::SettingItem(SettingItem {
+            title: "Supertab Mode",
+            description: "What the Supertab action should do when not completing.",
+            field: Box::new(SettingField {
+                json_path: Some("editor.supertab_fallback"),
+                pick: |settings_content| settings_content.editor.supertab_fallback.as_ref(),
+                write: |settings_content, value| {
+                    settings_content.editor.supertab_fallback = value;
+                },
+            }),
+            metadata: None,
+            files: USER,
+        }),
         SettingsPageItem::SectionHeader("Inlay Hints"),
         SettingsPageItem::SettingItem(SettingItem {
             title: "Enabled",

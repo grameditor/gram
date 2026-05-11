@@ -219,6 +219,12 @@ pub struct EditorSettingsContent {
     /// 4. Never show the scrollbar:
     ///    "never" (default)
     pub completion_menu_scrollbar: Option<ShowScrollbar>,
+
+    /// What should Supertab do when not completing?
+    ///
+    /// 1. Tab: Insert a literal tab character (default).
+    /// 2. Indent: Indent the current line.
+    pub supertab_fallback: Option<SupertabFallback>,
 }
 
 #[derive(
@@ -440,6 +446,30 @@ pub enum DocumentColorsRenderMode {
     Border,
     /// Draw a background behind the color text.
     Background,
+}
+
+/// Supertab fallback: What to do when not completing
+#[derive(
+    Copy,
+    Clone,
+    Debug,
+    Default,
+    Serialize,
+    Deserialize,
+    PartialEq,
+    Eq,
+    JsonSchema,
+    MergeFrom,
+    strum::VariantArray,
+    strum::VariantNames,
+)]
+#[serde(rename_all = "snake_case")]
+pub enum SupertabFallback {
+    /// Insert a literal tab (default).
+    #[default]
+    Tab,
+    /// Indent the current line.
+    Indent,
 }
 
 #[derive(

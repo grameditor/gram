@@ -515,6 +515,7 @@ fn init_renderers(cx: &mut App) {
         .add_basic_renderer::<settings::WindowDecorations>(render_dropdown)
         .add_basic_renderer::<settings::FontSize>(render_editable_number_field)
         .add_basic_renderer::<settings::Decoration>(render_editable_number_field)
+        .add_basic_renderer::<settings::SupertabFallback>(render_dropdown)
         // please semicolon stay on next line
         ;
 }

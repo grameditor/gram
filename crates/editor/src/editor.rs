@@ -160,7 +160,7 @@ use selections_collection::{MutableSelectionsCollection, SelectionsCollection};
 use serde::{Deserialize, Serialize};
 use settings::{
     GitGutterSetting, RelativeLineNumbers, Settings, SettingsLocation, SettingsStore,
-    update_settings_file,
+    SupertabFallback, update_settings_file,
 };
 use smallvec::{SmallVec, smallvec};
 use snippet::Snippet;
@@ -8324,7 +8324,7 @@ impl Editor {
         }
 
         if self.pending_rename.is_some() {
-            self.tab(&Tab, window, cx);
+            self.supertab_fallback(window, cx);
             return;
         }
 
@@ -8335,7 +8335,7 @@ impl Editor {
 
         // just bail to tab if multicursored
         if self.selections.count() > 1 {
-            self.tab(&Tab, window, cx);
+            self.supertab_fallback(window, cx);
             return;
         }
 
@@ -8366,7 +8366,15 @@ impl Editor {
             }
         }
 
-        self.tab(&Tab, window, cx);
+        self.supertab_fallback(window, cx);
+    }
+
+    pub fn supertab_fallback(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let supertab_fallback = EditorSettings::get_global(cx).supertab_fallback;
+        match supertab_fallback {
+            SupertabFallback::Tab => self.tab(&Tab, window, cx),
+            SupertabFallback::Indent => self.indent(&Indent, window, cx),
+        }
     }
 
     pub fn indent(&mut self, _: &Indent, window: &mut Window, cx: &mut Context<Self>) {

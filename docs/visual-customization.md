@@ -385,6 +385,8 @@ TBD: Centered layout related settings
   "lsp_document_colors": "inlay",        // none, inlay, border, background
   // When to show the scrollbar in the completion menu.
   "completion_menu_scrollbar": "never", // auto, system, always, never
+  // What should the Supertab action do when not completing?
+  "supertab_fallback": "tab", // tab, indent
   // Turn on colorization of brackets in editors (configurable per language)
   "colorize_brackets": true,
 ```
