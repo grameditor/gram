@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Add Sumi-Light theme via [Calvin Jackson, Nishant Dahiya][sumi-light]
+
+[sumi-light]: https://github.com/LogicSatinn/sumi-light-zed
+
 ## [2.0.0] - 2026-05-11
 
 ### Breaking
