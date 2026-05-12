@@ -88,6 +88,39 @@ read the [Mission Statement](./mission.md).
 - [Troubleshooting](./troubleshooting.md)
 - [Uninstall](./uninstall.md)
 
+## Extensions
+
+> **NOTE:** The Zed extension system relies on a closed-source server component,
+> which is stripped from Gram. Instead, all extensions have to be built from
+> source. Currently, there is no extension registry so the extensions have to be
+> installed either via the suggestion popups or an URL and Wasm extensions need
+> rustup installed in order to compile.
+
+- [Overview](./extensions.md)
+- [Installing Extensions](./extensions/installing-extensions.md)
+- [Developing Extensions](./extensions/developing-extensions.md)
+- [Extension Capabilities](./extensions/capabilities.md)
+- [Language Extensions](./extensions/languages.md)
+- [Debugger Extensions](./extensions/debugger-extensions.md)
+- [Theme Extensions](./extensions/themes.md)
+- [Icon Theme Extensions](./extensions/icon-themes.md)
+
+
+## Integrations and related tools
+
+There are some related projects mostly around making Gram available in various
+package managers and Linux distributions. This list is not complete, if you know
+of any packaging effort, Gram-specific extensions or anything like that, feel
+free to submit a PR at <https://codeberg.org/GramEditor/gram>.
+
+- **Homebrew (Mac):** <https://formulae.brew.sh/cask/gram>
+- **Arch Linux:** <https://archlinux.org/packages/extra/x86_64/gram>
+- **Arch Linux (AUR):** <https://aur.archlinux.org/packages/gram-git>
+- **Alpine Linux:** <https://pkgs.alpinelinux.org/package/edge/testing/x86_64/gram>
+- **Gentoo Linux:** <https://codeberg.org/GramEditor/gram-gentoo>
+- **Raycast (Mac):** <https://www.raycast.com/justyt65/gram>
+- **Chimera Linux (WIP):** <https://github.com/chimera-linux/cports/pull/5506>
+
 ## Legal note on accepting contributions
 
 If you have previously installed Zed and agreed to their license agreement, you
@@ -139,21 +172,4 @@ The Zed code base contains a lot of AI-generated code. It doesn't need a single
 line more.
 
 [zig-coc]: https://ziglang.org/code-of-conduct/
-
-## Extensions
-
-> The Zed extension system relies on a closed-source server component, which is
-> stripped from Gram. Instead, all extensions have to be built from source.
-> Currently, there is no extension registry so the extensions have to be
-> installed either via the suggestion popups or an URL and Wasm extensions need
-> rustup installed in order to compile.
-
-- [Overview](./extensions.md)
-- [Installing Extensions](./extensions/installing-extensions.md)
-- [Developing Extensions](./extensions/developing-extensions.md)
-- [Extension Capabilities](./extensions/capabilities.md)
-- [Language Extensions](./extensions/languages.md)
-- [Debugger Extensions](./extensions/debugger-extensions.md)
-- [Theme Extensions](./extensions/themes.md)
-- [Icon Theme Extensions](./extensions/icon-themes.md)
 
