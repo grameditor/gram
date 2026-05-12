@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
 - Add Sumi-Light theme via [Calvin Jackson, Nishant Dahiya][sumi-light]
+
+### Fixed
+
+- Skip link to openssh.org when finding pull request link in git push output (#287)
 
 [sumi-light]: https://github.com/LogicSatinn/sumi-light-zed
 

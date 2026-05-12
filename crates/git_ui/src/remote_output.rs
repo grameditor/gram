@@ -142,6 +142,7 @@ pub fn format_output(action: &RemoteAction, output: RemoteCommandOutput) -> Succ
                         finder
                             .links(&output.stderr)
                             .filter(|link| *link.kind() == LinkKind::Url)
+                            .filter(|link| !link.as_str().contains("www.openssh.org"))
                             .map(|link| link.start()..link.end())
                             .next()
                             .map(|link| SuccessStyle::PushPrLink {
