@@ -295,4 +295,5 @@ mv "${plist_file}.tmp" "$plist_file"
 sign_app_binaries
 
 sign_binary "target/$target_triple/release/remote_server"
-echo "target/gram-remote-server-macos-$arch_suffix"
+gzip -9 -f --to-stdout "target/${target_triple}/release/remote_server" \
+    > "target/gram-remote_server-macos-${arch_suffix}.gz"
