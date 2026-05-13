@@ -51,7 +51,7 @@ jobs:
         run: brew install cmake
 
       - name: run nextest
-        run: cargo nextest run --workspace -no-fail-fast --success-output never --show-progress none
+        run: cargo nextest run --workspace --no-fail-fast --success-output never --show-progress none
 
   test-build:
     name: test build (${{ matrix.os }})
