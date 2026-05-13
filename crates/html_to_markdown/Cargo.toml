@@ -1,8 +1,8 @@
 [package]
 name = "html_to_markdown"
-version = "0.1.0"
+version.workspace = true
+repository.workspace = true
 description = "Convert HTML to Markdown"
-repository = "https://github.com/zed-industries/zed"
 documentation = "https://docs.rs/html_to_markdown"
 keywords = ["html", "markdown", "html-to-markdown"]
 edition.workspace = true

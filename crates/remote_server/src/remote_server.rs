@@ -68,7 +68,7 @@ pub fn run(command: Commands) -> anyhow::Result<()> {
             let release_channel = *RELEASE_CHANNEL;
             match release_channel {
                 ReleaseChannel::Stable => {
-                    println!("{}", env!("GRAM_PKG_VERSION"))
+                    println!("{}", env!("CARGO_PKG_VERSION"))
                 }
                 ReleaseChannel::Dev => {
                     println!(

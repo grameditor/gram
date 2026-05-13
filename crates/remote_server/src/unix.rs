@@ -49,7 +49,7 @@ use std::{
 use thiserror::Error;
 
 pub static VERSION: LazyLock<&str> = LazyLock::new(|| match *RELEASE_CHANNEL {
-    ReleaseChannel::Stable => env!("GRAM_PKG_VERSION"),
+    ReleaseChannel::Stable => env!("CARGO_PKG_VERSION"),
     ReleaseChannel::Dev => option_env!("GRAM_COMMIT_SHA").unwrap_or("missing-gram-commit-sha"),
 });
 
@@ -391,7 +391,7 @@ pub fn execute_run(
     let git_hosting_provider_registry = Arc::new(GitHostingProviderRegistry::new());
     app.run(move |cx| {
         settings::init(cx);
-        let app_version = AppVersion::load(env!("GRAM_PKG_VERSION"));
+        let app_version = AppVersion::load(env!("CARGO_PKG_VERSION"));
         release_channel::init(app_version, cx);
         gpui_tokio::init(cx);
 
@@ -1016,7 +1016,7 @@ fn cleanup_old_binaries() -> Result<()> {
 fn is_new_version(version: &str) -> bool {
     SemanticVersion::from_str(version)
         .ok()
-        .zip(SemanticVersion::from_str(env!("GRAM_PKG_VERSION")).ok())
+        .zip(SemanticVersion::from_str(env!("CARGO_PKG_VERSION")).ok())
         .is_some_and(|(version, current_version)| version >= current_version)
 }
 

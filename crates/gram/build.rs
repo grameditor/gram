@@ -46,25 +46,6 @@ fn main() {
             println!("cargo:rustc-link-arg=/stack:{}", 8 * 1024 * 1024);
         }
 
-        if cfg!(target_arch = "x86_64") {
-            println!("cargo::rerun-if-changed=resources\\windows\\bin\\x64\\conpty.dll");
-            println!("cargo::rerun-if-changed=resources\\windows\\bin\\x64\\OpenConsole.exe");
-            let conpty_target = std::env::var("OUT_DIR").unwrap() + "\\..\\..\\..\\conpty.dll";
-            match std::fs::copy("resources/windows/bin/x64/conpty.dll", &conpty_target) {
-                Ok(_) => println!("Copied conpty.dll to {conpty_target}"),
-                Err(e) => println!("cargo::warning=Failed to copy conpty.dll: {}", e),
-            }
-            let open_console_target =
-                std::env::var("OUT_DIR").unwrap() + "\\..\\..\\..\\OpenConsole.exe";
-            match std::fs::copy(
-                "resources/windows/bin/x64/OpenConsole.exe",
-                &open_console_target,
-            ) {
-                Ok(_) => println!("Copied OpenConsole.exe to {open_console_target}"),
-                Err(e) => println!("cargo::warning=Failed to copy OpenConsole.exe: {}", e),
-            }
-        }
-
         let release_channel = option_env!("RELEASE_CHANNEL").unwrap_or("dev");
         let icon = match release_channel {
             "stable" => "resources/windows/app-icon.ico",

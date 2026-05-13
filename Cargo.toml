@@ -160,6 +160,9 @@ default-members = ["crates/gram"]
 [workspace.package]
 publish = false
 edition = "2024"
+repository = "https://codeberg.org/GramEditor/gram"
+version = "2.1.0"
+authors = ["The Gram Project"]
 
 [workspace.dependencies]
 
@@ -176,7 +179,7 @@ buffer_diff = { path = "crates/buffer_diff" }
 cli = { path = "crates/cli" }
 client = { path = "crates/client" }
 clock = { path = "crates/clock" }
-collections = { path = "crates/collections", version = "0.1.0" }
+collections = { path = "crates/collections" }
 command_palette = { path = "crates/command_palette" }
 command_palette_hooks = { path = "crates/command_palette_hooks" }
 component = { path = "crates/component" }
@@ -346,8 +349,6 @@ bitcode = { version = "0.6", features = ["serde"] }
 bitflags = "2.6.0"
 brotli = "8.0.2"
 bytes = "1.0"
-cargo_metadata = "0.19"
-cargo_toml = "0.22"
 chardetng = "1.0"
 chrono = { version = "0.4", features = ["serde"] }
 circular-buffer = "1.0"

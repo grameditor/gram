@@ -2,7 +2,8 @@
 description = "Shared logic for communication between the Gram app and the remote editing server"
 edition.workspace = true
 name = "rpc"
-version = "0.1.0"
+version.workspace = true
+repository.workspace = true
 publish.workspace = true
 license = "GPL-3.0-or-later"
 
