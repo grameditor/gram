@@ -1,0 +1,155 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+"
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: '1'
+  CARGO_INCREMENTAL: '0'
+
+jobs:
+  linux:
+    name: release linux (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-latest
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    env:
+      CC: clang
+      CXX: clang++
+      CC_x86_64_unknown_linux_musl: musl-gcc
+      CC_aarch64_unknown_linux_musl: musl-gcc
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Cache build
+        uses: actions/cache@v3
+        id: cache-gram-build
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-gram-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: install dependencies
+        run: ./script/prepare-ci release
+      - name: set release channel
+        run: echo "stable" > ./crates/gram/RELEASE_CHANNEL
+      - name: bundle-linux
+        run: ./script/bundle-linux --tarball
+
+      - name: copy artifacts
+        shell: bash
+        run: |
+          find target -name '*.gz'
+          rpm_name="$(find target -name '*.rpm' | head -1)"
+          rpm_base="$(basename $rpm_name)"
+          deb_name="$(find target -name '*.deb' | head -1)"
+          echo "deb: $deb_name"
+          version=${{ github.ref_name }}
+          mkdir artifacts
+          cp target/release/gram-linux-${{ matrix.arch }}.tar.gz "artifacts/gram-linux-${{ matrix.arch }}-${version}.tar.gz"
+          cp target/gram-remote-server-linux-${{ matrix.arch }}.gz "artifacts/gram-remote-server-linux-${{ matrix.arch }}-${version}.gz"
+          cp $deb_name "artifacts/gram_${version}-1_${{ matrix.arch }}.deb"
+          cp $rpm_name "artifacts/gram_${version}-1_${{ matrix.arch }}.rpm"
+
+      - name: upload artifacts
+        uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/*
+
+  macos:
+    name: release mac (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - arch: x86_64
+            runner: macos-13
+          - arch: aarch64
+            runner: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: set release channel
+        run: echo "stable" > ./crates/gram/RELEASE_CHANNEL
+      - name: install dependencies
+        run: brew install cmake
+      - name: build release
+        run: |
+          if [[ "${{ matrix.arch }}" == "x86_64" ]]; then
+            ./script/bundle-mac x86_64-apple-darwin
+          else
+            ./script/bundle-mac aarch64-apple-darwin
+          fi
+      - name: copy artifacts
+        shell: bash
+        run: |
+          version=${{ github.ref_name }}
+          mkdir artifacts
+          find target -name "Gram-*.dmg" -exec cp {} artifacts/ \;
+          for f in artifacts/*.dmg; do
+            cp "$f" "${f%.dmg}-${version}.dmg"
+          done
+          remote_server=$(find target -name "gram-remote-server-macos-*.gz" | head -1)
+          if [ -n "$remote_server" ]; then
+            cp "$remote_server" "artifacts/gram-remote-server-macos-${{ matrix.arch }}-${version}.gz"
+          fi
+
+      - name: upload artifacts
+        uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/*
+
+  windows:
+    name: release windows
+    runs-on: ${{ matrix.os }}
+    strategy:
+        matrix:
+          include:
+            - build: windows
+              os: windows-latest
+              target: x86_64-pc-windows-msvc
+              artifact_name: windows-x64
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get the release version from the tag
+        shell: bash
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      - name: Fix microslop # https://github.com/microsoft/python-environment-tools/issues/171
+        run: git config --global core.longpaths true
+
+      - name: Build
+        run: cargo build --verbose --release --package gram --package cli --target ${{ matrix.target }}
+
+      - name: Build archive
+        shell: bash
+        run: |
+          version=${{ github.ref_name }}
+          dirname="gram-${{ matrix.artifact_name }}-${{ env.VERSION }}-${{ matrix.target }}"
+          mkdir "$dirname"
+          mv "target/release/gram.exe" "$dirname"
+          mv "target/release/cli.exe" "$dirname"
+          mkdir artifacts
+          7z a "artifacts/$dirname.zip" "$dirname"
+
+      - name: upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: artifacts/*
