@@ -22,19 +22,21 @@ jobs:
         include:
           - arch: x86_64
             runner: ubuntu-latest
+            artifact_name: linux-x86_64
           - arch: aarch64
             runner: ubuntu-24.04-arm
+            artifact_name: linux-aarch64
     env:
       CC: clang
       CXX: clang++
       CC_x86_64_unknown_linux_musl: musl-gcc
       CC_aarch64_unknown_linux_musl: musl-gcc
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Cache build
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         id: cache-gram-build
         with:
           path: |
@@ -65,9 +67,10 @@ jobs:
           cp $rpm_name "artifacts/gram_${version}-1_${{ matrix.arch }}.rpm"
 
       - name: upload artifacts
-        uses: softprops/action-gh-release@v1
+        uses: actions/upload-artifact@v7
         with:
-          files: artifacts/*
+          name: ${{ matrix.artifact_name }}
+          path: artifacts/*
 
   macos:
     name: release mac (${{ matrix.arch }})
@@ -77,10 +80,12 @@ jobs:
         include:
           - arch: x86_64
             runner: macos-13
+            artifact_name: macos-x86_64
           - arch: aarch64
             runner: macos-latest
+            artifact_name: macos-aarch64
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: install dependencies
@@ -107,9 +112,10 @@ jobs:
           fi
 
       - name: upload artifacts
-        uses: softprops/action-gh-release@v1
+        uses: actions/upload-artifact@v7
         with:
-          files: artifacts/*
+          name: ${{ matrix.artifact_name }}
+          path: artifacts/*
 
   windows:
     name: release windows
@@ -122,7 +128,7 @@ jobs:
               target: x86_64-pc-windows-msvc
               artifact_name: windows-x64
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Get the release version from the tag
         shell: bash
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
@@ -145,7 +151,7 @@ jobs:
           7z a "artifacts/$dirname.zip" "$dirname"
 
       - name: upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.artifact_name }}
           path: artifacts/*
