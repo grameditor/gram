@@ -40,8 +40,9 @@ jobs:
         with:
           tool: |
             cargo-nextest
-      - name: set RELEASE_CHANNEL to dev
-        run: echo "dev" >./crates/gram/RELEASE_CHANNEL
+      - name: Fix microslop # https://github.com/microsoft/python-environment-tools/issues/171
+        if: runner.os == 'Windows'
+        run: git config --global core.longpaths true
 
       - name: install dependencies
         if: runner.os == 'Linux'
