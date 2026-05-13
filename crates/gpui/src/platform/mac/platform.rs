@@ -34,7 +34,7 @@ use objc::{
 };
 use parking_lot::Mutex;
 use ptr::null_mut;
-use semantic_version::SemanticVersion;
+use semver::Version as SemanticVersion;
 use std::{
     cell::Cell,
     ffi::{CStr, OsStr, c_void},
@@ -428,9 +428,9 @@ impl MacPlatform {
             process_info.operatingSystemVersion()
         };
         SemanticVersion::new(
-            version.majorVersion as usize,
-            version.minorVersion as usize,
-            version.patchVersion as usize,
+            version.majorVersion,
+            version.minorVersion,
+            version.patchVersion,
         )
     }
 }

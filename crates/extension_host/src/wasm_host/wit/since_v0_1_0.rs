@@ -11,7 +11,7 @@ use gpui::BackgroundExecutor;
 use language::LanguageName;
 use language::{BinaryStatus, language_settings::AllLanguageSettings};
 use project::project_settings::ProjectSettings;
-use semantic_version::SemanticVersion;
+use semver::Version as SemanticVersion;
 use std::{
     path::{Path, PathBuf},
     sync::{Arc, OnceLock},

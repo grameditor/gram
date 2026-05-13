@@ -93,9 +93,9 @@ impl AppVersion {
     /// Returns the global version number.
     pub fn global(cx: &App) -> SemanticVersion {
         if cx.has_global::<GlobalAppVersion>() {
-            cx.global::<GlobalAppVersion>().0
+            cx.global::<GlobalAppVersion>().0.clone()
         } else {
-            SemanticVersion::default()
+            SemanticVersion::new(0, 1, 0)
         }
     }
 }

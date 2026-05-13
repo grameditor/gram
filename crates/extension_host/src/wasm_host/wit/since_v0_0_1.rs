@@ -5,7 +5,7 @@ use anyhow::Result;
 use extension::{ExtensionLanguageServerProxy, WorktreeDelegate};
 use gpui::BackgroundExecutor;
 use language::BinaryStatus;
-use semantic_version::SemanticVersion;
+use semver::Version as SemanticVersion;
 use std::sync::{Arc, OnceLock};
 use wasmtime::component::{Linker, Resource};
 

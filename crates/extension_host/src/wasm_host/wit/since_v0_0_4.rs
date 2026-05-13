@@ -3,7 +3,7 @@ use crate::wasm_host::WasmState;
 use anyhow::Result;
 use extension::WorktreeDelegate;
 use gpui::BackgroundExecutor;
-use semantic_version::SemanticVersion;
+use semver::Version as SemanticVersion;
 use std::sync::{Arc, OnceLock};
 use wasmtime::component::{Linker, Resource};
 

@@ -58,7 +58,7 @@ fn init() -> TestAppContext {
     cx.update(|cx| {
         let store = SettingsStore::test(cx);
         cx.set_global(store);
-        release_channel::init(SemanticVersion::default(), cx);
+        release_channel::init(SemanticVersion::new(0, 1, 0), cx);
     });
 
     cx

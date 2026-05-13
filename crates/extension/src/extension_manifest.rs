@@ -3,7 +3,7 @@ use collections::{BTreeMap, HashMap};
 use fs::Fs;
 use language::LanguageName;
 use lsp::LanguageServerName;
-use semantic_version::SemanticVersion;
+use semver::Version as SemanticVersion;
 use serde::{Deserialize, Serialize};
 use std::{
     ffi::OsStr,

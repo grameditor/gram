@@ -475,7 +475,7 @@ mod tests {
             let store = SettingsStore::test(cx);
             cx.set_global(store);
             theme::init(theme::LoadThemes::JustBase, cx);
-            release_channel::init(SemanticVersion::default(), cx);
+            release_channel::init(SemanticVersion::new(0, 1, 0), cx);
             editor::init(cx);
         });
     }

@@ -26,7 +26,7 @@ use lsp::LanguageServerName;
 use moka::sync::Cache;
 use node_runtime::NodeRuntime;
 use release_channel::ReleaseChannel;
-use semantic_version::SemanticVersion;
+use semver::Version as SemanticVersion;
 use settings::Settings;
 use std::{
     borrow::Cow,
@@ -550,7 +550,7 @@ impl WasmHost {
                 &executor,
                 &mut store,
                 this.release_channel,
-                gram_api_version,
+                gram_api_version.clone(),
                 &component,
             )
             .await?;

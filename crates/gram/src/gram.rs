@@ -4787,7 +4787,7 @@ mod tests {
             gpui_tokio::init(cx);
             theme::init(theme::LoadThemes::JustBase, cx);
             workspace::init(app_state.clone(), cx);
-            release_channel::init(SemanticVersion::default(), cx);
+            release_channel::init(SemanticVersion::new(0, 1, 0), cx);
             command_palette::init(cx);
             editor::init(cx);
             git_ui::init(cx);

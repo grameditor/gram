@@ -36,7 +36,7 @@ use node_runtime::NodeRuntime;
 use project::ContextProviderWithTasks;
 use release_channel::ReleaseChannel;
 use remote::RemoteClient;
-use semantic_version::SemanticVersion;
+use semver::Version as SemanticVersion;
 use serde::{Deserialize, Serialize};
 use std::fs::{copy, create_dir_all, read_dir};
 use std::ops::RangeInclusive;

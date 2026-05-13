@@ -19,7 +19,7 @@ use crate::wasm_host::wit::since_v0_6_0::dap::StartDebuggingRequestArgumentsRequ
 
 use super::{WasmState, wasm_engine};
 use anyhow::{Context as _, Result, anyhow};
-use semantic_version::SemanticVersion;
+use semver::Version as SemanticVersion;
 use since_v0_6_0 as latest;
 use std::{ops::RangeInclusive, path::PathBuf, sync::Arc};
 use wasmtime::{

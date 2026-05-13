@@ -14,7 +14,7 @@ use async_trait::async_trait;
 use fs::normalize_path;
 use gpui::{App, Task};
 use language::LanguageName;
-use semantic_version::SemanticVersion;
+use semver::Version as SemanticVersion;
 use task::{SpawnInTerminal, GramDebugConfig};
 use util::rel_path::RelPath;
 

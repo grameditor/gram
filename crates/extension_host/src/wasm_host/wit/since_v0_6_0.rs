@@ -18,7 +18,7 @@ use futures::{FutureExt as _, io::BufReader};
 use gpui::{BackgroundExecutor, SharedString};
 use language::{BinaryStatus, LanguageName, language_settings::AllLanguageSettings};
 use project::project_settings::ProjectSettings;
-use semantic_version::SemanticVersion;
+use semver::Version as SemanticVersion;
 use std::{
     env,
     net::Ipv4Addr,

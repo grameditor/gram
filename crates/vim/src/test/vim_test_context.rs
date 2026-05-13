@@ -19,7 +19,7 @@ impl VimTestContext {
         cx.update(|cx| {
             let settings = SettingsStore::test(cx);
             cx.set_global(settings);
-            release_channel::init(SemanticVersion::default(), cx);
+            release_channel::init(SemanticVersion::new(0, 1, 0), cx);
             command_palette::init(cx);
             project_panel::init(cx);
             outline_panel::init(cx);
