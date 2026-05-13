@@ -11,12 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add Supertab fallback mode setting (tab or indent) (#286)
 - Add Sumi-Light theme via [Calvin Jackson, Nishant Dahiya][sumi-light]
 
 ### Fixed
 
 - Skip link to openssh.org when finding pull request link in git push output (#287)
-- Improve AltGr / Right option detection on Mac OS (#206)
+- Fix AltGr / Right option detection on Mac OS (#206)
 
 [sumi-light]: https://github.com/LogicSatinn/sumi-light-zed
 
