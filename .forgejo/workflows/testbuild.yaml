@@ -32,8 +32,6 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ runner.os }}-gram-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - name: set release channel
-        run: echo "stable" > ./crates/gram/RELEASE_CHANNEL
       - name: install dependencies
         run: ./script/prepare-ci release
       - name: bundle-linux
@@ -42,8 +40,8 @@ jobs:
         id: set_artifact_name
         shell: bash
         run: |
-          version="-dev"
-          debversion="dev"
+          version="-$FORGEJO_SHA"
+          debversion="$FORGEJO_SHA"
           if [[ $FORGEJO_REF_TYPE == "tag" ]]; then
             version=-$FORGEJO_REF_NAME
             debversion=$FORGEJO_REF_NAME
@@ -53,14 +51,14 @@ jobs:
           rpm_base="$(basename $rpm_name)"
           deb_name="$(find target -name '*.deb' | head -1)"
           echo "deb: $deb_name"
-          mv target/release/gram-linux-x86_64.tar.gz "./gram-linux-x86_64${version}-dev.tar.gz"
-          mv target/gram-remote-server-linux-x86_64.gz "./gram-remote-server-linux-x86_64${version}-dev.gz"
-          mv $deb_name "./gram_${debversion}.dev-1_x86_64.deb"
-          mv $rpm_name "./gram_${debversion}.dev-1_x86_64.rpm"
-          echo "tarball_amd64=gram-linux-x86_64${version}-dev.tar.gz" >> $FORGEJO_OUTPUT
-          echo "remote_server_amd64=gram-remote-server-linux-x86_64${version}-dev.gz" >> $FORGEJO_OUTPUT
-          echo "deb_amd64=gram_${debversion}.dev-1_x86_64.deb" >> $FORGEJO_OUTPUT
-          echo "rpm_amd64=gram_${debversion}.dev-1_x86_64.rpm" >> $FORGEJO_OUTPUT
+          mv target/release/gram-linux-x86_64.tar.gz "./gram-linux-x86_64${version}.tar.gz"
+          mv target/gram-remote-server-linux-x86_64.gz "./gram-remote-server-linux-x86_64${version}.gz"
+          mv $deb_name "./gram_${debversion}-1_x86_64.deb"
+          mv $rpm_name "./gram_${debversion}-1_x86_64.rpm"
+          echo "tarball_amd64=gram-linux-x86_64${version}.tar.gz" >> $FORGEJO_OUTPUT
+          echo "remote_server_amd64=gram-remote-server-linux-x86_64${version}.gz" >> $FORGEJO_OUTPUT
+          echo "deb_amd64=gram_${debversion}-1_x86_64.deb" >> $FORGEJO_OUTPUT
+          echo "rpm_amd64=gram_${debversion}-1_x86_64.rpm" >> $FORGEJO_OUTPUT
 
       - id: upload_tarball_amd64
         name: upload tarball

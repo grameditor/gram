@@ -51,7 +51,7 @@ jobs:
         run: brew install cmake
 
       - name: run nextest
-      - run: cargo nextest run --workspace -no-fail-fast --success-output never --show-progress none
+        run: cargo nextest run --workspace -no-fail-fast --success-output never --show-progress none
 
   test-build:
     name: test build (${{ matrix.os }})
@@ -83,8 +83,6 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ matrix.os }}-gram-dev-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - name: set RELEASE_CHANNEL to dev
-        run: echo "dev" >./crates/gram/RELEASE_CHANNEL
 
       - name: build linux
         if: runner.os == 'Linux'

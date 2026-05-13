@@ -34,8 +34,7 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ runner.os }}-gram-dev-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - name: set RELEASE_CHANNEL to dev
-        run: echo "dev" >./crates/gram/RELEASE_CHANNEL
       - name: install dependencies
         run: ./script/prepare-ci ci
-      - run: cargo nextest run --workspace --success-output never --show-progress none
+      - name: cargo nextest
+        run: cargo nextest run --workspace --success-output never --show-progress none
