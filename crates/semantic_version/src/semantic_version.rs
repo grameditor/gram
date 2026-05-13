@@ -7,7 +7,7 @@ use std::{
     str::FromStr,
 };
 
-use anyhow::{Context as _, Result};
+use anyhow::{Context as _, Result, anyhow};
 use serde::{Deserialize, Serialize, de::Error};
 
 /// A [semantic version](https://semver.org/) number.
@@ -16,6 +16,7 @@ pub struct SemanticVersion {
     major: usize,
     minor: usize,
     patch: usize,
+    rc: Option<usize>,
 }
 
 impl SemanticVersion {
@@ -25,6 +26,17 @@ impl SemanticVersion {
             major,
             minor,
             patch,
+            rc: None,
+        }
+    }
+
+    /// Returns a new release candidate [`SemanticVersion`] from the given components.
+    pub const fn with_rc(major: usize, minor: usize, patch: usize, rc: usize) -> Self {
+        Self {
+            major,
+            minor,
+            patch,
+            rc: Some(rc),
         }
     }
 
@@ -45,13 +57,24 @@ impl SemanticVersion {
     pub fn patch(&self) -> usize {
         self.patch
     }
+
+    /// Returns the release candidate version number.
+    #[inline(always)]
+    pub fn rc(&self) -> Option<usize> {
+        self.rc
+    }
 }
 
 impl FromStr for SemanticVersion {
     type Err = anyhow::Error;
 
     fn from_str(s: &str) -> Result<Self> {
-        let mut components = s.trim().split('.');
+        let mut rccomp = s.trim().split("-rc");
+        let mut components = rccomp
+            .next()
+            .ok_or(anyhow!("missing version number"))?
+            .trim()
+            .split('.');
         let major = components
             .next()
             .context("missing major version number")?
@@ -64,17 +87,23 @@ impl FromStr for SemanticVersion {
             .next()
             .context("missing patch version number")?
             .parse()?;
+        let rc = rccomp.next().and_then(|rc| rc.parse().ok());
         Ok(Self {
             major,
             minor,
             patch,
+            rc,
         })
     }
 }
 
 impl Display for SemanticVersion {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}.{}.{}", self.major, self.minor, self.patch)
+        if let Some(rc) = self.rc {
+            write!(f, "{}.{}.{}-rc{}", self.major, self.minor, self.patch, rc)
+        } else {
+            write!(f, "{}.{}.{}", self.major, self.minor, self.patch)
+        }
     }
 }
 
