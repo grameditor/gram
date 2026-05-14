@@ -34,7 +34,9 @@ use ui::{
 };
 use ui_input::{NumberField, NumberFieldMode, NumberFieldType};
 use util::{ResultExt as _, paths::PathStyle, rel_path::RelPath};
-use workspace::{AppState, OpenOptions, OpenVisible, Workspace, client_side_decorations};
+use workspace::{
+    AppState, OpenOptions, OpenVisible, Workspace, WorkspaceSettings, client_side_decorations,
+};
 
 use crate::components::{
     EnumVariantDropdown, SettingsInputField, SettingsSectionHeader, font_picker, icon_theme_picker,
@@ -590,7 +592,10 @@ pub fn open_settings_editor(
         let window_decorations = match std::env::var("GRAM_WINDOW_DECORATIONS") {
             Ok(val) if val == "server" => gpui::WindowDecorations::Server,
             Ok(val) if val == "client" => gpui::WindowDecorations::Client,
-            _ => gpui::WindowDecorations::Client,
+            _ => match WorkspaceSettings::get_global(cx).window_decorations {
+                settings::WindowDecorations::Server => gpui::WindowDecorations::Server,
+                settings::WindowDecorations::Client => gpui::WindowDecorations::Client,
+            },
         };
 
         cx.open_window(

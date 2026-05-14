@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Skip link to openssh.org when finding pull request link in git push output (#287)
 - Fix AltGr / Right option detection on Mac OS (#206)
+- Use window_decorations setting for settings UI and about (#297)
 
 [sumi-light]: https://github.com/LogicSatinn/sumi-light-zed
 
