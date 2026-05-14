@@ -5,6 +5,7 @@ use std::{
     time::{Duration, Instant},
 };
 
+use app_actions::OpenPerformanceProfiler;
 use gpui::{
     App, AppContext, ClipboardItem, Context, Div, Entity, Hsla, InteractiveElement,
     ParentElement as _, Render, SerializedTaskTiming, SharedString, StatefulInteractiveElement,
@@ -13,13 +14,13 @@ use gpui::{
 };
 use util::ResultExt;
 use workspace::{
-    Workspace,
+    Workspace, WorkspaceSettings,
+    item::Settings as _,
     ui::{
         ActiveTheme, Button, ButtonCommon, ButtonStyle, Checkbox, Clickable, Divider,
         ScrollableHandle as _, ToggleState, Tooltip, WithScrollbar, h_flex, v_flex,
     },
 };
-use app_actions::OpenPerformanceProfiler;
 
 pub fn init(startup_time: Instant, cx: &mut App) {
     cx.observe_new(move |workspace: &mut workspace::Workspace, _, _| {
@@ -56,6 +57,14 @@ fn open_performance_profiler(
     }
 
     let default_bounds = size(px(1280.), px(720.)); // 16:9
+    let window_decorations = Some(match std::env::var("GRAM_WINDOW_DECORATIONS") {
+        Ok(val) if val == "server" => gpui::WindowDecorations::Server,
+        Ok(val) if val == "client" => gpui::WindowDecorations::Client,
+        _ => match WorkspaceSettings::get_global(cx).window_decorations {
+            settings::WindowDecorations::Server => gpui::WindowDecorations::Server,
+            settings::WindowDecorations::Client => gpui::WindowDecorations::Client,
+        },
+    });
 
     cx.open_window(
         WindowOptions {
@@ -69,7 +78,7 @@ fn open_performance_profiler(
             is_movable: true,
             kind: gpui::WindowKind::Normal,
             window_background: cx.theme().window_background_appearance(),
-            window_decorations: None,
+            window_decorations,
             window_min_size: Some(default_bounds),
             window_bounds: Some(WindowBounds::centered(default_bounds, cx)),
             ..Default::default()
