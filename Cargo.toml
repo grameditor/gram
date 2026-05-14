@@ -472,7 +472,7 @@ rustc-hash = "2.1.0"
 rustls = { version = "0.23.26" }
 rustls-platform-verifier = "0.7"
 schemars = { version = "1.0", features = ["indexmap2"] }
-semver = "1.0"
+semver = { version = "1.0", features = ["serde"] }
 serde = { version = "1.0.221", features = ["derive", "rc"] }
 serde_derive = "1.0.221"
 serde_json = { version = "1.0.149", features = ["preserve_order", "raw_value"] }
