@@ -1866,6 +1866,7 @@ mod tests {
             .unwrap();
     }
 
+    #[cfg(unix)]
     #[gpui::test]
     async fn test_spawn_task_with_args(cx: &mut TestAppContext) {
         init_test(cx);

@@ -3511,6 +3511,7 @@ mod tests {
             executor,
             next_job_id: Arc::new(AtomicUsize::new(0)),
             job_event_subscribers: Arc::new(Mutex::new(Vec::new())),
+            is_case_sensitive: Default::default(),
         };
         let temp_dir = TempDir::new().unwrap();
         let file = temp_dir.path().join("test (1).txt");

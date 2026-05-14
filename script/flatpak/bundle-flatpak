@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+set -euxo pipefail
 cd "$(dirname "$0")/../.."
 shopt -s extglob
 
 script/bundle-linux --flatpak --tarball
-archive_match="gram(-[a-zA-Z0-9]+)?-linux-$(uname -m)\.tar\.gz"
-archive=$(ls "target/release" | grep -E ${archive_match})
 channel=$(<crates/gram/RELEASE_CHANNEL)
+if [[ "$channel" = "dev" ]]; then
+  archive="gram-dev-linux-$(uname -m).tar.gz"
+else
+  archive="gram-linux-$(uname -m).tar.gz"
+fi
 
 export CHANNEL="$channel"
 export ARCHIVE="$archive"

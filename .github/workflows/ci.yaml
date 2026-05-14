@@ -5,13 +5,14 @@ on:
     branches:
       - "main"
       - "test/*"
+      - "test-gh/*"
     tags:
       - "*"
 
 env:
   CARGO_TERM_COLOR: always
-  RUST_BACKTRACE: '1'
-  CARGO_INCREMENTAL: '0'
+  RUST_BACKTRACE: "1"
+  CARGO_INCREMENTAL: "0"
 
 jobs:
   test:
@@ -25,21 +26,11 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - name: Cache build
-        uses: actions/cache@v5
-        id: cache-gram-build
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ matrix.os }}-gram-dev-cargo-${{ hashFiles('**/Cargo.lock') }}
       - uses: taiki-e/install-action@3235f8901fd37ffed0052b276cec25a362fb82e9
         with:
           tool: |
             cargo-nextest
+
       - name: Fix microslop # https://github.com/microsoft/python-environment-tools/issues/171
         if: runner.os == 'Windows'
         run: git config --global core.longpaths true
@@ -51,84 +42,21 @@ jobs:
         if: runner.os == 'macOS'
         run: brew install cmake
 
-      - name: run nextest
-        run: cargo nextest run --workspace --no-fail-fast --success-output never --show-progress none
-
-  test-build:
-    name: test build (${{ matrix.os }})
-    if: startsWith(github.ref, 'refs/heads/test/')
-    needs: test
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-            artifact_name: linux-amd64
-          - os: macos-latest
-            artifact_name: macos-dmg
-          - os: windows-latest
-            artifact_name: windows-x64
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-      - name: Cache build
-        uses: actions/cache@v5
-        id: cache-gram-build
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ matrix.os }}-gram-dev-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: build linux
-        if: runner.os == 'Linux'
-        run: |
-          ./script/prepare-ci ci
-          ./script/bundle-linux --tarball
-          mkdir artifacts
-          mv target/release/gram-linux-*.tar.gz artifacts/
-          mv target/gram-remote-server-linux-*.gz artifacts/ || true
-
-      - name: build macos
+      - name: update cargo path
         if: runner.os == 'macOS'
         run: |
-          brew install cmake
-          ./script/bundle-mac
-          mkdir artifacts
-          find target -name "Gram-*.dmg" -exec mv {} artifacts/ \;
-          find target -name "gram-remote-server-macos-*" -exec mv {} artifacts/ \;
+          echo "/Users/runner/.cargo/bin" >> $GITHUB_PATH
 
-      - name: Get the release version from the tag
+      - name: run nextest
+        if: runner.os == 'Linux'
+        run: cargo-nextest nextest run --workspace --no-fail-fast --success-output never --show-progress none
+      - name: run nextest
+        if: runner.os == 'macOS'
+        run: cargo-nextest nextest run --workspace --no-fail-fast --success-output never --show-progress none
+      - name: run nextest
         if: runner.os == 'Windows'
-        shell: bash
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+        env:
+          MAKEOPTS: "-j2 -l2"
+          CARGO_BUILD_JOBS: "1"
+        run: cargo-nextest nextest run --workspace --no-fail-fast --success-output never --show-progress none
 
-      - name: Fix microslop # https://github.com/microsoft/python-environment-tools/issues/171
-        if: runner.os == 'Windows'
-        run: git config --global core.longpaths true
-
-      - name: Build windows
-        if: runner.os == 'Windows'
-        run: cargo build --release --package gram --package cli --target ${{ matrix.target }}
-
-      - name: build archive
-        if: runner.os == 'Windows'
-        shell: bash
-        run: |
-          dirname="gram-${{ matrix.artifact_name }}-${{ env.VERSION }}-${{ matrix.target }}"
-          mkdir "$dirname"
-          mv "target/release/gram.exe" "$dirname"
-          mv "target/release/cli.exe" "$dirname"
-          mkdir artifacts
-          7z a "artifacts/$dirname.zip" "$dirname"
-
-      - name: upload artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: ${{ matrix.artifact_name }}
-          path: artifacts/*

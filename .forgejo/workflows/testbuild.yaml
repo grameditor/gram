@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - "test/*"
+      - "test-fj/*"
 
 env:
   CARGO_TERM_COLOR: always

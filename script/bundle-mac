@@ -135,7 +135,8 @@ mv Cargo.toml.backup Cargo.toml
 popd
 echo "Bundled ${app_path}"
 
-if [[ -n "${APPLE_ID:-}" && -n "${APPLE_PASSWORD_GRAM:-}" && -n "${APPLE_TEAM_ID:-}" ]]; then
+if [[ -n "${APPLE_ID:-}" && -n "${APPLE_PASSWORD_GRAM:-}" && -n "${APPLE_TEAM_ID:-}" && -n "${APPLE_SIGNING_KEY}" ]]; then
+    echo "Enabling code signing!"
     can_code_sign=true
 fi
 
@@ -204,17 +205,10 @@ function sign_app_binaries() {
         /usr/bin/codesign --deep --force --timestamp --options runtime --sign "$APPLE_SIGNING_KEY" "${app_path}/Contents/Resources/Assets.car" -v
         /usr/bin/codesign --deep --force --timestamp --options runtime --entitlements crates/gram/resources/gram.entitlements --sign "$APPLE_SIGNING_KEY" "${app_path}/Contents/MacOS/gram" -v
         /usr/bin/codesign --force --timestamp --options runtime --entitlements crates/gram/resources/gram.entitlements --sign "$APPLE_SIGNING_KEY" "${app_path}" -v
-    else
+    elif [[ -n "${APPLE_SIGNING_KEY:-}" ]]; then
         echo "One or more of the following variables are missing: APPLE_ID, APPLE_PASSWORD_GRAM, APPLE_TEAM_ID"
+        echo "The binary will be signed without all entitlements, so universal links won't work for example."
 
-        echo "====== WARNING ======"
-        echo "This bundle is being signed without all entitlements, some features (e.g. universal links) will not work"
-        echo "====== WARNING ======"
-
-        # NOTE: if you need to test universal links you have a few paths forward:
-        # - create a PR and tag it with the `run-bundling` label, and download the .dmg file from there.
-        # - create your own signing key, and update signing key references to your own team ID
-        # then comment out this line.
         cat crates/gram/resources/gram.entitlements | sed '/com.apple.developer.associated-domains/,+1d' >"${app_path}/Contents/Resources/gram.entitlements"
 
         codesign --force --deep --entitlements "${app_path}/Contents/Resources/gram.entitlements" --sign "${APPLE_SIGNING_KEY}" "${app_path}" -v
@@ -249,7 +243,6 @@ function sign_app_binaries() {
         rm -rf "${dmg_source_directory}"
         mkdir -p "${dmg_source_directory}"
         mv "${app_path}" "${dmg_source_directory}"
-        notarization_key_file=$(mktemp)
 
         echo "Adding symlink to /Applications to ${dmg_source_directory}"
         ln -s /Applications "${dmg_source_directory}"
