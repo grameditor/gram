@@ -50,9 +50,7 @@ impl LspColorData {
             DocumentColorsRenderMode::Inlay => Some(InlaySplice {
                 to_remove: Vec::new(),
                 to_insert: self
-                    .buffer_colors
-                    .iter()
-                    .flat_map(|(_, buffer_colors)| buffer_colors.colors.iter())
+                    .buffer_colors.values().flat_map(|buffer_colors| buffer_colors.colors.iter())
                     .map(|(range, color, id)| {
                         Inlay::color(
                             id.id(),
@@ -123,9 +121,7 @@ impl LspColorData {
         {
             Vec::new()
         } else {
-            self.buffer_colors
-                .iter()
-                .flat_map(|(_, buffer_colors)| &buffer_colors.colors)
+            self.buffer_colors.values().flat_map(|buffer_colors| &buffer_colors.colors)
                 .map(|(range, color, _)| {
                     let display_range = range.clone().to_display_points(snapshot);
                     let color = Hsla::from(Rgba {
