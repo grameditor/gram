@@ -1,8 +1,8 @@
-use editor::{Editor, EditorEvent, MBTextSummary, MultiBufferSnapshot};
+use editor::{Editor, EditorEvent, MBTextSummary, display_map::DisplaySnapshot};
 use gpui::{App, Entity, FocusHandle, Focusable, Styled, Subscription, Task, WeakEntity};
 use settings::{RegisterSetting, Settings};
 use std::{fmt::Write, num::NonZeroU32, time::Duration};
-use text::{Point, Selection};
+use text::{Bias, Point, Selection};
 use ui::{
     Button, ButtonCommon, Clickable, Context, FluentBuilder, IntoElement, LabelSize, ParentElement,
     Render, Tooltip, Window, div,
@@ -34,16 +34,18 @@ pub struct CursorPosition {
 pub struct UserCaretPosition {
     pub line: NonZeroU32,
     pub character: NonZeroU32,
+    pub column: NonZeroU32,
 }
 
 impl UserCaretPosition {
     pub(crate) fn at_selection_end(
         selection: &Selection<Point>,
-        snapshot: &MultiBufferSnapshot,
+        snapshot: &DisplaySnapshot,
     ) -> Self {
+        let buffer_snapshot = snapshot.buffer_snapshot();
         let selection_end = selection.head();
         let (line, character) = if let Some((buffer_snapshot, point, _)) =
-            snapshot.point_to_buffer_point(selection_end)
+            buffer_snapshot.point_to_buffer_point(selection_end)
         {
             let line_start = Point::new(point.row, 0);
 
@@ -54,15 +56,21 @@ impl UserCaretPosition {
         } else {
             let line_start = Point::new(selection_end.row, 0);
 
-            let chars_to_last_position = snapshot
+            let chars_to_last_position = buffer_snapshot
                 .text_summary_for_range::<MBTextSummary, _>(line_start..selection_end)
                 .chars as u32;
             (selection_end.row, chars_to_last_position)
         };
 
+        let column = snapshot
+            .tab_snapshot()
+            .point_to_tab_point(selection_end, Bias::Left)
+            .column();
+
         Self {
             line: NonZeroU32::new(line + 1).expect("added 1"),
             character: NonZeroU32::new(character + 1).expect("added 1"),
+            column: NonZeroU32::new(column + 1).expect("added 1"),
         }
     }
 }
@@ -135,12 +143,8 @@ impl CursorPosition {
                                         }
                                     }
                                 }
-                                cursor_position.position = last_selection.map(|s| {
-                                    UserCaretPosition::at_selection_end(
-                                        &s,
-                                        snapshot.buffer_snapshot(),
-                                    )
-                                });
+                                cursor_position.position = last_selection
+                                    .map(|s| UserCaretPosition::at_selection_end(&s, &snapshot));
                                 cursor_position.context = Some(editor.focus_handle(cx));
                             }
                         }
@@ -217,7 +221,7 @@ impl Render for CursorPosition {
         div().when_some(self.position, |el, position| {
             let mut text = format!(
                 "{}{FILE_ROW_COLUMN_DELIMITER}{}",
-                position.line, position.character,
+                position.line, position.column,
             );
             self.write_position(&mut text, cx);
 
