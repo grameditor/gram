@@ -3426,6 +3426,21 @@ pub(crate) fn settings_data(cx: &App) -> Vec<SettingsPage> {
                     metadata: None,
                     files: USER,
                 }),
+                SettingsPageItem::SettingItem(SettingItem {
+                    title: "Option as Alt",
+                    description: "(Mac only) which Option keys should the editor treat as alt. Needs restart to take effect.",
+                    field: Box::new(SettingField {
+                        json_path: Some("option_as_alt"),
+                        pick: |settings_content| {
+                            settings_content.workspace.option_as_alt.as_ref()
+                        },
+                        write: |settings_content, value| {
+                            settings_content.workspace.option_as_alt = value;
+                        },
+                    }),
+                    metadata: None,
+                    files: USER,
+                }),
                 SettingsPageItem::SectionHeader("Pane Modifiers"),
                 SettingsPageItem::SettingItem(SettingItem {
                     title: "Inactive Opacity",

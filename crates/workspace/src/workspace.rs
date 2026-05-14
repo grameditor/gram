@@ -1195,6 +1195,13 @@ impl Workspace {
         })
         .detach();
 
+        match WorkspaceSettings::get_global(cx).option_as_alt {
+            settings::OptionAsAlt::OnlyLeft => {
+                window.set_option_as_alt(gpui::OptionAsAlt::OnlyLeft)
+            }
+            settings::OptionAsAlt::Both => window.set_option_as_alt(gpui::OptionAsAlt::Both),
+        }
+
         let weak_handle = cx.entity().downgrade();
         let pane_history_timestamp = Arc::new(AtomicUsize::new(0));
 

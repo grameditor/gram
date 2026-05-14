@@ -776,6 +776,7 @@ impl VsCodeSettings {
             restore_on_file_reopen: self.read_bool("workbench.editor.restoreViewState"),
             restore_on_startup: None,
             window_decorations: None,
+            option_as_alt: None,
             use_system_path_prompts: self.read_bool("files.simpleDialog.enable"),
             use_system_prompts: None,
             use_system_window_tabs: self.read_bool("window.nativeTabs"),

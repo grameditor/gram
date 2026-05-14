@@ -181,6 +181,15 @@
   //
   // Default: "client"
   "window_decorations": "client",
+  // Which option keys should the editor treat as 'alt'?
+  // If set to "both", the right option key is also treated
+  // as an alt key. If set to "only_left" (the default), the
+  // right option key is treated as AltGr for extended
+  // text input. (Mac only)
+  //
+  // Default: "only_left"
+  "option_as_alt": "only_left",
+
   // Whether to use the system provided dialogs for Open and Save As.
   // When set to false, Gram will use the built-in keyboard-first pickers.
   "use_system_path_prompts": true,

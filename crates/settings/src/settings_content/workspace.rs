@@ -112,6 +112,14 @@ pub struct WorkspaceSettingsContent {
     /// What draws window decorations/titlebar, the client application (Gram) or display server
     /// Default: client
     pub window_decorations: Option<WindowDecorations>,
+    /// Which option keys should the editor treat as 'alt'?
+    /// If set to Both, the right option key is also treated
+    /// as an alt key. If set to OnlyLeft (the default), the
+    /// right option key is treated as AltGr for extended
+    /// text input. (Mac only)
+    ///
+    /// Default: OnlyLeft
+    pub option_as_alt: Option<OptionAsAlt>,
 }
 
 #[with_fallible_options]
@@ -334,6 +342,28 @@ pub enum WindowDecorations {
     Client,
     /// Show system's window titlebar (server-side decoration; not supported by GNOME Wayland)
     Server,
+}
+
+#[derive(
+    Copy,
+    Clone,
+    Default,
+    Debug,
+    Serialize,
+    Deserialize,
+    PartialEq,
+    JsonSchema,
+    MergeFrom,
+    strum::VariantArray,
+    strum::VariantNames,
+)]
+#[serde(rename_all = "snake_case")]
+pub enum OptionAsAlt {
+    /// The right option key is treated as AltGr for text input
+    #[default]
+    OnlyLeft,
+    /// Both option keys are treated as Alt keys
+    Both,
 }
 
 #[derive(

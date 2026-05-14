@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add Supertab fallback mode setting (tab or indent) (#286)
 - Add Sumi-Light theme via [Calvin Jackson, Nishant Dahiya][sumi-light]
+- Add setting to treat right option as alt on Mac OS (#206)
 
 ### Fixed
 
