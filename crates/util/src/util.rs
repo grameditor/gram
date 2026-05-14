@@ -20,9 +20,8 @@ use anyhow::{Context as _, Result};
 use futures::Future;
 use itertools::Either;
 use paths::PathExt;
-use regex::Regex;
 use std::path::PathBuf;
-use std::sync::{LazyLock, OnceLock};
+use std::sync::OnceLock;
 use std::{
     borrow::Cow,
     cmp::{self, Ordering},
@@ -975,25 +974,6 @@ pub fn capitalize(str: &str) -> String {
     }
 }
 
-fn emoji_regex() -> &'static Regex {
-    static EMOJI_REGEX: LazyLock<Regex> =
-        LazyLock::new(|| Regex::new("(\\p{Emoji}|\u{200D})").unwrap());
-    &EMOJI_REGEX
-}
-
-/// Returns true if the given string consists of emojis only.
-/// E.g. "👨‍👩‍👧‍👧👋" will return true, but "👋!" will return false.
-pub fn word_consists_of_emojis(s: &str) -> bool {
-    let mut prev_end = 0;
-    for capture in emoji_regex().find_iter(s) {
-        if capture.start() != prev_end {
-            return false;
-        }
-        prev_end = capture.end();
-    }
-    prev_end == s.len()
-}
-
 /// Similar to `str::split`, but also provides byte-offset ranges of the results. Unlike
 /// `str::split`, this is not generic on pattern types and does not return an `Iterator`.
 pub fn split_str_with_ranges(s: &str, pat: impl Fn(char) -> bool) -> Vec<(Range<usize>, &str)> {
@@ -1196,23 +1176,6 @@ mod tests {
                 NumericPrefixWithSuffix(None, numeric_prefix_less),
                 "String without numeric prefix `{numeric_prefix_less}` should not be converted into NumericPrefixWithSuffix"
             )
-        }
-    }
-
-    #[test]
-    fn test_word_consists_of_emojis() {
-        let words_to_test = vec![
-            ("👨‍👩‍👧‍👧👋🥒", true),
-            ("👋", true),
-            ("!👋", false),
-            ("👋!", false),
-            ("👋 ", false),
-            (" 👋", false),
-            ("Test", false),
-        ];
-
-        for (text, expected_result) in words_to_test {
-            assert_eq!(word_consists_of_emojis(text), expected_result);
         }
     }
 
