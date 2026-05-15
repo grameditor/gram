@@ -109,17 +109,7 @@ function BuildGramAndItsFriends {
     Copy-Item -Path ".\$CargoOutDir\gram.exe" -Destination "$innoDir\Gram.exe" -Force
     Copy-Item -Path ".\$CargoOutDir\cli.exe" -Destination "$innoDir\cli.exe" -Force
     # Build explorer_command_injector.dll
-    switch ($channel) {
-        "stable" {
-            cargo build --release --features stable --no-default-features --package explorer_command_injector --target $target
-        }
-        "preview" {
-            cargo build --release --features preview --no-default-features --package explorer_command_injector --target $target
-        }
-        default {
-            cargo build --release --package explorer_command_injector --target $target
-        }
-    }
+    cargo build --release --no-default-features --package explorer_command_injector --target $target
     Copy-Item -Path ".\$CargoOutDir\explorer_command_injector.dll" -Destination "$innoDir\gram_explorer_command_injector.dll" -Force
 }
 
