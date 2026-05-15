@@ -626,6 +626,7 @@ mod tests {
             test_path!("‹«/test/cool.rs»:«4»:«👉2»›");
             test_path!("‹«/👉test/cool.rs»(«4»,«2»)›");
             test_path!("‹«/test/cool.rs»(«4»👉,«2»)›");
+            test_path!("‹«/👉test/cool.rs»(«4», «2»)›");
 
             // path, line, column, and ':' suffix
             test_path!("‹«/👉test/cool.rs»:«4»:«2»›:");
