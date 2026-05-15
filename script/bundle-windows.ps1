@@ -108,84 +108,20 @@ function BuildGramAndItsFriends {
     cargo build --release --package gram --package cli --target $target
     Copy-Item -Path ".\$CargoOutDir\gram.exe" -Destination "$innoDir\Gram.exe" -Force
     Copy-Item -Path ".\$CargoOutDir\cli.exe" -Destination "$innoDir\cli.exe" -Force
-    # Build explorer_command_injector.dll
-    switch ($channel) {
-        "stable" {
-            cargo build --release --features stable --no-default-features --package explorer_command_injector --target $target
-        }
-        "preview" {
-            cargo build --release --features preview --no-default-features --package explorer_command_injector --target $target
-        }
-        default {
-            cargo build --release --package explorer_command_injector --target $target
-        }
-    }
-    Copy-Item -Path ".\$CargoOutDir\explorer_command_injector.dll" -Destination "$innoDir\gram_explorer_command_injector.dll" -Force
 }
 
 function ZipGramAndItsFriendsDebug {
     $items = @(
         ".\$CargoOutDir\gram.pdb",
-        ".\$CargoOutDir\cli.pdb",
-        ".\$CargoOutDir\explorer_command_injector.pdb"
+        ".\$CargoOutDir\cli.pdb"
     )
 
     Compress-Archive -Path $items -DestinationPath ".\$CargoOutDir\gram-$env:RELEASE_VERSION-$env:GRAM_RELEASE_CHANNEL.dbg.zip" -Force
 }
 
-function MakeAppx {
-    $manifestFile = "$env:GRAM_WORKSPACE\crates\explorer_command_injector\AppxManifest.xml"
-    Copy-Item -Path "$manifestFile" -Destination "$innoDir\make_appx\AppxManifest.xml"
-    # Add makeAppx.exe to Path
-    $sdk = "C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64"
-    $env:Path += ';' + $sdk
-    makeAppx.exe pack /d "$innoDir\make_appx" /p "$innoDir\gram_explorer_command_injector.appx" /nv
-}
-
-function SignGramAndItsFriends {
-    if (-not $env:CI) {
-        return
-    }
-
-    $files = "$innoDir\Gram.exe,$innoDir\cli.exe,$innoDir\gram_explorer_command_injector.dll,$innoDir\gram_explorer_command_injector.appx"
-    & "$innoDir\sign.ps1" $files
-}
-
-function DownloadAMDGpuServices {
-    # If you update the AGS SDK version, please also update the version in `crates/gpui/src/platform/windows/directx_renderer.rs`
-    $url = "https://codeload.github.com/GPUOpen-LibrariesAndSDKs/AGS_SDK/zip/refs/tags/v6.3.0"
-    $zipPath = ".\AGS_SDK_v6.3.0.zip"
-    # Download the AGS SDK zip file
-    Invoke-WebRequest -Uri $url -OutFile $zipPath
-    # Extract the AGS SDK zip file
-    Expand-Archive -Path $zipPath -DestinationPath "." -Force
-}
-
-function DownloadConpty {
-    $url = "https://github.com/microsoft/terminal/releases/download/v1.23.12811.0/Microsoft.Windows.Console.ConPTY.1.23.251008001.nupkg"
-    $zipPath = ".\Microsoft.Windows.Console.ConPTY.1.23.251008001.nupkg"
-    Invoke-WebRequest -Uri $url -OutFile $zipPath
-    Expand-Archive -Path $zipPath -DestinationPath ".\conpty" -Force
-}
-
 function CollectFiles {
-    Move-Item -Path "$innoDir\gram_explorer_command_injector.appx" -Destination "$innoDir\appx\gram_explorer_command_injector.appx" -Force
-    Move-Item -Path "$innoDir\gram_explorer_command_injector.dll" -Destination "$innoDir\appx\gram_explorer_command_injector.dll" -Force
     Move-Item -Path "$innoDir\cli.exe" -Destination "$innoDir\bin\gram.exe" -Force
     Move-Item -Path "$innoDir\gram.sh" -Destination "$innoDir\bin\gram" -Force
-    if($Architecture -eq "aarch64") {
-        New-Item -Type Directory -Path "$innoDir\arm64" -Force
-        Move-Item -Path ".\conpty\build\native\runtimes\arm64\OpenConsole.exe" -Destination "$innoDir\arm64\OpenConsole.exe" -Force
-        Move-Item -Path ".\conpty\runtimes\win-arm64\native\conpty.dll" -Destination "$innoDir\conpty.dll" -Force
-    }
-    else {
-        New-Item -Type Directory -Path "$innoDir\x64" -Force
-        New-Item -Type Directory -Path "$innoDir\arm64" -Force
-        Move-Item -Path ".\AGS_SDK-6.3.0\ags_lib\lib\amd_ags_x64.dll" -Destination "$innoDir\amd_ags_x64.dll" -Force
-        Move-Item -Path ".\conpty\build\native\runtimes\x64\OpenConsole.exe" -Destination "$innoDir\x64\OpenConsole.exe" -Force
-        Move-Item -Path ".\conpty\build\native\runtimes\arm64\OpenConsole.exe" -Destination "$innoDir\arm64\OpenConsole.exe" -Force
-        Move-Item -Path ".\conpty\runtimes\win-x64\native\conpty.dll" -Destination "$innoDir\conpty.dll" -Force
-    }
 }
 
 function BuildInstaller {
@@ -254,10 +190,6 @@ function BuildInstaller {
     }
 
     $innoArgs = @($issFilePath) + $defs
-    if($env:CI) {
-        $signTool = "powershell.exe -ExecutionPolicy Bypass -File $innoDir\sign.ps1 `$f"
-        $innoArgs += "/sDefaultsign=`"$signTool`""
-    }
 
     # Execute Inno Setup
     Write-Host "🚀 Running Inno Setup: $innoSetupPath $innoArgs"
@@ -283,11 +215,7 @@ CheckEnvironmentVariables
 PrepareForBundle
 GenerateLicenses
 BuildGramAndItsFriends
-MakeAppx
-SignGramAndItsFriends
 ZipGramAndItsFriendsDebug
-DownloadAMDGpuServices
-DownloadConpty
 CollectFiles
 BuildInstaller
 
