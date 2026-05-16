@@ -524,7 +524,8 @@ impl TerminalPanel {
         };
 
         let builder = ShellBuilder::new(&shell, is_windows);
-        let command_label = builder.command_label(task.command.as_deref().unwrap_or(""));
+        let command_label =
+            builder.command_label(task.command.as_deref().unwrap_or(""), &task.args);
         let (command, args) = builder.build(task.command.clone(), &task.args);
 
         let task = SpawnInTerminal {
@@ -1860,6 +1861,69 @@ mod tests {
                 assert_eq!(
                     task_metadata.command_label,
                     format!("{shell} {interactive}-c '{user_command}'", interactive = if cfg!(windows) {""} else {"-i "}),
+                    "We want to show to the user the entire command spawned");
+            })
+            .unwrap();
+    }
+
+    #[gpui::test]
+    async fn test_spawn_task_with_args(cx: &mut TestAppContext) {
+        init_test(cx);
+
+        let fs = FakeFs::new(cx.executor());
+        let project = Project::test(fs, [], cx).await;
+        let workspace = cx.add_window(|window, cx| Workspace::test_new(project, window, cx));
+
+        let (window_handle, terminal_panel) = workspace
+            .update(cx, |workspace, window, cx| {
+                let window_handle = window.window_handle();
+                let terminal_panel = cx.new(|cx| TerminalPanel::new(workspace, window, cx));
+                (window_handle, terminal_panel)
+            })
+            .unwrap();
+
+        let user_command = r#"echo"#.to_string();
+        let user_args = Vec::from(["foo".to_string(), "bar".to_string(), "baz".to_string()]);
+
+        let expected_cwd = PathBuf::from("/some/work");
+        let task = window_handle
+            .update(cx, |_, window, cx| {
+                terminal_panel.update(cx, |terminal_panel, cx| {
+                    terminal_panel.spawn_task(
+                        &SpawnInTerminal {
+                            command: Some(user_command.clone()),
+                            args: user_args.clone(),
+                            cwd: Some(expected_cwd.clone()),
+                            ..SpawnInTerminal::default()
+                        },
+                        window,
+                        cx,
+                    )
+                })
+            })
+            .unwrap();
+
+        let terminal = task.await.unwrap();
+        let shell = util::get_system_shell();
+        terminal
+            .update(cx, |terminal, _| {
+                let task_metadata = terminal
+                    .task()
+                    .expect("When spawning a task, should have the task metadata")
+                    .spawned_task
+                    .clone();
+                assert_eq!(task_metadata.env, HashMap::default());
+                assert_eq!(task_metadata.cwd, Some(expected_cwd));
+                assert_eq!(task_metadata.shell, task::Shell::System);
+                assert_eq!(task_metadata.command, Some(shell.clone()));
+                assert_eq!(
+                    task_metadata.args,
+                    vec!["-i".to_string(), "-c".to_string(), format!("{cmd}{args}", cmd=user_command.clone(), args = user_args.iter().fold(String::new(), |acc, arg| acc + " " + &arg)),],
+                    "Use command should have been moved into the arguments, as we're spawning a new -i shell",
+                );
+                assert_eq!(
+                    task_metadata.command_label,
+                    format!("{shell} {interactive}-c '{user_command}{args}'", interactive = if cfg!(windows) {""} else {"-i "}, args = user_args.iter().fold(String::new(), |acc, arg| acc + " " + &arg)),
                     "We want to show to the user the entire command spawned");
             })
             .unwrap();
