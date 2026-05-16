@@ -39,8 +39,10 @@ function Get-VSArch {
     }
 }
 
+$VSDevPath = Join-Path -Path ((& 'C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe' -latest -format json | ConvertFrom-Json).installationPath) -ChildPath "\Common7\Tools\Launch-VsDevShell.ps1"
+
 Push-Location
-& "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\Launch-VsDevShell.ps1" -Arch (Get-VSArch -Arch $Architecture) -HostArch (Get-VSArch -Arch $OSArchitecture)
+& $VSDevPath -Arch (Get-VSArch -Arch $Architecture) -HostArch (Get-VSArch -Arch $OSArchitecture)
 Pop-Location
 
 $target = "$Architecture-pc-windows-msvc"
@@ -62,15 +64,8 @@ $env:RELEASE_CHANNEL = $channel
 Pop-Location
 
 function CheckEnvironmentVariables {
-    if(-not $env:CI) {
-        return
-    }
-
     $requiredVars = @(
-        'GRAM_WORKSPACE', 'RELEASE_VERSION', 'GRAM_RELEASE_CHANNEL',
-        'AZURE_TENANT_ID', 'AZURE_CLIENT_ID', 'AZURE_CLIENT_SECRET',
-        'ACCOUNT_NAME', 'CERT_PROFILE_NAME', 'ENDPOINT',
-        'FILE_DIGEST', 'TIMESTAMP_DIGEST', 'TIMESTAMP_SERVER'
+        'GRAM_WORKSPACE', 'RELEASE_VERSION', 'GRAM_RELEASE_CHANNEL'
     )
 
     foreach ($var in $requiredVars) {
@@ -87,8 +82,6 @@ function PrepareForBundle {
     }
     New-Item -Path "$innoDir" -ItemType Directory -Force
     Copy-Item -Path "$env:GRAM_WORKSPACE\crates\gram\resources\windows\*" -Destination "$innoDir" -Recurse -Force
-    New-Item -Path "$innoDir\make_appx" -ItemType Directory -Force
-    New-Item -Path "$innoDir\appx" -ItemType Directory -Force
     New-Item -Path "$innoDir\bin" -ItemType Directory -Force
     New-Item -Path "$innoDir\tools" -ItemType Directory -Force
 
@@ -139,7 +132,6 @@ function BuildInstaller {
             $regValueName = "Gram"
             $appUserId = "Gram.Gram"
             $appShellNameShort = "G&ram"
-            $appAppxFullName = "Gram.Gram_2.0.0.0_neutral__mspublisherid"
         }
         "dev" {
             $appId = "{{4FEF353A-EA46-468C-95DD-2B343A71416F}"
@@ -153,7 +145,6 @@ function BuildInstaller {
             $regValueName = "GramDev"
             $appUserId = "Gram.Gram.Dev"
             $appShellNameShort = "G&ram Dev"
-            $appAppxFullName = "Gram.Gram.Dev_2.0.0.0_neutral__mspublisherid"
         }
         default {
             Write-Error "can't bundle installer for $channel."
@@ -181,7 +172,6 @@ function BuildInstaller {
         "AppUserId"      = $appUserId
         "Version"        = "$env:RELEASE_VERSION"
         "SourceDir"      = "$env:GRAM_WORKSPACE"
-        "AppxFullName"   = $appAppxFullName
     }
 
     $defs = @()
