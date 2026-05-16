@@ -1097,7 +1097,7 @@ impl RunningState {
                 }
 
                 let builder = ShellBuilder::new(&task.resolved.shell, is_windows);
-                let command_label = builder.command_label(task.resolved.command.as_deref().unwrap_or(""));
+                let command_label = builder.command_label(task.resolved.command.as_deref().unwrap_or(""), &task.resolved.args);
                 let (command, args) =
                     builder.build(task.resolved.command.clone(), &task.resolved.args);
 

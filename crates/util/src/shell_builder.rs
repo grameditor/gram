@@ -37,16 +37,24 @@ impl ShellBuilder {
     }
 
     /// Returns the label to show in the terminal tab
-    pub fn command_label(&self, command_to_use_in_label: &str) -> String {
-        if command_to_use_in_label.trim().is_empty() {
+    pub fn command_label(&self, command_to_use_in_label: &str, args: &Vec<String>) -> String {
+        let combined_command =
+            args.iter()
+                .fold(command_to_use_in_label.to_string(), |mut command, arg| {
+                    command.push(' ');
+                    command.push_str(&self.kind.to_shell_variable(arg));
+                    command
+                });
+
+        if combined_command.trim().is_empty() {
             self.program.clone()
         } else {
             match self.kind {
                 ShellKind::PowerShell => {
-                    format!("{} -C '{}'", self.program, command_to_use_in_label)
+                    format!("{} -C '{}'", self.program, combined_command)
                 }
                 ShellKind::Cmd => {
-                    format!("{} /C \"{}\"", self.program, command_to_use_in_label)
+                    format!("{} /C \"{}\"", self.program, combined_command)
                 }
                 ShellKind::Posix
                 | ShellKind::Nushell
@@ -58,7 +66,7 @@ impl ShellBuilder {
                 | ShellKind::Elvish => {
                     let interactivity = self.interactive.then_some("-i ").unwrap_or_default();
                     format!(
-                        "{PROGRAM} {interactivity}-c '{command_to_use_in_label}'",
+                        "{PROGRAM} {interactivity}-c '{combined_command}'",
                         PROGRAM = self.program
                     )
                 }

@@ -567,6 +567,27 @@ impl TerminalBuilder {
                 term.unset_private_mode(PrivateMode::Named(NamedPrivateMode::AlternateScroll));
             }
 
+            if let Some(task) = &task
+                && task.spawned_task.show_command
+            {
+                let escaped_command_label = task
+                    .spawned_task
+                    .command_label
+                    .replace("\r\n", "\r")
+                    .replace('\n', "\r");
+                let command_line =
+                    format!("{TASK_DELIMITER}Running command: {escaped_command_label}");
+
+                for c in command_line.chars() {
+                    term.input(c);
+                }
+
+                term.linefeed();
+                term.carriage_return();
+                term.linefeed();
+                term.carriage_return();
+            }
+
             let term = Arc::new(FairMutex::new(term));
 
             let pty_info = PtyProcessInfo::new(&pty);
@@ -2160,13 +2181,10 @@ impl Terminal {
             }
         };
 
-        let (finished_successfully, task_line, command_line) = task_summary(task, exit_status);
+        let (finished_successfully, task_line) = task_summary(task, exit_status);
         let mut lines_to_show = Vec::new();
         if task.spawned_task.show_summary {
             lines_to_show.push(task_line.as_str());
-        }
-        if task.spawned_task.show_command {
-            lines_to_show.push(command_line.as_str());
         }
 
         if !lines_to_show.is_empty() {
@@ -2224,7 +2242,7 @@ pub fn row_to_string(row: &Row<Cell>) -> String {
 }
 
 const TASK_DELIMITER: &str = "⏵ ";
-fn task_summary(task: &TaskState, exit_status: Option<ExitStatus>) -> (bool, String, String) {
+fn task_summary(task: &TaskState, exit_status: Option<ExitStatus>) -> (bool, String) {
     let escaped_full_label = task
         .spawned_task
         .full_label
@@ -2254,13 +2272,7 @@ fn task_summary(task: &TaskState, exit_status: Option<ExitStatus>) -> (bool, Str
         }
         None => (false, task_label("finished")),
     };
-    let escaped_command_label = task
-        .spawned_task
-        .command_label
-        .replace("\r\n", "\r")
-        .replace('\n', "\r");
-    let command_line = format!("{TASK_DELIMITER}Command: {escaped_command_label}");
-    (success, task_line, command_line)
+    (success, task_line)
 }
 
 /// Appends a stringified task summary to the terminal, after its output.
