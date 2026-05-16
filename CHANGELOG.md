@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add Supertab fallback mode setting (tab or indent) (#286)
 - Add Sumi-Light theme via [Calvin Jackson, Nishant Dahiya][sumi-light]
+- Add everforest light theme (#301) by @nirogu
 - Add setting to treat right option as alt on Mac OS (#206)
 - Improve outlines for Go (#299) by @danvolchek
 
@@ -21,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use window_decorations setting for settings UI and about (#297)
 - Fix incorrect column display when indenting with tabs (#289)
 - Support /path/to/file.txt(ln, col) style paths in terminal (second attempt) (#75)
+
+### Changed
+
+- tasks: show command before output, also show args (#304) by @danvolchek
 
 [sumi-light]: https://github.com/LogicSatinn/sumi-light-zed
 
