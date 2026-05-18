@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add everforest light theme (#301) by @nirogu
 - Add setting to treat right option as alt on Mac OS (#206)
 - Improve outlines for Go (#299) by @danvolchek
+- CI test and build for Windows, thanks to Zoey Rust
 
 ### Fixed
 
