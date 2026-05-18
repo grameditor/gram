@@ -739,15 +739,6 @@ where
                     None,
                 );
             };
-            
-            if !binary_options.enable_auto_updates {  
-                if let Some(cached) = self  
-                    .cached_server_binary(container_dir.to_path_buf(), delegate.as_ref())  
-                    .await  
-                {  
-                    return (Ok(cached), None);  
-                }   
-            }
 
             let last_downloaded_binary = self
                 .cached_server_binary(container_dir.to_path_buf(), delegate.as_ref())
@@ -755,6 +746,9 @@ where
                 .context(
                     "Did not find existing language server binary, falling back to downloading",
                 );
+            if !binary_options.enable_auto_updates && last_downloaded_binary.is_ok() {
+                return (last_downloaded_binary, None);
+            }
             let download_binary = async move {
                 let mut binary = self
                     .try_fetch_server_binary(

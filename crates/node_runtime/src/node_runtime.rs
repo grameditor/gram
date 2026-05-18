@@ -86,7 +86,7 @@ impl NodeRuntime {
                 Err(err) => {
                     return Box::new(UnavailableNodeRuntime {
                         error_message: err.to_string().into(),
-                    });
+                    }) as Box<dyn NodeRuntimeTrait>;
                 }
             }
         };
@@ -176,13 +176,13 @@ impl NodeRuntime {
             //
             // TODO: When support is added for setting `options.allow_binary_download`, update this
             // error message.
-            return Box::new(UnavailableNodeRuntime {
+            Box::new(UnavailableNodeRuntime {
                 error_message: format!(
                     "failure while checking system Node.js from PATH: {}",
                     system_node_error
                 )
                 .into(),
-            });
+            }) as Box<dyn NodeRuntimeTrait>
         } else {
             // failure case is cached because it will always happen with these options
             //
@@ -192,7 +192,7 @@ impl NodeRuntime {
                 error_message: "`node` settings do not allow any way to use Node.js"
                     .to_string()
                     .into(),
-            })
+            }) as Box<dyn NodeRuntimeTrait>
         };
 
         state.instance = Some(instance.boxed_clone());

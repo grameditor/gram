@@ -175,6 +175,9 @@ impl LspInstaller for EsLintLspAdapter {
     ) -> Option<LanguageServerBinary> {
         let server_path =
             Self::build_destination_path(&container_dir).join(EsLintLspAdapter::SERVER_PATH);
+        if !server_path.is_file() {
+            return None;
+        }
         Some(LanguageServerBinary {
             path: self.node.binary_path().await.ok()?,
             env: None,

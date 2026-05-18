@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use window_decorations setting for settings UI and about (#297)
 - Fix incorrect column display when indenting with tabs (#289)
 - Support /path/to/file.txt(ln, col) style paths in terminal (second attempt) (#75)
+- Fix eslint LSP not checking if server is downloaded (#296)
 
 ### Changed
 
