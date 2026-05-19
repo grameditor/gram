@@ -149,6 +149,20 @@ pub fn default_theme(appearance: Appearance) -> &'static str {
     }
 }
 
+/// Returns the configured theme mode / system mode
+pub fn appearance(cx: &App) -> Appearance {
+    let system_appearance = SystemAppearance::global(cx);
+    if let Some(mode) = ThemeSettings::get_global(cx).theme.mode() {
+        match mode {
+            ThemeAppearanceMode::Light => Appearance::Light,
+            ThemeAppearanceMode::Dark => Appearance::Dark,
+            ThemeAppearanceMode::System => *system_appearance,
+        }
+    } else {
+        *system_appearance
+    }
+}
+
 /// The appearance of the system.
 #[derive(Debug, Clone, Copy, Deref)]
 pub struct SystemAppearance(pub Appearance);

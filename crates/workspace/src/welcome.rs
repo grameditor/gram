@@ -15,8 +15,7 @@ use menu::{SelectNext, SelectPrevious};
 use remote::RemoteConnectionOptions;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use settings::Settings as _;
-use theme::{Appearance, ThemeSettings};
+use theme::Appearance;
 use ui::{ButtonLike, Divider, DividerColor, KeyBinding, Vector, VectorName, prelude::*};
 use util::ResultExt;
 
@@ -370,21 +369,9 @@ impl Render for WelcomePage {
                 .into_any_element()
         };
 
-        let theme_selection = ThemeSettings::get_global(cx).theme.clone();
-        let system_appearance = theme::SystemAppearance::global(cx);
-        let theme_mode = theme_selection
-            .mode()
-            .unwrap_or_else(|| match *system_appearance {
-                Appearance::Light => theme::ThemeAppearanceMode::Light,
-                Appearance::Dark => theme::ThemeAppearanceMode::Dark,
-            });
-        let image = match theme_mode {
-            theme::ThemeAppearanceMode::Light => VectorName::LogoLight,
-            theme::ThemeAppearanceMode::Dark => VectorName::LogoDark,
-            theme::ThemeAppearanceMode::System => match *system_appearance {
-                Appearance::Light => VectorName::LogoLight,
-                Appearance::Dark => VectorName::LogoDark,
-            },
+        let image = match theme::appearance(cx) {
+            Appearance::Light => VectorName::LogoLight,
+            Appearance::Dark => VectorName::LogoDark,
         };
 
         h_flex()

@@ -3978,38 +3978,34 @@ impl GitPanel {
     }
 
     fn render_empty_state(&self, cx: &mut Context<Self>) -> impl IntoElement {
-        h_flex().h_full().flex_grow().justify_center().child(
-            v_flex()
-                .gap_2()
-                .child(h_flex().w_full().justify_around().child(
-                    if self.active_repository.is_some() {
-                        "No changes to commit"
-                    } else {
-                        "No Git repositories"
-                    },
-                ))
-                .children({
-                    let worktree_count = self.project.read(cx).visible_worktrees(cx).count();
-                    (worktree_count > 0 && self.active_repository.is_none()).then(|| {
-                        h_flex().w_full().justify_around().child(
-                            panel_filled_button("Initialize Repository")
-                                .tooltip(Tooltip::for_action_title_in(
-                                    "git init",
-                                    &git::Init,
-                                    &self.focus_handle,
-                                ))
-                                .on_click(move |_, _, cx| {
-                                    cx.defer(move |cx| {
-                                        cx.dispatch_action(&git::Init);
-                                    })
-                                }),
-                        )
-                    })
+        v_flex()
+            .size_full()
+            .justify_center()
+            .items_center()
+            .gap_2()
+            .text_ui_sm(cx)
+            .text_color(Color::Hidden.color(cx))
+            .child(if self.active_repository.is_some() {
+                "No changes."
+            } else {
+                "Not a git repository."
+            })
+            .children({
+                let worktree_count = self.project.read(cx).visible_worktrees(cx).count();
+                (worktree_count > 0 && self.active_repository.is_none()).then(|| {
+                    panel_filled_button("Initialize Repository")
+                        .tooltip(Tooltip::for_action_title_in(
+                            "git init",
+                            &git::Init,
+                            &self.focus_handle,
+                        ))
+                        .on_click(move |_, _, cx| {
+                            cx.defer(move |cx| {
+                                cx.dispatch_action(&git::Init);
+                            })
+                        })
                 })
-                .text_ui_sm(cx)
-                .mx_auto()
-                .text_color(Color::Placeholder.color(cx)),
-        )
+            })
     }
 
     fn render_buffer_header_controls(

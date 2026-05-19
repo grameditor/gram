@@ -1080,21 +1080,9 @@ fn open_about(cx: &mut App) {
     impl Render for AboutWindow {
         fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
             let ok_is_focused = self.ok.focus_handle.contains_focused(window, cx);
-            let theme_selection = ThemeSettings::get_global(cx).theme.clone();
-            let system_appearance = theme::SystemAppearance::global(cx);
-            let theme_mode = theme_selection
-                .mode()
-                .unwrap_or_else(|| match *system_appearance {
-                    Appearance::Light => theme::ThemeAppearanceMode::Light,
-                    Appearance::Dark => theme::ThemeAppearanceMode::Dark,
-                });
-            let image = match theme_mode {
-                theme::ThemeAppearanceMode::Light => VectorName::LogoLight,
-                theme::ThemeAppearanceMode::Dark => VectorName::LogoDark,
-                theme::ThemeAppearanceMode::System => match *system_appearance {
-                    Appearance::Light => VectorName::LogoLight,
-                    Appearance::Dark => VectorName::LogoDark,
-                },
+            let image = match theme::appearance(cx) {
+                Appearance::Light => VectorName::LogoLight,
+                Appearance::Dark => VectorName::LogoDark,
             };
 
             Navigable::new(

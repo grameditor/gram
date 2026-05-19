@@ -10,7 +10,7 @@ use gpui::{
 use notifications::status_toast::{StatusToast, ToastIcon};
 use schemars::JsonSchema;
 use serde::Deserialize;
-use settings::{Settings as _, SettingsStore, VsCodeSettingsSource};
+use settings::{SettingsStore, VsCodeSettingsSource};
 use std::sync::Arc;
 use theme::Appearance;
 use ui::{
@@ -207,21 +207,9 @@ impl Onboarding {
 
 impl Render for Onboarding {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        let theme_selection = theme::ThemeSettings::get_global(cx).theme.clone();
-        let system_appearance = theme::SystemAppearance::global(cx);
-        let theme_mode = theme_selection
-            .mode()
-            .unwrap_or_else(|| match *system_appearance {
-                Appearance::Light => theme::ThemeAppearanceMode::Light,
-                Appearance::Dark => theme::ThemeAppearanceMode::Dark,
-            });
-        let image = match theme_mode {
-            theme::ThemeAppearanceMode::Light => VectorName::LogoLight,
-            theme::ThemeAppearanceMode::Dark => VectorName::LogoDark,
-            theme::ThemeAppearanceMode::System => match *system_appearance {
-                Appearance::Light => VectorName::LogoLight,
-                Appearance::Dark => VectorName::LogoDark,
-            },
+        let image = match theme::appearance(cx) {
+            Appearance::Light => VectorName::LogoLight,
+            Appearance::Dark => VectorName::LogoDark,
         };
 
         div()
