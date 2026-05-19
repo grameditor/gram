@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix git status message aligned incorrectly (#306)
+- Fix .tar.gz unpack for extensions (#295)
 
 ## [2.1.0] - 2026-05-18
 

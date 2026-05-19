@@ -56,7 +56,9 @@ pub type ExtensionHttpResponseStream = Arc<Mutex<::http_client::Response<AsyncBo
 pub fn linker(executor: &BackgroundExecutor) -> &'static Linker<WasmState> {
     static LINKER: OnceLock<Linker<WasmState>> = OnceLock::new();
     LINKER.get_or_init(|| {
-        super::new_linker(executor, |linker| Extension::add_to_linker::<_, WasmState>(linker, |s| s))
+        super::new_linker(executor, |linker| {
+            Extension::add_to_linker::<_, WasmState>(linker, |s| s)
+        })
     })
 }
 
@@ -527,7 +529,7 @@ impl ExtensionImports for WasmState {
                 "download failed with status {}",
                 response.status()
             );
-            let body = BufReader::new(response.body_mut());
+            let mut body = BufReader::new(response.body_mut());
 
             match file_type {
                 DownloadedFileType::Uncompressed => {
@@ -546,7 +548,9 @@ impl ExtensionImports for WasmState {
                         .await?;
                 }
                 DownloadedFileType::GzipTar => {
-                    let body = GzipDecoder::new(body);
+                    let mut tar_gz_bytes = Vec::new();
+                    body.read_to_end(&mut tar_gz_bytes).await?;
+                    let body = GzipDecoder::new(BufReader::new(tar_gz_bytes.as_slice()));
                     futures::pin_mut!(body);
                     self.host
                         .fs
