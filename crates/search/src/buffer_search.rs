@@ -29,7 +29,7 @@ use project::{
 use schemars::JsonSchema;
 use serde::Deserialize;
 use settings::Settings;
-use std::sync::Arc;
+use std::{sync::Arc, time::Duration};
 
 use ui::{
     BASE_REM_SIZE_IN_PX, IconButton, IconButtonShape, IconName, Tooltip, h_flex, prelude::*,
@@ -131,6 +131,7 @@ pub struct BufferSearchBar {
     editor_scroll_handle: ScrollHandle,
     editor_needed_width: Pixels,
     regex_language: Option<Arc<Language>>,
+    _search_task: Option<Task<()>>,
 }
 
 impl EventEmitter<Event> for BufferSearchBar {}
@@ -735,6 +736,7 @@ impl BufferSearchBar {
             editor_scroll_handle: ScrollHandle::new(),
             editor_needed_width: px(0.),
             regex_language: None,
+            _search_task: None,
         }
     }
 
@@ -1171,31 +1173,57 @@ impl BufferSearchBar {
             editor::EditorEvent::Focused => self.query_editor_focused = true,
             editor::EditorEvent::Blurred => self.query_editor_focused = false,
             editor::EditorEvent::Edited { .. } => {
-                self.smartcase(window, cx);
-                self.clear_matches(window, cx);
-                let search = self.update_matches(false, true, window, cx);
+                let editor = editor.downgrade();
+                self._search_task = Some(cx.spawn_in(window, async move |this, cx| {
+                    cx.background_executor()
+                        .timer(Duration::from_millis(200))
+                        .await;
 
-                let width = editor.update(cx, |editor, cx| {
-                    let text_layout_details = editor.text_layout_details(window);
-                    let snapshot = editor.snapshot(window, cx).display_snapshot;
+                    let search = this
+                        .update_in(cx, |this, window, cx| {
+                            this.smartcase(window, cx);
+                            this.clear_matches(window, cx);
+                            this.update_matches(false, true, window, cx)
+                        })
+                        .log_err();
 
-                    snapshot.x_for_display_point(snapshot.max_point(), &text_layout_details)
-                        - snapshot.x_for_display_point(DisplayPoint::zero(), &text_layout_details)
-                });
-                self.editor_needed_width = width;
-                cx.notify();
+                    let width = this
+                        .update_in(cx, |_, window, cx| {
+                            editor
+                                .update(cx, |editor, cx| {
+                                    let text_layout_details = editor.text_layout_details(window);
+                                    let snapshot = editor.snapshot(window, cx).display_snapshot;
 
-                cx.spawn_in(window, async move |this, cx| {
-                    if search.await.is_ok() {
-                        this.update_in(cx, |this, window, cx| {
-                            this.activate_current_match(window, cx);
-                            #[cfg(target_os = "macos")]
-                            this.update_find_pasteboard(cx);
-                        })?;
+                                    snapshot.x_for_display_point(
+                                        snapshot.max_point(),
+                                        &text_layout_details,
+                                    ) - snapshot.x_for_display_point(
+                                        DisplayPoint::zero(),
+                                        &text_layout_details,
+                                    )
+                                })
+                                .log_err()
+                        })
+                        .log_err()
+                        .flatten();
+
+                    if let Some(width) = width {
+                        this.update_in(cx, |this, _window, _cx| {
+                            this.editor_needed_width = width;
+                        })
+                        .log_err();
+                        if let Some(search) = search
+                            && search.await.is_ok()
+                        {
+                            this.update_in(cx, |this, window, cx| {
+                                this.activate_current_match(window, cx);
+                                #[cfg(target_os = "macos")]
+                                this.update_find_pasteboard(cx);
+                            })
+                            .log_err();
+                        }
                     }
-                    anyhow::Ok(())
-                })
-                .detach_and_log_err(cx);
+                }));
             }
             _ => {}
         }

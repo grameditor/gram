@@ -210,7 +210,7 @@ impl DocsSearch {
                 &preview_editor,
                 window,
                 |this, _, event: &EditorEvent, window, cx| {
-                    if matches!(event, EditorEvent::Edited { .. }) {
+                    if let EditorEvent::Edited { .. } = event {
                         this._autosave_task = Some(cx.spawn_in(window, async move |this, cx| {
                             cx.background_executor()
                                 .timer(Duration::from_millis(500))
@@ -800,7 +800,7 @@ impl PickerDelegate for DocsSearchDelegate {
         let pending_query = self.pending_initial_query.borrow_mut().take();
 
         editor.update(cx, |editor, cx| {
-            if matches!(editor.mode(), EditorMode::SingleLine) {
+            if let EditorMode::SingleLine = editor.mode() {
                 editor.set_mode(EditorMode::AutoHeight {
                     min_lines: 1,
                     max_lines: Some(4),

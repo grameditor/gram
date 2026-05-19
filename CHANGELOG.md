@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix git status message aligned incorrectly (#306)
 - Fix .tar.gz unpack for extensions (#295)
+- Debounce search by 200ms (#106)
 
 ## [2.1.0] - 2026-05-18
 
