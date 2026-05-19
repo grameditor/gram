@@ -289,7 +289,14 @@ impl WelcomePage {
                 } else {
                     window.dispatch_action(OpenRecent::default().boxed_clone(), cx);
                 }
+            } else {
+                log::info!(
+                    "open_recent_project: no recent workspace with index {} found",
+                    action.index
+                );
             }
+        } else {
+            log::info!("open_recent_project: recent_workspaces was None");
         }
     }
 
