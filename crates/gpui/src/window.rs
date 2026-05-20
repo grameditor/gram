@@ -4066,14 +4066,18 @@ impl Window {
             return;
         }
 
-        let both_alt = self.option_as_alt == OptionAsAlt::Both;
+        #[cfg(not(target_os = "mac"))]
+        let filter = |key_down_event: &&KeyDownEvent| key_down_event.prefer_character_input;
+        #[cfg(target_os = "mac")]
+        let filter = |key_down_event: &&KeyDownEvent| {
+            key_down_event.prefer_character_input
+                && !(key_down_event.keystroke.modifiers.altgr
+                    && (self.option_as_alt == OptionAsAlt::Both))
+        };
 
         let skip_bindings = event
             .downcast_ref::<KeyDownEvent>()
-            .filter(|key_down_event| {
-                key_down_event.prefer_character_input
-                    && !(key_down_event.keystroke.modifiers.alt && both_alt)
-            })
+            .filter(filter)
             .map(|_| {
                 self.platform_window
                     .take_input_handler()
