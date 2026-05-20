@@ -372,13 +372,24 @@ impl LanguageServer {
             workspace_folders,
             cx,
             move |notification| {
-                log::info!(
-                    "Language server with id {} sent unhandled notification {}:\n{}",
-                    server_id,
-                    notification.method,
-                    serde_json::to_string_pretty(&notification.params).unwrap(),
-                );
-                notification.method.starts_with("$/")
+                let ignored =
+                    notification.method.starts_with("$/") || notification.method == "eslint/status";
+                if ignored {
+                    log::debug!(
+                        "Language server with id {} sent unhandled notification {}:\n{}",
+                        server_id,
+                        notification.method,
+                        serde_json::to_string_pretty(&notification.params).unwrap(),
+                    );
+                } else {
+                    log::info!(
+                        "Language server with id {} sent unhandled notification {}:\n{}",
+                        server_id,
+                        notification.method,
+                        serde_json::to_string_pretty(&notification.params).unwrap(),
+                    );
+                }
+                ignored
             },
         );
 
