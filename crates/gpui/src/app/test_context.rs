@@ -718,6 +718,12 @@ impl VisualTestContext {
         self.cx.simulate_keystrokes(self.window, keystrokes)
     }
 
+    /// Wait long enough for search debounce to trigger
+    pub fn wait_for_search(&mut self) {
+        self.executor().advance_clock(Duration::from_millis(110));
+        self.executor().run_until_parked();
+    }
+
     /// Simulate typing text `cx.simulate_input("hello")`
     /// Automatically runs until parked.
     pub fn simulate_input(&mut self, input: &str) {

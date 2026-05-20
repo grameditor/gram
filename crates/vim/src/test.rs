@@ -274,6 +274,7 @@ async fn test_selection_on_search(cx: &mut gpui::TestAppContext) {
 
     cx.set_state(indoc! {"aa\nbˇb\ncc\ncc\ncc\n"}, Mode::Normal);
     cx.simulate_keystrokes("/ c c");
+    cx.wait_for_search();
 
     let search_bar = cx.workspace(|workspace, _, cx| {
         workspace

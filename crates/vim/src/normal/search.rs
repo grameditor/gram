@@ -838,6 +838,7 @@ mod test {
 
         cx.set_state("aa\nbˇb\ncc\ncc\ncc\n", Mode::Normal);
         cx.simulate_keystrokes("/ c c");
+        cx.wait_for_search();
 
         let search_bar = cx.workspace(|workspace, _, cx| {
             workspace
@@ -875,26 +876,32 @@ mod test {
 
         // ?<enter> to go to previous
         cx.simulate_keystrokes("? enter");
+        cx.wait_for_search();
         cx.assert_state("aa\nbb\ncc\ncc\nˇcc\n", Mode::Normal);
         cx.simulate_keystrokes("? enter");
+        cx.wait_for_search();
         cx.assert_state("aa\nbb\ncc\nˇcc\ncc\n", Mode::Normal);
 
         // /<enter> to go to next
         cx.simulate_keystrokes("/ enter");
+        cx.wait_for_search();
         cx.assert_state("aa\nbb\ncc\ncc\nˇcc\n", Mode::Normal);
 
         // ?{search}<enter> to search backwards
         cx.simulate_keystrokes("? b enter");
+        cx.wait_for_search();
         cx.assert_state("aa\nbˇb\ncc\ncc\ncc\n", Mode::Normal);
 
         // works with counts
         cx.simulate_keystrokes("4 / c");
+        cx.wait_for_search();
         cx.simulate_keystrokes("enter");
         cx.assert_state("aa\nbb\ncc\ncˇc\ncc\n", Mode::Normal);
 
         // check that searching resumes from cursor, not previous match
         cx.set_state("ˇaa\nbb\ndd\ncc\nbb\n", Mode::Normal);
         cx.simulate_keystrokes("/ d");
+        cx.wait_for_search();
         cx.simulate_keystrokes("enter");
         cx.assert_state("aa\nbb\nˇdd\ncc\nbb\n", Mode::Normal);
         cx.update_editor(|editor, window, cx| {
@@ -902,6 +909,7 @@ mod test {
         });
         cx.assert_state("ˇaa\nbb\ndd\ncc\nbb\n", Mode::Normal);
         cx.simulate_keystrokes("/ b");
+        cx.wait_for_search();
         cx.simulate_keystrokes("enter");
         cx.assert_state("aa\nˇbb\ndd\ncc\nbb\n", Mode::Normal);
 
@@ -910,11 +918,13 @@ mod test {
         cx.simulate_keystrokes("v l l");
         cx.assert_editor_state("«oneˇ» two one");
         cx.simulate_keystrokes("*");
+        cx.wait_for_search();
         cx.assert_state("one two ˇone", Mode::Normal);
 
         // check that a backward search after last match works correctly
         cx.set_state("aa\naa\nbbˇ", Mode::Normal);
         cx.simulate_keystrokes("? a a");
+        cx.wait_for_search();
         cx.simulate_keystrokes("enter");
         cx.assert_state("aa\nˇaa\nbb", Mode::Normal);
 
@@ -924,6 +934,7 @@ mod test {
         });
         cx.set_state("aa\nbˇb\ncc\ncc\ncc\n", Mode::Normal);
         cx.simulate_keystrokes("/ c c enter");
+        cx.wait_for_search();
 
         cx.assert_state("aa\nbb\nˇcc\ncc\ncc\n", Mode::Normal);
 
@@ -935,8 +946,10 @@ mod test {
 
         // ?<enter> to go to previous
         cx.simulate_keystrokes("? enter");
+        cx.wait_for_search();
         cx.assert_state("aa\nbb\nˇcc\ncc\ncc\n", Mode::Normal);
         cx.simulate_keystrokes("? enter");
+        cx.wait_for_search();
         cx.assert_state("aa\nbb\nˇcc\ncc\ncc\n", Mode::Normal);
     }
 
@@ -970,6 +983,7 @@ mod test {
 
         cx.set_shared_state("ˇa.c. abcd a.c. abcd").await;
         cx.simulate_shared_keystrokes("d / c d").await;
+        cx.wait_for_search();
         cx.simulate_shared_keystrokes("enter").await;
         cx.shared_state().await.assert_eq("ˇcd a.c. abcd");
     }
@@ -994,22 +1008,29 @@ mod test {
 
         cx.set_shared_state("ˇa.c. abcd a.c. abcd").await;
         cx.simulate_shared_keystrokes("v / c d").await;
+        cx.wait_for_search();
         cx.simulate_shared_keystrokes("enter").await;
         cx.shared_state().await.assert_eq("«a.c. abcˇ»d a.c. abcd");
 
         cx.set_shared_state("a a aˇ a a a").await;
         cx.simulate_shared_keystrokes("v / a").await;
+        cx.wait_for_search();
         cx.simulate_shared_keystrokes("enter").await;
         cx.shared_state().await.assert_eq("a a a« aˇ» a a");
         cx.simulate_shared_keystrokes("/ enter").await;
+        cx.wait_for_search();
         cx.shared_state().await.assert_eq("a a a« a aˇ» a");
         cx.simulate_shared_keystrokes("? enter").await;
+        cx.wait_for_search();
         cx.shared_state().await.assert_eq("a a a« aˇ» a a");
         cx.simulate_shared_keystrokes("? enter").await;
+        cx.wait_for_search();
         cx.shared_state().await.assert_eq("a a «ˇa »a a a");
         cx.simulate_shared_keystrokes("/ enter").await;
+        cx.wait_for_search();
         cx.shared_state().await.assert_eq("a a a« aˇ» a a");
         cx.simulate_shared_keystrokes("/ enter").await;
+        cx.wait_for_search();
         cx.shared_state().await.assert_eq("a a a« a aˇ» a");
     }
 
@@ -1019,6 +1040,7 @@ mod test {
 
         cx.set_shared_state("ˇaa aa").await;
         cx.simulate_shared_keystrokes("v / a a").await;
+        cx.wait_for_search();
         cx.simulate_shared_keystrokes("enter").await;
         cx.shared_state().await.assert_eq("«aa aˇ»a");
     }
@@ -1035,6 +1057,7 @@ mod test {
         })
         .await;
         cx.simulate_shared_keystrokes("ctrl-v j / f").await;
+        cx.wait_for_search();
         cx.simulate_shared_keystrokes("enter").await;
         cx.shared_state().await.assert_eq(indoc! {
             "«one twoˇ»
@@ -1060,6 +1083,7 @@ mod test {
         })
         .await;
         cx.simulate_shared_keystrokes(": 2 , 5 s / ^ / b").await;
+        cx.wait_for_search();
         cx.simulate_shared_keystrokes("enter").await;
         cx.shared_state().await.assert_eq(indoc! {
             "a
@@ -1073,6 +1097,7 @@ mod test {
         });
 
         cx.simulate_shared_keystrokes("/ a").await;
+        cx.wait_for_search();
         cx.simulate_shared_keystrokes("enter").await;
         cx.shared_state().await.assert_eq(indoc! {
             "a
@@ -1095,6 +1120,7 @@ mod test {
         .await;
 
         cx.simulate_shared_keystrokes("/ a a").await;
+        cx.wait_for_search();
         cx.simulate_shared_keystrokes("enter").await;
 
         cx.shared_state().await.assert_eq(indoc! {
@@ -1102,6 +1128,7 @@ mod test {
         });
 
         cx.simulate_shared_keystrokes("left / a a").await;
+        cx.wait_for_search();
         cx.simulate_shared_keystrokes("enter").await;
 
         cx.shared_state().await.assert_eq(indoc! {
@@ -1322,7 +1349,7 @@ mod test {
 
         // Open search and type a query that matches line 3
         cx.simulate_keystrokes("/ a g a i n");
-        cx.run_until_parked();
+        cx.wait_for_search();
 
         // Simulate the editor gaining focus while search is still open
         // This represents the user clicking in the editor

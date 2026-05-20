@@ -48,6 +48,7 @@ pub use registrar::DivRegistrar;
 use registrar::{ForDeployed, ForDismissed, SearchActionsRegistrar};
 
 const MAX_BUFFER_SEARCH_HISTORY_SIZE: usize = 50;
+pub const BUFFER_SEARCH_DEBOUNCE_MS: u64 = 100;
 
 /// Opens the buffer search interface with the specified configuration.
 #[derive(PartialEq, Clone, Deserialize, JsonSchema, Action)]
@@ -1173,16 +1174,16 @@ impl BufferSearchBar {
             editor::EditorEvent::Focused => self.query_editor_focused = true,
             editor::EditorEvent::Blurred => self.query_editor_focused = false,
             editor::EditorEvent::Edited { .. } => {
+                self.smartcase(window, cx);
+                self.clear_matches(window, cx);
                 let editor = editor.downgrade();
                 self._search_task = Some(cx.spawn_in(window, async move |this, cx| {
                     cx.background_executor()
-                        .timer(Duration::from_millis(200))
+                        .timer(Duration::from_millis(BUFFER_SEARCH_DEBOUNCE_MS))
                         .await;
 
                     let search = this
                         .update_in(cx, |this, window, cx| {
-                            this.smartcase(window, cx);
-                            this.clear_matches(window, cx);
                             this.update_matches(false, true, window, cx)
                         })
                         .log_err();
@@ -1208,8 +1209,9 @@ impl BufferSearchBar {
                         .flatten();
 
                     if let Some(width) = width {
-                        this.update_in(cx, |this, _window, _cx| {
+                        this.update_in(cx, |this, _window, cx| {
                             this.editor_needed_width = width;
+                            cx.notify();
                         })
                         .log_err();
                         if let Some(search) = search

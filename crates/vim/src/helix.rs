@@ -863,9 +863,8 @@ impl Vim {
 
 #[cfg(test)]
 mod test {
-    use indoc::indoc;
-
     use crate::{state::Mode, test::VimTestContext};
+    use indoc::indoc;
 
     #[gpui::test]
     async fn test_word_motions(cx: &mut gpui::TestAppContext) {
@@ -1525,13 +1524,13 @@ mod test {
         cx.simulate_keystrokes("x");
         cx.assert_state("«one two oneˇ»", Mode::HelixNormal);
         cx.simulate_keystrokes("s o n e");
-        cx.run_until_parked();
+        cx.wait_for_search();
         cx.simulate_keystrokes("enter");
         cx.assert_state("«oneˇ» two «oneˇ»", Mode::HelixNormal);
 
         cx.simulate_keystrokes("x");
         cx.simulate_keystrokes("s");
-        cx.run_until_parked();
+        cx.wait_for_search();
         cx.simulate_keystrokes("enter");
         cx.assert_state("«oneˇ» two «oneˇ»", Mode::HelixNormal);
 
@@ -1547,18 +1546,21 @@ mod test {
 
         cx.set_state("ˇhello two one two one two one", Mode::Visual);
         cx.simulate_keystrokes("/ o n e");
+        cx.wait_for_search();
         cx.simulate_keystrokes("enter");
         cx.simulate_keystrokes("n n");
         cx.assert_state("«hello two one two one two oˇ»ne", Mode::Visual);
 
         cx.set_state("ˇhello two one two one two one", Mode::Normal);
         cx.simulate_keystrokes("/ o n e");
+        cx.wait_for_search();
         cx.simulate_keystrokes("enter");
         cx.simulate_keystrokes("n n");
         cx.assert_state("hello two one two one two ˇone", Mode::Normal);
 
         cx.set_state("ˇhello two one two one two one", Mode::Normal);
         cx.simulate_keystrokes("/ o n e");
+        cx.wait_for_search();
         cx.simulate_keystrokes("enter");
         cx.simulate_keystrokes("n g n g n");
         cx.assert_state("hello two one two «one two oneˇ»", Mode::Visual);
@@ -1567,12 +1569,14 @@ mod test {
 
         cx.set_state("ˇhello two one two one two one", Mode::HelixNormal);
         cx.simulate_keystrokes("/ o n e");
+        cx.wait_for_search();
         cx.simulate_keystrokes("enter");
         cx.simulate_keystrokes("n n");
         cx.assert_state("hello two one two one two «oneˇ»", Mode::HelixNormal);
 
         cx.set_state("ˇhello two one two one two one", Mode::HelixSelect);
         cx.simulate_keystrokes("/ o n e");
+        cx.wait_for_search();
         cx.simulate_keystrokes("enter");
         cx.simulate_keystrokes("n n");
         cx.assert_state("hello two «oneˇ» two «oneˇ» two «oneˇ»", Mode::HelixSelect);

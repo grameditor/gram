@@ -1712,6 +1712,7 @@ mod test {
 
         cx.set_shared_state("aaˇ aa aa aa aa").await;
         cx.simulate_shared_keystrokes("/ a a enter").await;
+        cx.wait_for_search();
         cx.shared_state().await.assert_eq("aa ˇaa aa aa aa");
         cx.simulate_shared_keystrokes("g n").await;
         cx.shared_state().await.assert_eq("aa «aaˇ» aa aa aa");
@@ -1722,12 +1723,14 @@ mod test {
 
         cx.set_shared_state("aaˇ aa aa aa aa").await;
         cx.simulate_shared_keystrokes("/ a a enter").await;
+        cx.wait_for_search();
         cx.shared_state().await.assert_eq("aa ˇaa aa aa aa");
         cx.simulate_shared_keystrokes("3 g n").await;
         cx.shared_state().await.assert_eq("aa aa aa «aaˇ» aa");
 
         cx.set_shared_state("aaˇ aa aa aa aa").await;
         cx.simulate_shared_keystrokes("/ a a enter").await;
+        cx.wait_for_search();
         cx.shared_state().await.assert_eq("aa ˇaa aa aa aa");
         cx.simulate_shared_keystrokes("g shift-n").await;
         cx.shared_state().await.assert_eq("aa «ˇaa» aa aa aa");
@@ -1752,6 +1755,7 @@ mod test {
 
         cx.set_shared_state("aaˇ aa aa aa aa").await;
         cx.simulate_shared_keystrokes("/ a a enter").await;
+        cx.wait_for_search();
         cx.shared_state().await.assert_eq("aa ˇaa aa aa aa");
         cx.simulate_shared_keystrokes("d g n").await;
 
@@ -1768,6 +1772,7 @@ mod test {
 
         cx.set_shared_state("aaˇ aa aa aa aa").await;
         cx.simulate_shared_keystrokes("/ a a enter").await;
+        cx.wait_for_search();
         cx.shared_state().await.assert_eq("aa ˇaa aa aa aa");
         cx.simulate_shared_keystrokes("c g n x escape").await;
         cx.shared_state().await.assert_eq("aa ˇx aa aa aa");
