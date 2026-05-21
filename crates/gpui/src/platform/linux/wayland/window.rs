@@ -114,6 +114,7 @@ pub struct WaylandWindowState {
     handle: AnyWindowHandle,
     active: bool,
     hovered: bool,
+    renderer_presented: bool,
     in_progress_configure: Option<InProgressConfigure>,
     resize_throttle: bool,
     in_progress_window_controls: Option<WindowControls>,
@@ -347,6 +348,7 @@ impl WaylandWindowState {
             handle,
             active: false,
             hovered: false,
+            renderer_presented: false,
             in_progress_window_controls: None,
             window_controls: WindowControls::default(),
             client_inset: None,
@@ -1237,12 +1239,19 @@ impl PlatformWindow for WaylandWindow {
 
     fn draw(&self, scene: &Scene) {
         let mut state = self.borrow_mut();
-        state.renderer.draw(scene);
+        state.renderer_presented = state.renderer.draw(scene);
     }
 
     fn completed_frame(&self) {
-        let state = self.borrow();
-        state.surface.commit();
+        let mut state = self.borrow_mut();
+
+        // Workaround for wlroots, cf https://codeberg.org/GramEditor/gram/issues/193
+        // cf https://github.com/zed-industries/zed/pull/54214
+        if !state.renderer_presented {
+            state.surface.commit();
+        }
+
+        state.renderer_presented = false;
     }
 
     fn sprite_atlas(&self) -> Arc<dyn PlatformAtlas> {
