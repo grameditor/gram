@@ -847,34 +847,34 @@ impl WgpuRenderer {
         self.configure_surface();
     }
 
-    pub fn draw(&mut self, scene: &Scene) {
+    pub fn draw(&mut self, scene: &Scene) -> bool {
         self.atlas.before_frame();
 
         let frame = match self.surface.get_current_texture() {
             wgpu::CurrentSurfaceTexture::Success(frame) => frame,
             wgpu::CurrentSurfaceTexture::Timeout | wgpu::CurrentSurfaceTexture::Occluded => {
                 /* skip frame */
-                return;
+                return false;
             }
             wgpu::CurrentSurfaceTexture::Outdated => {
                 self.configure_surface();
-                return;
+                return false;
             }
             wgpu::CurrentSurfaceTexture::Suboptimal(frame) => {
                 /* reconfigure surface */
                 drop(frame);
                 self.configure_surface();
-                return;
+                return false;
             }
             wgpu::CurrentSurfaceTexture::Lost => {
                 /* reconfigure surface, or recreate device if device lost */
                 // self.surface = self.instance.create_surface(self.window.clone()).unwrap();
                 self.configure_surface();
-                return;
+                return false;
             }
             wgpu::CurrentSurfaceTexture::Validation => {
                 log::error!("Failed to acquire surface texture: Validation error");
-                return;
+                return false;
             }
         };
         let frame_view = frame
@@ -1255,6 +1255,7 @@ impl WgpuRenderer {
 
         self.queue.submit(std::iter::once(encoder.finish()));
         frame.present();
+        return true;
     }
 
     fn draw_paths_to_intermediate(
