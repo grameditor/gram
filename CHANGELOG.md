@@ -7,11 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.1] - 2026-05-21
+
 ### Fixed
 
 - Fix git status message aligned incorrectly (#306)
 - Fix .tar.gz unpack for extensions (#295)
 - Debounce search by 100ms (#106)
+- Workaround for flickering in wayland/wlroots (#310) by @nicoco
+- Ignore eslint/status notification
+- Only use option_as_alt setting on Mac OS (#307)
 
 ## [2.1.0] - 2026-05-18
 
