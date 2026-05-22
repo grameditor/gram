@@ -316,10 +316,10 @@ mod test {
                 shift: false,
                 platform: false,
                 function: false,
-                altgr: false,
             },
             key: "🖖🏻".to_string(), //2 char string
             key_char: None,
+            altgr: false,
         };
         assert_eq!(to_esc_str(&ks, &TermMode::NONE, false), None);
     }
