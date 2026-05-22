@@ -96,6 +96,7 @@ profiling.workspace = true
 project.workspace = true
 project_panel.workspace = true
 project_symbols.workspace = true
+recent_files.workspace = true
 recent_projects.workspace = true
 release_channel.workspace = true
 remote.workspace = true

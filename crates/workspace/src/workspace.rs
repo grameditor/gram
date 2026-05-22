@@ -1175,6 +1175,10 @@ impl Workspace {
             },
         )
         .detach();
+
+        cx.background_spawn(persistence::DB.clean_recent_files())
+            .detach();
+
         if let Some(toolchain_store) = project.read(cx).toolchain_store() {
             cx.subscribe_in(
                 &toolchain_store,
@@ -4301,6 +4305,14 @@ impl Workspace {
         self.project.update(cx, |project, cx| {
             project.set_active_path(active_entry.clone(), cx)
         });
+
+        if let Some(path) = &active_entry {
+            let abs_path = self.project.read(cx).absolute_path(path, cx);
+            if let Some(abs_path) = abs_path {
+                cx.background_spawn(persistence::DB.update_recent_file(abs_path))
+                    .detach();
+            }
+        }
 
         if focus_changed && let Some(project_path) = &active_entry {
             let git_store_entity = self.project.read(cx).git_store().clone();

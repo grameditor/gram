@@ -841,6 +841,12 @@ impl Domain for WorkspaceDb {
         sql!(
             DROP TABLE ssh_connections;
         ),
+        sql!(
+            CREATE TABLE recent_files(
+                path TEXT PRIMARY KEY NOT NULL,
+                timestamp TEXT DEFAULT CURRENT_TIMESTAMP NOT NULL
+            ) STRICT;
+        ),
     ];
 }
 
@@ -1337,6 +1343,42 @@ impl WorkspaceDb {
         }
     }
 
+    pub(crate) async fn update_recent_file(&self, path: PathBuf) -> Result<()> {
+        let path: String = path.to_string_lossy().to_string();
+        self.write(move |conn| {
+            conn.exec_bound(sql!(
+                INSERT INTO recent_files(path, timestamp)
+                VALUES (?1, CURRENT_TIMESTAMP)
+                ON CONFLICT(path) DO UPDATE SET timestamp = CURRENT_TIMESTAMP
+            ))?(path)
+            .context("Inserting recent file")
+        })
+        .await
+    }
+
+    pub fn recent_files(&self, limit: usize) -> Result<Vec<PathBuf>> {
+        let files: Vec<String> = self
+            .select_bound(sql! {
+                SELECT path
+                FROM recent_files
+                ORDER BY timestamp DESC
+                LIMIT ?
+            })
+            .and_then(|mut prepared_statement| (prepared_statement)(limit))?;
+        Ok(files.into_iter().map(|path| PathBuf::from(&path)).collect())
+    }
+
+    pub(crate) async fn clean_recent_files(&self) -> Result<()> {
+        self.write(move |conn| {
+            conn.exec_bound(sql!(
+                DELETE FROM recent_files
+                WHERE path NOT IN (SELECT path FROM recent_files ORDER BY timestamp DESC LIMIT 100)
+            ))?(())
+            .context("clean_recent_files")
+        })
+        .await
+    }
+
     fn session_workspaces(
         &self,
         session_id: String,
@@ -1368,13 +1410,6 @@ impl WorkspaceDb {
             SELECT breakpoint_location
             FROM breakpoints
             WHERE  workspace_id= ?1 AND path = ?2
-        }
-    }
-
-    query! {
-        pub fn clear_breakpoints(file_path: &Path) -> Result<()> {
-            DELETE FROM breakpoints
-            WHERE file_path = ?2
         }
     }
 

@@ -28,7 +28,7 @@ use workspace::{
     pane::{render_item_indicator, tab_details},
 };
 
-const PANEL_WIDTH_REMS: f32 = 28.;
+const PANEL_WIDTH_REMS: f32 = 34.;
 
 /// Toggles the tab switcher interface.
 #[derive(PartialEq, Clone, Deserialize, JsonSchema, Default, Action)]

@@ -4233,6 +4233,7 @@ dependencies = [
  "project_panel",
  "project_symbols",
  "rayon",
+ "recent_files",
  "recent_projects",
  "release_channel",
  "remote",
@@ -8667,12 +8668,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "recent_files"
+version = "2.1.1"
+dependencies = [
+ "chrono",
+ "file_icons",
+ "fuzzy",
+ "gpui",
+ "log",
+ "menu",
+ "picker",
+ "postage",
+ "ui",
+ "util",
+ "workspace",
+]
+
+[[package]]
 name = "recent_projects"
 version = "2.1.1"
 dependencies = [
  "anyhow",
  "app_actions",
  "askpass",
+ "chrono",
  "editor",
  "extension_host",
  "file_finder",
@@ -14243,6 +14262,7 @@ dependencies = [
  "anyhow",
  "app_actions",
  "async-recursion",
+ "chrono",
  "client",
  "collections",
  "component",
