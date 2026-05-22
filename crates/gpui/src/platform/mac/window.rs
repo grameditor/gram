@@ -6,9 +6,7 @@ use crate::{
     PlatformInput, PlatformWindow, Point, PromptButton, PromptLevel, RequestFrameOptions,
     SharedString, Size, SystemWindowTab, Timer, WindowAppearance, WindowBackgroundAppearance,
     WindowBounds, WindowControlArea, WindowKind, WindowParams, dispatch_get_main_queue,
-    dispatch_sys::dispatch_async_f,
-    platform::{PlatformInputHandler, mac::events::is_altgr},
-    point, px, size,
+    dispatch_sys::dispatch_async_f, platform::PlatformInputHandler, point, px, size,
 };
 use block::ConcreteBlock;
 use cocoa::{
@@ -1090,7 +1088,6 @@ impl PlatformWindow for MacWindow {
 
             let control = modifiers.contains(NSEventModifierFlags::NSControlKeyMask);
             let alt = modifiers.contains(NSEventModifierFlags::NSAlternateKeyMask);
-            let altgr = is_altgr(modifiers);
             let shift = modifiers.contains(NSEventModifierFlags::NSShiftKeyMask);
             let command = modifiers.contains(NSEventModifierFlags::NSCommandKeyMask);
             let function = modifiers.contains(NSEventModifierFlags::NSFunctionKeyMask);
@@ -1101,7 +1098,6 @@ impl PlatformWindow for MacWindow {
                 shift,
                 platform: command,
                 function,
-                altgr,
             }
         }
     }

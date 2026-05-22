@@ -83,15 +83,18 @@ pub fn key_to_native(key: &str) -> Cow<'_, str> {
     Cow::Owned(String::from_utf16(&[code]).unwrap())
 }
 
-pub fn is_altgr(modifiers: NSEventModifierFlags) -> bool {
+fn is_altgr(modifiers: NSEventModifierFlags) -> bool {
     const NX_DEVICERALTKEYMASK: NSUInteger = 0x40;
     (modifiers.bits() & NX_DEVICERALTKEYMASK) != 0
+}
+
+unsafe fn is_altgr_held(native_event: id) -> bool {
+    unsafe { is_altgr(native_event.modifierFlags()) }
 }
 
 unsafe fn read_modifiers(native_event: id) -> Modifiers {
     unsafe {
         let modifiers = native_event.modifierFlags();
-        let altgr = is_altgr(modifiers);
         let control = modifiers.contains(NSEventModifierFlags::NSControlKeyMask);
         let alt = modifiers.contains(NSEventModifierFlags::NSAlternateKeyMask);
         let shift = modifiers.contains(NSEventModifierFlags::NSShiftKeyMask);
@@ -104,7 +107,6 @@ unsafe fn read_modifiers(native_event: id) -> Modifiers {
             shift,
             platform: command,
             function,
-            altgr,
         }
     }
 }
@@ -139,7 +141,8 @@ impl PlatformInput {
                 }
                 NSEventType::NSKeyDown => {
                     let keystroke = parse_keystroke(native_event);
-                    let prefer_character_input = keystroke.prefer_character_input();
+                    let prefer_character_input =
+                        is_altgr_held(native_event) && keystroke.prefer_character_input();
                     Some(Self::KeyDown(KeyDownEvent {
                         keystroke,
                         is_held: native_event.isARepeat() == YES,
@@ -342,7 +345,7 @@ unsafe fn parse_keystroke(native_event: id) -> Keystroke {
 
         let control = modifiers.contains(NSEventModifierFlags::NSControlKeyMask);
         let alt = modifiers.contains(NSEventModifierFlags::NSAlternateKeyMask);
-        let altgr = is_altgr(modifiers);
+        let altgr = is_altgr_held(native_event);
         let mut shift = modifiers.contains(NSEventModifierFlags::NSShiftKeyMask);
         let command = modifiers.contains(NSEventModifierFlags::NSCommandKeyMask);
         let function = modifiers.contains(NSEventModifierFlags::NSFunctionKeyMask)
@@ -483,10 +486,10 @@ unsafe fn parse_keystroke(native_event: id) -> Keystroke {
                 shift,
                 platform: command,
                 function,
-                altgr,
             },
             key,
             key_char,
+            altgr,
         }
     }
 }
