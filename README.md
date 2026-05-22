@@ -1,21 +1,20 @@
 <div align="center">
-
-![Gram Preview](./docs/assets/gram-preview.svg)
+  <img src="./docs/assets/gram-preview.svg" alt="" align="center"/>
 
 # [Gram](https://gram-editor.com)
 
-**Gram** is a powerful and modern source code editor. It features solid performance
+**Gram** is a powerful and modern code editor. It features solid performance
 and is highly configurable, yet comes with batteries included out of the box.
 Gram supports many popular programming languages and file formats, and can use
 `Zed` extensions to support additional languages. Other features include built-in
-documentation, debugger support via the `DAP protocol`, source control using `git`
+documentation, debugger support via the `DAP` protocol, source control using `git`
 and more. **Gram** started as a fork of the `Zed Editor`.
 
 My hope is that **Gram** will be an editor that someone who is learning programming
 for the first time can download, install and use out of the box. No
 configuration or extensions should be necessary, and the editor should not try
 to push anything potentially malicious, distracting or confusing at them. In
-my opinion, both `Visual Studio Code` and the `Zed Editor` fail in this regard.
+my opinion, both `VS Code` and `Zed` fail in this regard.
 
 </div>
 
