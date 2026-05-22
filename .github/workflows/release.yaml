@@ -84,8 +84,6 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - name: install dependencies
-        run: brew install cmake
       - name: build release
         run: |
           if [[ "${{ matrix.arch }}" == "x86_64" ]]; then

@@ -38,9 +38,6 @@ jobs:
       - name: install dependencies
         if: runner.os == 'Linux'
         run: ./script/prepare-ci ci
-      - name: install dependencies
-        if: runner.os == 'macOS'
-        run: brew install cmake
 
       - name: update cargo path
         if: runner.os == 'macOS'
