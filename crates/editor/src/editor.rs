@@ -20361,6 +20361,38 @@ impl Editor {
             return;
         }
 
+        // Bug: Clicking a line indicator doesn't leave a history
+        // location and messes up ctrl-o in vim mode.
+        // This should fix it by moving the cursor to the line
+        // before jumping (don't record the move itself or there
+        // will be an extra history entry, that's why .nav_history(false))
+        match &jump_data {
+            Some(JumpData::MultiBufferPoint {
+                excerpt_id, anchor, ..
+            }) => {
+                let multi_buffer_snapshot = self.buffer.read(cx).snapshot(cx);
+                if let Some(anchor) = multi_buffer_snapshot.anchor_in_excerpt(*excerpt_id, *anchor)
+                {
+                    self.change_selections(
+                        SelectionEffects::no_scroll().nav_history(false),
+                        window,
+                        cx,
+                        |s| s.select_ranges([anchor..anchor]),
+                    );
+                }
+            }
+            Some(JumpData::MultiBufferRow { row, .. }) => {
+                let point = MultiBufferPoint::new(row.0, 0);
+                self.change_selections(
+                    SelectionEffects::no_scroll().nav_history(false),
+                    window,
+                    cx,
+                    |s| s.select_ranges([point..point]),
+                );
+            }
+            None => {}
+        }
+
         // We defer the pane interaction because we ourselves are a workspace item
         // and activating a new item causes the pane to call a method on us reentrantly,
         // which panics if we're on the stack.
