@@ -3970,6 +3970,7 @@ impl Window {
                         key: key.to_string(),
                         key_char: None,
                         modifiers: Modifiers::default(),
+                        altgr: false,
                     });
                 }
             }
@@ -4071,8 +4072,7 @@ impl Window {
         #[cfg(target_os = "mac")]
         let filter = |key_down_event: &&KeyDownEvent| {
             key_down_event.prefer_character_input
-                && !(key_down_event.keystroke.modifiers.altgr
-                    && (self.option_as_alt == OptionAsAlt::Both))
+                && !(key_down_event.keystroke.altgr && (self.option_as_alt == OptionAsAlt::Both))
         };
 
         let skip_bindings = event

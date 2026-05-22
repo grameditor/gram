@@ -30,6 +30,9 @@ pub struct Keystroke {
     /// this binding was pressed.
     /// e.g. for s this is "s", for option-s "ß", and cmd-s None
     pub key_char: Option<String>,
+
+    /// If set, altgr was held when the key was pushed
+    pub altgr: bool,
 }
 
 /// Represents a keystroke that can be used in keybindings and displayed to the user.
@@ -216,6 +219,7 @@ impl Keystroke {
             modifiers,
             key,
             key_char,
+            altgr: false,
         })
     }
 
@@ -279,7 +283,9 @@ impl Keystroke {
 
     /// Used to detect when altgr/right option is used for text input
     pub fn prefer_character_input(&self) -> bool {
-        self.modifiers.altgr && !self.is_ascii_graphic() && self.is_alphanumeric()
+        self.key_char
+            .as_ref()
+            .map_or(false, |typed| *typed != self.key)
     }
 }
 
@@ -487,10 +493,6 @@ pub struct Modifiers {
     /// The function key
     #[serde(default)]
     pub function: bool,
-
-    /// The altgr key (used on mac)
-    #[serde(default)]
-    pub altgr: bool,
 }
 
 impl Modifiers {
