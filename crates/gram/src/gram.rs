@@ -4647,6 +4647,7 @@ mod tests {
                 "project_symbols",
                 "projects",
                 "quick_search",
+                "recent_files",
                 "repl",
                 "search",
                 "settings_editor",
