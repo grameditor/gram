@@ -12,9 +12,9 @@ use gpui::{
 use picker::{Picker, PickerDelegate};
 use postage::{sink::Sink, stream::Stream};
 use ui::{
-    App, Color, HighlightedLabel, Icon, InteractiveElement, IntoElement, LabelCommon, ListItem,
-    ListItemSpacing, ParentElement, Render, SharedString, Styled, Toggleable, Window, h_flex,
-    v_flex,
+    App, Color, FluentBuilder, HighlightedLabel, Icon, InteractiveElement, IntoElement,
+    LabelCommon, LabelSize, ListItem, ListItemSpacing, ParentElement, Render, SharedString, Styled,
+    Toggleable, Window, h_flex, v_flex,
 };
 use util::ResultExt;
 use workspace::{ModalView, OpenOptions, WORKSPACE_DB, Workspace};
@@ -190,10 +190,23 @@ impl RecentFilesDelegate {
         &self,
         _path_buf: &PathBuf,
         string_match: &StringMatch,
-    ) -> HighlightedLabel {
-        let full_path = string_match.string.clone();
-        let full_path_positions = string_match.positions.clone();
-        HighlightedLabel::new(full_path, full_path_positions).truncate()
+    ) -> (HighlightedLabel, Option<HighlightedLabel>) {
+        let (left, right) = string_match.split_at_from_end(if cfg!(windows) { "\\" } else { "/" });
+        if let Some(right) = right {
+            (
+                HighlightedLabel::new(right.string.clone(), right.positions.clone()),
+                Some(
+                    HighlightedLabel::new(left.string.clone(), left.positions.clone())
+                        .size(LabelSize::Small)
+                        .italic(),
+                ),
+            )
+        } else {
+            (
+                HighlightedLabel::new(left.string.clone(), left.positions.clone()),
+                None,
+            )
+        }
     }
 }
 
@@ -325,14 +338,16 @@ impl PickerDelegate for RecentFilesDelegate {
         let m = self.matches.get(ix)?;
         let p = self.paths.get(m.candidate_id)?;
         let file_icon = self.icon_for_file(p.as_path(), cx);
-        let path_label = self.labels_for_match(p, m);
+        let (left, right) = self.labels_for_match(p, m);
         Some(
             ListItem::new(ix)
                 .spacing(ListItemSpacing::Sparse)
                 .start_slot::<Icon>(file_icon)
                 .inset(true)
                 .toggle_state(selected)
-                .child(h_flex().gap_2().py_px().child(path_label)),
+                .child(h_flex().gap_2().py_px().when(right.is_some(), |this| {
+                    this.child(left).child(right.unwrap())
+                })),
         )
     }
 }
