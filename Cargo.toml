@@ -161,7 +161,7 @@ default-members = ["crates/gram"]
 publish = false
 edition = "2024"
 repository = "https://codeberg.org/GramEditor/gram"
-version = "2.1.1"
+version = "2.1.2"
 authors = ["The Gram Project"]
 
 [workspace.dependencies]
