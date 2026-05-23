@@ -2340,7 +2340,7 @@ extern "C" fn do_command_by_selector(this: &Object, _: Sel, _: Sel) {
     drop(lock);
 
     if let Some((keystroke, mut callback)) = keystroke.zip(event_callback.as_mut()) {
-        let prefer_character_input = keystroke.prefer_character_input();
+        let prefer_character_input = keystroke.altgr && keystroke.prefer_character_input();
         let handled = (callback)(PlatformInput::KeyDown(KeyDownEvent {
             keystroke,
             is_held: false,

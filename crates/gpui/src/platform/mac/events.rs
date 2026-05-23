@@ -142,7 +142,7 @@ impl PlatformInput {
                 NSEventType::NSKeyDown => {
                     let keystroke = parse_keystroke(native_event);
                     let prefer_character_input =
-                        is_altgr_held(native_event) && keystroke.prefer_character_input();
+                        keystroke.altgr && keystroke.prefer_character_input();
                     Some(Self::KeyDown(KeyDownEvent {
                         keystroke,
                         is_held: native_event.isARepeat() == YES,
