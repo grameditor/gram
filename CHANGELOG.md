@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.2] - 2026-05-23
+
+- AltGr: Don't modify Modifiers to avoid breaking Linux (#307)
+
 ## [2.1.1] - 2026-05-21
 
 ### Fixed
