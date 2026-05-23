@@ -149,6 +149,15 @@ impl Render for TitleBar {
                 .into_any_element(),
         );
 
+        children.push(
+            h_flex()
+                .pr_1()
+                .gap_1()
+                .on_mouse_down(MouseButton::Left, |_, _, cx| cx.stop_propagation())
+                .child(self.render_app_menu_button(cx))
+                .into_any_element(),
+        );
+
         if show_menus {
             self.platform_titlebar.update(cx, |this, _| {
                 this.set_children(

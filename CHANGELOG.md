@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix nav history when clicking line numbers to jump in multibuffer
+- Fix missing app menu button (the sword)
 
 ## [2.1.2] - 2026-05-23
 
