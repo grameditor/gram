@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add a basic picker for recent files (`recent_files::Toggle`)
+
+### Fixed
+
+- AltGr: Don't modify Modifiers to avoid breaking Linux (#307)
+- Fix nav history when clicking line numbers to jump in multibuffer
+
 ## [2.1.1] - 2026-05-21
 
 ### Fixed
