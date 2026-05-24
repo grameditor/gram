@@ -4,8 +4,8 @@ use settings::{RegisterSetting, Settings};
 use std::{fmt::Write, num::NonZeroU32, time::Duration};
 use text::{Bias, Point, Selection};
 use ui::{
-    Button, ButtonCommon, Clickable, Context, FluentBuilder, IntoElement, LabelSize, ParentElement,
-    Render, Tooltip, Window, div,
+    Button, ButtonCommon, Clickable, Context, FluentBuilder, IntoElement, ParentElement, Render,
+    Tooltip, Window, div,
 };
 use util::paths::FILE_ROW_COLUMN_DELIMITER;
 use workspace::{StatusBarSettings, StatusItemView, Workspace, item::ItemHandle};
@@ -217,6 +217,7 @@ impl Render for CursorPosition {
         if !StatusBarSettings::get_global(cx).cursor_position_button {
             return div().hidden();
         }
+        let icon_size = StatusBarSettings::get_global(cx).icon_size;
 
         div().when_some(self.position, |el, position| {
             let mut text = format!(
@@ -229,7 +230,7 @@ impl Render for CursorPosition {
 
             el.child(
                 Button::new("go-to-line-column", text)
-                    .label_size(LabelSize::Small)
+                    .label_size(icon_size.label_size())
                     .on_click(cx.listener(|this, _, window, cx| {
                         if let Some(workspace) = this.workspace.upgrade() {
                             workspace.update(cx, |workspace, cx| {

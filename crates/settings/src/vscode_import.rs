@@ -589,6 +589,7 @@ impl VsCodeSettings {
             line_endings_button: None,
             active_encoding_button: None,
             position: None,
+            icon_size: None,
         })
     }
 

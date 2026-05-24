@@ -5,7 +5,7 @@ use gpui::{
 };
 use language::LanguageName;
 use settings::Settings as _;
-use ui::{Button, ButtonCommon, Clickable, FluentBuilder, LabelSize, Tooltip};
+use ui::{Button, ButtonCommon, Clickable, FluentBuilder, Tooltip};
 use workspace::{StatusBarSettings, StatusItemView, Workspace, item::ItemHandle};
 
 use crate::{LanguageSelector, Toggle};
@@ -51,10 +51,11 @@ impl Render for ActiveBufferLanguage {
             } else {
                 "Unknown".to_string()
             };
+            let icon_size = StatusBarSettings::get_global(cx).icon_size;
 
             el.child(
                 Button::new("change-language", active_language_text)
-                    .label_size(LabelSize::Small)
+                    .label_size(icon_size.label_size())
                     .on_click(cx.listener(|this, _, window, cx| {
                         if let Some(workspace) = this.workspace.upgrade() {
                             workspace.update(cx, |workspace, cx| {

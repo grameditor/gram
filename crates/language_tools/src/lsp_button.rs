@@ -21,7 +21,7 @@ use ui::{
 };
 
 use util::{ResultExt, rel_path::RelPath};
-use workspace::{StatusItemView, Workspace};
+use workspace::{StatusBarSettings, StatusItemView, Workspace};
 
 use crate::{lsp_config_view::OpenLanguageServerConfig, lsp_log_view};
 
@@ -1209,6 +1209,8 @@ impl Render for LspButton {
 
         let lsp_button = cx.weak_entity();
 
+        let icon_size = StatusBarSettings::get_global(cx).icon_size;
+
         div().child(
             PopoverMenu::new("lsp-tool")
                 .menu(move |_, cx| {
@@ -1222,7 +1224,7 @@ impl Render for LspButton {
                 .trigger_with_tooltip(
                     IconButton::new("gram-lsp-tool-button", icon_name)
                         .when_some(indicator, IconButton::indicator)
-                        .icon_size(IconSize::Small)
+                        .icon_size(icon_size.icon_size())
                         .indicator_border_color(Some(cx.theme().colors().status_bar_background)),
                     move |_window, cx| {
                         Tooltip::with_meta("Language Servers", Some(&ToggleMenu), description, cx)

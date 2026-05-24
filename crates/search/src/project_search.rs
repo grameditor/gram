@@ -43,8 +43,8 @@ use ui::{
 };
 use util::{ResultExt as _, paths::PathMatcher, rel_path::RelPath};
 use workspace::{
-    DeploySearch, ItemNavHistory, NewSearch, ToolbarItemEvent, ToolbarItemLocation,
-    ToolbarItemView, Workspace, WorkspaceId,
+    DeploySearch, ItemNavHistory, NewSearch, StatusBarSettings, ToolbarItemEvent,
+    ToolbarItemLocation, ToolbarItemView, Workspace, WorkspaceId,
     item::{BreadcrumbText, Item, ItemEvent, ItemHandle, SaveOptions},
     searchable::{Direction, SearchableItem, SearchableItemHandle},
 };
@@ -691,10 +691,12 @@ impl Item for ProjectSearchView {
 
         let focus_handle = self.query_editor.focus_handle(cx);
 
+        let icon_size = StatusBarSettings::get_global(cx).icon_size;
+
         Some(
             IconButton::new("project-search-collapse-expand", icon)
                 .shape(IconButtonShape::Square)
-                .icon_size(IconSize::Small)
+                .icon_size(icon_size.icon_size())
                 .tooltip(move |_, cx| {
                     Tooltip::for_action_in(
                         tooltip_label,

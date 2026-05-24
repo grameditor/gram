@@ -2,13 +2,40 @@ use std::num::NonZeroUsize;
 
 use crate::DockPosition;
 use collections::HashMap;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use settings::StatusBarPosition;
 pub use settings::{
     AutosaveSetting, BottomDockLayout, EncodingDisplayOptions, InactiveOpacity,
     PaneSplitDirectionHorizontal, PaneSplitDirectionVertical, RegisterSetting,
     RestoreOnStartupBehavior, Settings,
 };
+use ui::rems_from_px;
+
+#[derive(
+    Copy, Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq, strum::VariantNames,
+)]
+#[serde(rename_all = "snake_case")]
+pub enum StatusBarIconSize {
+    #[default]
+    Default,
+    Large,
+}
+
+impl StatusBarIconSize {
+    pub fn icon_size(&self) -> ui::IconSize {
+        match self {
+            StatusBarIconSize::Default => ui::IconSize::Small,
+            StatusBarIconSize::Large => ui::IconSize::Custom(rems_from_px(18.)),
+        }
+    }
+
+    pub fn label_size(&self) -> ui::LabelSize {
+        match self {
+            StatusBarIconSize::Default => ui::LabelSize::Small,
+            StatusBarIconSize::Large => ui::LabelSize::Default,
+        }
+    }
+}
 
 #[derive(RegisterSetting)]
 pub struct WorkspaceSettings {
@@ -135,6 +162,7 @@ pub struct StatusBarSettings {
     pub line_endings_button: bool,
     pub active_encoding_button: EncodingDisplayOptions,
     pub position: StatusBarPosition,
+    pub icon_size: StatusBarIconSize,
 }
 
 impl Settings for StatusBarSettings {
@@ -148,6 +176,10 @@ impl Settings for StatusBarSettings {
             line_endings_button: status_bar.line_endings_button.unwrap(),
             active_encoding_button: status_bar.active_encoding_button.unwrap(),
             position: status_bar.position.unwrap(),
+            icon_size: match status_bar.icon_size.unwrap() {
+                settings::StatusBarIconSize::Default => StatusBarIconSize::Default,
+                settings::StatusBarIconSize::Large => StatusBarIconSize::Large,
+            },
         }
     }
 }

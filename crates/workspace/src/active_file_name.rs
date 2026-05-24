@@ -24,6 +24,8 @@ impl ActiveFileName {
 
 impl Render for ActiveFileName {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        let icon_size = StatusBarSettings::get_global(cx).icon_size;
+
         if !StatusBarSettings::get_global(cx).active_file {
             return Empty.into_any_element();
         }
@@ -40,7 +42,7 @@ impl Render for ActiveFileName {
         div()
             .child(
                 Button::new("active-file-name-button", project_path)
-                    .label_size(LabelSize::Small)
+                    .label_size(icon_size.label_size())
                     .color(Color::Hidden)
                     .tooltip(Tooltip::text(tooltip_text.clone()))
                     .on_click(move |_event, _window, cx| {

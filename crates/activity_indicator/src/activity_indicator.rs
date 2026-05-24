@@ -27,7 +27,10 @@ use ui::{
     prelude::*,
 };
 use util::truncate_and_trailoff;
-use workspace::{StatusItemView, Workspace, item::ItemHandle};
+use workspace::{
+    StatusBarSettings, StatusItemView, Workspace,
+    item::{ItemHandle, Settings},
+};
 
 const GIT_OPERATION_DELAY: Duration = Duration::from_millis(0);
 
@@ -336,12 +339,14 @@ impl ActivityIndicator {
     }
 
     fn content_to_render(&mut self, cx: &mut Context<Self>) -> Option<Content> {
+        let icon_size = StatusBarSettings::get_global(cx).icon_size;
+
         // Show if any direnv calls failed
         if let Some(message) = self.pending_environment_error(cx) {
             return Some(Content {
                 icon: Some(
                     Icon::new(IconName::Warning)
-                        .size(IconSize::Small)
+                        .size(icon_size.icon_size())
                         .into_any_element(),
                 ),
                 message: message.clone(),
@@ -382,7 +387,7 @@ impl ActivityIndicator {
                 return Some(Content {
                     icon: Some(
                         Icon::new(IconName::ArrowCircle)
-                            .size(IconSize::Small)
+                            .size(icon_size.icon_size())
                             .with_rotate_animation(2)
                             .into_any_element(),
                     ),
@@ -404,7 +409,7 @@ impl ActivityIndicator {
             return Some(Content {
                 icon: Some(
                     Icon::new(IconName::ArrowCircle)
-                        .size(IconSize::Small)
+                        .size(icon_size.icon_size())
                         .with_rotate_animation(2)
                         .into_any_element(),
                 ),
@@ -427,7 +432,7 @@ impl ActivityIndicator {
             return Some(Content {
                 icon: Some(
                     Icon::new(IconName::ArrowCircle)
-                        .size(IconSize::Small)
+                        .size(icon_size.icon_size())
                         .with_rotate_animation(2)
                         .into_any_element(),
                 ),
@@ -443,7 +448,7 @@ impl ActivityIndicator {
                 return Some(Content {
                     icon: Some(
                         Icon::new(IconName::ArrowCircle)
-                            .size(IconSize::Small)
+                            .size(icon_size.icon_size())
                             .with_rotate_animation(2)
                             .into_any_element(),
                     ),
@@ -501,7 +506,7 @@ impl ActivityIndicator {
             return Some(Content {
                 icon: Some(
                     Icon::new(IconName::Download)
-                        .size(IconSize::Small)
+                        .size(icon_size.icon_size())
                         .into_any_element(),
                 ),
                 message: format!(
@@ -529,7 +534,7 @@ impl ActivityIndicator {
             return Some(Content {
                 icon: Some(
                     Icon::new(IconName::Download)
-                        .size(IconSize::Small)
+                        .size(icon_size.icon_size())
                         .into_any_element(),
                 ),
                 message: format!(
@@ -557,7 +562,7 @@ impl ActivityIndicator {
             return Some(Content {
                 icon: Some(
                     Icon::new(IconName::Warning)
-                        .size(IconSize::Small)
+                        .size(icon_size.icon_size())
                         .into_any_element(),
                 ),
                 message: format!(
@@ -585,7 +590,7 @@ impl ActivityIndicator {
             return Some(Content {
                 icon: Some(
                     Icon::new(IconName::Warning)
-                        .size(IconSize::Small)
+                        .size(icon_size.icon_size())
                         .into_any_element(),
                 ),
                 message: format!("Formatting failed: {failure}. Click to see logs."),
@@ -631,7 +636,7 @@ impl ActivityIndicator {
             return Some(Content {
                 icon: Some(
                     Icon::new(IconName::Warning)
-                        .size(IconSize::Small)
+                        .size(icon_size.icon_size())
                         .into_any_element(),
                 ),
                 message: final_message,
@@ -673,7 +678,7 @@ impl ActivityIndicator {
             };
 
             Some(Content {
-                icon: Some(Icon::new(icon).size(IconSize::Small).map(|this| {
+                icon: Some(Icon::new(icon).size(icon_size.icon_size()).map(|this| {
                     if rotate {
                         this.with_rotate_animation(3).into_any_element()
                     } else {
@@ -702,6 +707,7 @@ impl Render for ActivityIndicator {
         let Some(content) = self.content_to_render(cx) else {
             return result;
         };
+        let icon_size = StatusBarSettings::get_global(cx).icon_size;
         let activity_indicator = cx.entity().downgrade();
         let truncate_content = content.message.len() > MAX_MESSAGE_LEN;
         result.gap_2().child(
@@ -720,12 +726,15 @@ impl Render for ActivityIndicator {
                                                 &content.message,
                                                 MAX_MESSAGE_LEN,
                                             ))
-                                            .size(LabelSize::Small),
+                                            .size(icon_size.label_size()),
                                         )
                                         .tooltip(Tooltip::text(content.message))
                                 } else {
                                     button
-                                        .child(Label::new(content.message).size(LabelSize::Small))
+                                        .child(
+                                            Label::new(content.message)
+                                                .size(icon_size.label_size()),
+                                        )
                                         .when_some(
                                             content.tooltip_message,
                                             |this, tooltip_message| {

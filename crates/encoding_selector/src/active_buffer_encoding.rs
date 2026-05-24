@@ -3,7 +3,7 @@ use encoding_rs::{Encoding, UTF_8};
 use gpui::{
     Context, Entity, IntoElement, ParentElement, Render, Styled, Subscription, Window, div,
 };
-use ui::{Button, ButtonCommon, Clickable, LabelSize, Tooltip};
+use ui::{Button, ButtonCommon, Clickable, Tooltip};
 use workspace::{
     StatusBarSettings, StatusItemView, Workspace,
     item::{ItemHandle, Settings},
@@ -58,9 +58,11 @@ impl Render for ActiveBufferEncoding {
             text.push_str(" (BOM)");
         }
 
+        let icon_size = StatusBarSettings::get_global(cx).icon_size;
+
         div().child(
             Button::new("change-encoding", text)
-                .label_size(LabelSize::Small)
+                .label_size(icon_size.label_size())
                 .on_click(|_, _, _cx| {
                     // No-op
                 })

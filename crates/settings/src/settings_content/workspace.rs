@@ -476,6 +476,10 @@ pub struct StatusBarSettingsContent {
     ///
     /// Default: bottom
     pub position: Option<StatusBarPosition>,
+    /// Status bar icon size.
+    ///
+    /// Default: default
+    pub icon_size: Option<StatusBarIconSize>,
 }
 
 #[derive(
@@ -531,6 +535,27 @@ pub enum StatusBarPosition {
     #[default]
     Bottom,
     Top,
+}
+
+#[derive(
+    Copy,
+    Clone,
+    Debug,
+    Default,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    MergeFrom,
+    PartialEq,
+    Eq,
+    strum::VariantNames,
+    strum::VariantArray,
+)]
+#[serde(rename_all = "snake_case")]
+pub enum StatusBarIconSize {
+    #[default]
+    Default,
+    Large,
 }
 
 #[derive(

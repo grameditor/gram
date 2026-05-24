@@ -1,6 +1,7 @@
 use gpui::{Context, Element, Entity, FontWeight, Render, Subscription, WeakEntity, Window, div};
+use settings::Settings;
 use ui::{Tooltip, text_for_keystrokes};
-use workspace::{StatusItemView, item::ItemHandle, ui::prelude::*};
+use workspace::{StatusBarSettings, StatusItemView, item::ItemHandle, ui::prelude::*};
 
 use crate::{Vim, VimEvent, VimGlobals};
 
@@ -87,6 +88,7 @@ impl ModeIndicator {
 
 impl Render for ModeIndicator {
     fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        let icon_size = StatusBarSettings::get_global(cx).icon_size;
         let vim = self.vim();
         let Some(vim) = vim else {
             return div().hidden().into_any_element();
@@ -141,7 +143,7 @@ impl Render for ModeIndicator {
             .when_some(mode, |el, mode| {
                 el.child(
                     Button::new("vim-mode-button", &mode)
-                        .label_size(LabelSize::Small)
+                        .label_size(icon_size.label_size())
                         .style(ButtonStyle::Background(bg_color))
                         .when(
                             bg_color != system_transparent && vim_mode_text != system_transparent,

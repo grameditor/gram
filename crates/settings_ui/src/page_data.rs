@@ -2727,6 +2727,28 @@ pub(crate) fn settings_data(cx: &App) -> Vec<SettingsPage> {
                     files: USER,
                 }),
                 SettingsPageItem::SettingItem(SettingItem {
+                    title: "Icon Size",
+                    description: "Size of the icons in the status bar",
+                    field: Box::new(SettingField {
+                        json_path: Some("status_bar.icon_size"),
+                        pick: |settings_content| {
+                            settings_content
+                                .status_bar
+                                .as_ref()?
+                                .icon_size
+                                .as_ref()
+                        },
+                        write: |settings_content, value| {
+                            settings_content
+                                .status_bar
+                                .get_or_insert_default()
+                                .icon_size = value;
+                        },
+                    }),
+                    metadata: None,
+                    files: USER,
+                }),
+                SettingsPageItem::SettingItem(SettingItem {
                     title: "Active File",
                     description: "Show the active file name in the status bar.",
                     field: Box::new(SettingField {

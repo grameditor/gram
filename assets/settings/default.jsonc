@@ -1212,6 +1212,8 @@
     "active_encoding_button": "non_utf8",
     // Show the status bar at the top or bottom of the window.
     "position": "bottom",
+    // Status bar icon size. "default" or "large".
+    "icon_size": "default",
   },
   // Settings specific to the terminal
   "terminal": {

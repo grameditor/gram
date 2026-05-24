@@ -1,5 +1,5 @@
 use crate::persistence::model::DockData;
-use crate::{DraggedDock, Event, ModalLayer, Pane};
+use crate::{DraggedDock, Event, ModalLayer, Pane, StatusBarSettings};
 use crate::{Workspace, status_bar::StatusItemView};
 use anyhow::Context as _;
 use gpui::{
@@ -9,7 +9,7 @@ use gpui::{
     px,
 };
 use proto;
-use settings::SettingsStore;
+use settings::{Settings, SettingsStore};
 use std::sync::Arc;
 use ui::{ContextMenu, Divider, DividerColor, IconButton, Tooltip, h_flex};
 use ui::{prelude::*, right_click_menu};
@@ -878,6 +878,7 @@ impl Render for PanelButtons {
         let active_index = dock.active_panel_index;
         let is_open = dock.is_open;
         let dock_position = dock.position;
+        let icon_size = StatusBarSettings::get_global(cx).icon_size;
 
         let (menu_anchor, menu_attach) = match dock.position {
             DockPosition::Left => (Corner::BottomLeft, Corner::TopLeft),
@@ -943,7 +944,7 @@ impl Render for PanelButtons {
                             // Include active state in element ID to invalidate the cached
                             // tooltip when panel state changes (e.g., via keyboard shortcut)
                             IconButton::new((name, is_active_button as u64), icon)
-                                .icon_size(IconSize::Small)
+                                .icon_size(icon_size.icon_size())
                                 .toggle_state(is_active_button)
                                 .on_click({
                                     let action = action.boxed_clone();

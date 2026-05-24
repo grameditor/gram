@@ -33,11 +33,12 @@ impl Render for LineEndingIndicator {
         if !StatusBarSettings::get_global(cx).line_endings_button {
             return div();
         }
+        let icon_size = StatusBarSettings::get_global(cx).icon_size;
 
         div().when_some(self.line_ending.as_ref(), |el, line_ending| {
             el.child(
                 Button::new("change-line-ending", line_ending.label())
-                    .label_size(LabelSize::Small)
+                    .label_size(icon_size.label_size())
                     .on_click(cx.listener(|this, _, window, cx| {
                         if let Some(editor) = this.active_editor.as_ref() {
                             LineEndingSelector::toggle(editor, window, cx);

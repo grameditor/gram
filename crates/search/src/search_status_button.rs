@@ -1,7 +1,7 @@
 use editor::EditorSettings;
 use settings::Settings as _;
 use ui::{ButtonCommon, Clickable, Context, Render, Tooltip, Window, prelude::*};
-use workspace::{ItemHandle, StatusItemView};
+use workspace::{ItemHandle, StatusBarSettings, StatusItemView};
 
 pub const SEARCH_ICON: IconName = IconName::MagnifyingGlass;
 
@@ -17,13 +17,15 @@ impl Render for SearchButton {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl ui::IntoElement {
         let button = div();
 
+        let icon_size = StatusBarSettings::get_global(cx).icon_size;
+
         if !EditorSettings::get_global(cx).search.button {
             return button.hidden();
         }
 
         button.child(
             IconButton::new("project-search-indicator", SEARCH_ICON)
-                .icon_size(IconSize::Small)
+                .icon_size(icon_size.icon_size())
                 .tooltip(|_window, cx| {
                     Tooltip::for_action("Project Search", &workspace::DeploySearch::default(), cx)
                 })
