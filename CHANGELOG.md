@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix nav history when clicking line numbers to jump in multibuffer
 - Fix missing app menu button (the sword)
+- Fix vim change surrounds for MiniQuotes, MiniBrackets, and AnyQuotes (zed#51067)
 
 ## [2.1.2] - 2026-05-23
 
