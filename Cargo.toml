@@ -315,8 +315,8 @@ zlog_settings = { path = "crates/zlog_settings" }
 #
 
 # Keep these in sync
-naga = { version = "29.0.1", features = ["wgsl-in"] }
-wgpu = "29.0.1"
+naga = { version = "29.0.3", features = ["wgsl-in"] }
+wgpu = "29.0.3"
 
 aho-corasick = "1.1"
 alacritty_terminal = { git = "https://github.com/alacritty/alacritty", rev = "48ff32f7c6bbe2c084f1abc39470487510687323" }
@@ -410,7 +410,7 @@ mach2 = "0.6"
 markup5ever_rcdom = "0.38.0"
 mermaid-rs-renderer = "0.2.1"
 metal = "0.29"
-minidumper = "0.9"
+minidumper = "0.10"
 moka = { version = "0.12.15", features = ["sync"] }
 nanoid = "0.4"
 nbformat = "1.0.0"
@@ -526,7 +526,7 @@ tree-sitter-embedded-template = "0.25"
 tree-sitter-erlang = { git = "https://github.com/WhatsApp/tree-sitter-erlang", rev = "2ace143dea47c872b334660956742dda4efa4ea3" }
 tree-sitter-gitcommit = { git = "https://github.com/gbprod/tree-sitter-gitcommit", rev = "fae7e726b8ea7f669264887aa8d9d7e9dffa8a5e" }
 tree-sitter-git-rebase = { git = "https://github.com/the-mikedavis/tree-sitter-git-rebase", rev = "3db1f61fb928433381253bc5159c40f7d10c57b1" }
-tree-sitter-gleam = { git = "https://github.com/gleam-lang/tree-sitter-gleam", rev = "1627dc5101e63bf19717c540a56df5ef20b1fc7a" }
+tree-sitter-gleam = { git = "https://github.com/gleam-lang/tree-sitter-gleam", rev = "4e4643c2215c2b2343d9ec179c798818c132c9cc" }
 tree-sitter-go = "0.25"
 tree-sitter-go-mod = { git = "https://github.com/camdencheek/tree-sitter-go-mod", rev = "2e886870578eeba1927a2dc4bd2e2b3f598c5f9a", package = "tree-sitter-gomod" }
 tree-sitter-gowork = { git = "https://github.com/zed-industries/tree-sitter-go-work", rev = "acb0617bf7f4fda02c6217676cc64acb89536dc7" }

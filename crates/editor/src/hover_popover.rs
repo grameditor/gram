@@ -1090,7 +1090,6 @@ mod tests {
         }
     }
 
-    #[ignore]
     #[gpui::test]
     async fn test_mouse_hover_info_popover_with_autocomplete_popover(
         cx: &mut gpui::TestAppContext,
