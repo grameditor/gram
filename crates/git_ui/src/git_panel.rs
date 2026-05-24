@@ -142,7 +142,7 @@ fn git_panel_context_menu(
     ContextMenu::build(window, cx, move |context_menu, _, _| {
         context_menu
             .context(focus_handle)
-            .action("Open Git Graph", git_graph::Open.boxed_clone())
+            .action("Open Git Graph", app_actions::git::OpenGraph.boxed_clone())
             .separator()
             .action_disabled_when(
                 !state.has_unstaged_changes,

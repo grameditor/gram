@@ -4,11 +4,12 @@ use git::{
     parse_git_remote_url,
     repository::{CommitDiff, InitialGraphCommitData, LogOrder, LogSource},
 };
+use git_ui::commit_view::CommitView;
 use gpui::{
-    AnyElement, App, Bounds, ClipboardItem, Context, Corner, DefiniteLength, ElementId, Entity,
-    EventEmitter, FocusHandle, Focusable, FontWeight, Hsla, InteractiveElement, ParentElement,
-    PathBuilder, Pixels, Point, Render, ScrollWheelEvent, SharedString, Styled, Subscription, Task,
-    WeakEntity, Window, actions, anchored, deferred, point, px,
+    AnyElement, App, Bounds, Context, Corner, DefiniteLength, ElementId, Entity, EventEmitter,
+    FocusHandle, Focusable, FontWeight, Hsla, InteractiveElement, ParentElement, PathBuilder,
+    Pixels, Point, Render, ScrollWheelEvent, SharedString, Styled, Subscription, Task, WeakEntity,
+    Window, actions, anchored, deferred, point, px,
 };
 use project::{
     Project,
@@ -37,8 +38,6 @@ const LINE_WIDTH: Pixels = px(1.5);
 actions!(
     git_graph,
     [
-        /// Opens the Git Graph panel.
-        Open,
         /// Opens the commit view for the selected commit.
         OpenCommitView,
     ]
@@ -499,7 +498,7 @@ pub fn init(cx: &mut App) {
                 |div| {
                     let workspace = workspace.weak_handle();
 
-                    div.on_action(move |_: &Open, window, cx| {
+                    div.on_action(move |_: &app_actions::git::OpenGraph, window, cx| {
                         workspace
                             .update(cx, |workspace, cx| {
                                 let project = workspace.project().clone();
@@ -914,6 +913,10 @@ impl GitGraph {
             return div().into_any_element();
         };
 
+        let Some(workspace) = self.workspace.upgrade() else {
+            return div().into_any_element();
+        };
+
         let data = repository.update(cx, |repository, cx| {
             repository
                 .fetch_commit_data(commit_entry.data.sha, cx)
@@ -1046,18 +1049,23 @@ impl GitGraph {
                                     )
                                     .child({
                                         let copy_sha = full_sha.clone();
-                                        Button::new("sha-button", truncated_sha)
-                                            .style(ButtonStyle::Transparent)
-                                            .label_size(LabelSize::Small)
+                                        Button::new("commit-sha-button", truncated_sha.clone())
                                             .color(Color::Muted)
-                                            .tooltip(Tooltip::text(format!(
-                                                "Copy SHA: {}",
-                                                copy_sha
-                                            )))
-                                            .on_click(move |_, _, cx| {
-                                                cx.write_to_clipboard(ClipboardItem::new_string(
-                                                    copy_sha.to_string(),
-                                                ));
+                                            .icon(IconName::FileGit)
+                                            .icon_color(Color::Muted)
+                                            .icon_position(IconPosition::Start)
+                                            .icon_size(IconSize::Small)
+                                            .on_click(move |_, window, cx| {
+                                                CommitView::open(
+                                                    copy_sha.clone().into(),
+                                                    repository.downgrade(),
+                                                    workspace.downgrade(),
+                                                    None,
+                                                    None,
+                                                    window,
+                                                    cx,
+                                                );
+                                                cx.stop_propagation();
                                             })
                                     }),
                             )

@@ -3813,10 +3813,12 @@ name = "git_graph"
 version = "2.1.2"
 dependencies = [
  "anyhow",
+ "app_actions",
  "collections",
  "db",
  "fs",
  "git",
+ "git_ui",
  "gpui",
  "project",
  "rand 0.10.1",
@@ -3866,7 +3868,6 @@ dependencies = [
  "futures 0.3.32",
  "fuzzy",
  "git",
- "git_graph",
  "gpui",
  "indoc",
  "itertools 0.14.0",
