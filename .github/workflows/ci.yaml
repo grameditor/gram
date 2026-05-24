@@ -54,6 +54,6 @@ jobs:
         if: runner.os == 'Windows'
         env:
           MAKEOPTS: "-j2 -l2"
-          CARGO_BUILD_JOBS: "1"
+          CARGO_BUILD_JOBS: "2"
         run: cargo-nextest nextest run --workspace --no-fail-fast --success-output never --show-progress none
 

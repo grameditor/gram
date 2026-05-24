@@ -40,8 +40,6 @@ jobs:
           fetch-depth: 0
       - name: install dependencies
         run: ./script/prepare-ci release
-      # - name: bundle-linux
-      #   run: ./script/bundle-linux --tarball
       - name: flatpak-deps
         run: ./script/flatpak/deps
       # the flatpak build will build the tarball too
@@ -61,53 +59,6 @@ jobs:
           cp target/release/gram-linux-${{ matrix.arch }}.tar.gz "artifacts/gram-linux-${{ matrix.arch }}-${version}.tar.gz"
           cp target/gram-remote-server-linux-${{ matrix.arch }}.gz "artifacts/gram-remote-server-linux-${{ matrix.arch }}-${version}.gz"
           cp target/release/app.liten.Gram.flatpak "artifacts/app.liten.Gram-${{ matrix.arch }}-${version}.flatpak"
-
-      - name: upload artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: ${{ matrix.artifact_name }}
-          path: artifacts/*
-
-  macos:
-    name: release mac (${{ matrix.arch }})
-    runs-on: ${{ matrix.runner }}
-    strategy:
-      matrix:
-        include:
-          - arch: x86_64
-            runner: macos-26-intel
-            artifact_name: macos-x86_64
-          - arch: aarch64
-            runner: macos-26
-            artifact_name: macos-aarch64
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-      - name: build release
-        run: |
-          if [[ "${{ matrix.arch }}" == "x86_64" ]]; then
-            ./script/bundle-mac x86_64-apple-darwin
-          else
-            ./script/bundle-mac aarch64-apple-darwin
-          fi
-      - name: copy artifacts
-        shell: bash
-        run: |
-          if [[ $GITHUB_REF_TYPE == "tag" ]]; then
-            version=${{ github.ref_name }}
-          else
-            version=$GITHUB_SHA
-          fi
-          mkdir artifacts
-          find target -name "Gram-*.dmg" -exec cp {} artifacts/ \;
-          for f in artifacts/*.dmg; do
-            cp "$f" "${f%.dmg}-${version}.dmg"
-          done
-          remote_server=$(find target -name "gram-remote-server-macos-*.gz" | head -1)
-          if [ -n "$remote_server" ]; then
-            cp "$remote_server" "artifacts/gram-remote-server-macos-${{ matrix.arch }}-${version}.gz"
-          fi
 
       - name: upload artifacts
         uses: actions/upload-artifact@v7
