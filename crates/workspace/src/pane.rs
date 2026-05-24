@@ -3030,7 +3030,7 @@ impl Pane {
                                         }),
                                     )
                                 })
-                                .when_some(relative_path, |menu, relative_path| {
+                                .when_some(relative_path.clone(), |menu, relative_path| {
                                     menu.entry(
                                         "Copy Relative Path",
                                         Some(Box::new(app_actions::workspace::CopyRelativePath)),
@@ -3073,6 +3073,18 @@ impl Pane {
                                                     working_directory: parent_abs_path.clone(),
                                                 }
                                                 .boxed_clone(),
+                                                cx,
+                                            );
+                                        }),
+                                    )
+                                })
+                                .when_some(relative_path, |menu, _| {
+                                    menu.entry(
+                                        "View File History",
+                                        Some(Box::new(git::FileHistory)),
+                                        window.handler_for(&pane, move |_, window, cx| {
+                                            window.dispatch_action(
+                                                git::FileHistory.boxed_clone(),
                                                 cx,
                                             );
                                         }),
