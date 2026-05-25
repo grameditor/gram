@@ -512,7 +512,7 @@ time = { version = "0.3", features = [
     "formatting",
     "local-offset",
 ] }
-tokio = { version = "1" }
+tokio = "1"
 toml = "1.1"
 trash = "5.2"
 tree-sitter = { version = "0.26.8", features = ["wasm"] }
@@ -719,23 +719,11 @@ unexpected_cfgs = { level = "allow" }
 [workspace.lints.clippy]
 dbg_macro = "deny"
 todo = "deny"
-
 declare_interior_mutable_const = "deny"
-
 redundant_clone = "deny"
 disallowed_methods = "deny"
 
-# We currently do not restrict any style rules
-# as it slows down shipping code to Gram.
-#
-# Running ./script/clippy can take several minutes, and so it's
-# common to skip that step and let CI do it. Any unexpected failures
-# (which also take minutes to discover) thus require switching back
-# to an old branch, manual fixing, and re-pushing.
-#
-# In the future we could improve this by either making sure
-# Gram can surface clippy errors in diagnostics (in addition to the
-# rust-analyzer errors), or by having CI fix style nits automatically.
+# Style rules are not enforced.
 style = { level = "allow", priority = -1 }
 
 # Individual rules that have violations in the codebase:

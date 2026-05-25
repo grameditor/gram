@@ -12913,11 +12913,9 @@ dependencies = [
 name = "watch"
 version = "2.1.2"
 dependencies = [
- "ctor",
  "futures 0.3.32",
- "gpui",
  "parking_lot",
- "zlog",
+ "tokio",
 ]
 
 [[package]]

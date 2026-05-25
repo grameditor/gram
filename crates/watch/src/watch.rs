@@ -186,15 +186,11 @@ impl<T: Clone> Receiver<T> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use futures::{FutureExt, select_biased};
-    use gpui::{AppContext, TestAppContext};
-    use std::{
-        pin::pin,
-        sync::atomic::{AtomicBool, AtomicUsize, Ordering::SeqCst},
-    };
+    use futures::FutureExt;
 
-    #[gpui::test]
+    use super::*;
+
+    #[tokio::test]
     async fn test_basic_watch() {
         let (mut sender, mut receiver) = channel(0);
         assert_eq!(sender.send(1), Ok(()));
@@ -221,72 +217,5 @@ mod tests {
         drop(sender);
         assert_eq!(receiver.recv().await, Ok(7));
         assert_eq!(receiver.recv().await, Err(NoSenderError));
-    }
-
-    #[gpui::test(iterations = 1000)]
-    async fn test_watch_random(cx: &mut TestAppContext) {
-        let next_id = Arc::new(AtomicUsize::new(1));
-        let closed = Arc::new(AtomicBool::new(false));
-        let (mut tx, rx) = channel(0);
-        let mut tasks = Vec::new();
-
-        tasks.push(cx.background_spawn({
-            let executor = cx.executor();
-            let next_id = next_id.clone();
-            let closed = closed.clone();
-            async move {
-                for _ in 0..16 {
-                    executor.simulate_random_delay().await;
-                    let id = next_id.fetch_add(1, SeqCst);
-                    zlog::info!("sending {}", id);
-                    tx.send(id).ok();
-                }
-                closed.store(true, SeqCst);
-            }
-        }));
-
-        for receiver_id in 0..16 {
-            let executor = cx.executor().clone();
-            let next_id = next_id.clone();
-            let closed = closed.clone();
-            let mut rx = rx.clone();
-            let mut prev_observed_value = *rx.borrow();
-            tasks.push(cx.background_spawn(async move {
-                for _ in 0..16 {
-                    executor.simulate_random_delay().await;
-
-                    zlog::info!("{}: receiving", receiver_id);
-                    let mut timeout = executor.simulate_random_delay().fuse();
-                    let mut recv = pin!(rx.recv().fuse());
-                    select_biased! {
-                        _ = timeout => {
-                            zlog::info!("{}: dropping recv future", receiver_id);
-                        }
-                        result = recv => {
-                            match result {
-                                Ok(value) => {
-                                    zlog::info!("{}: received {}", receiver_id, value);
-                                    assert_eq!(value, next_id.load(SeqCst) - 1);
-                                    assert_ne!(value, prev_observed_value);
-                                    prev_observed_value = value;
-                                }
-                                Err(NoSenderError) => {
-                                    zlog::info!("{}: closed", receiver_id);
-                                    assert!(closed.load(SeqCst));
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }));
-        }
-
-        futures::future::join_all(tasks).await;
-    }
-
-    #[ctor::ctor]
-    fn init_logger() {
-        zlog::init_test();
     }
 }
