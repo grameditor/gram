@@ -1047,13 +1047,17 @@ impl Fs for RealFs {
 
         let (tx, rx) = smol::channel::unbounded();
         let pending_paths: Arc<Mutex<Vec<PathEvent>>> = Default::default();
+        let poll_interval = Duration::from_millis(match mode {
+            WatcherMode::Poll { interval_ms } => interval_ms as u64,
+            _ => 10_000,
+        });
 
         let watcher: Arc<dyn Watcher> = match mode {
-            WatcherMode::Poll { interval_ms } => {
+            WatcherMode::Poll { .. } => {
                 match fs_watcher::PollFsWatcher::new(
                     tx.clone(),
                     pending_paths.clone(),
-                    Duration::from_millis(interval_ms as u64),
+                    poll_interval,
                 ) {
                     Ok(watcher) => Arc::new(watcher),
                     Err(e) => {
@@ -1061,11 +1065,19 @@ impl Fs for RealFs {
                             "Failed to create poll watcher for {}, falling back to native: {e}",
                             path.display()
                         );
-                        Arc::new(FsWatcher::new(tx.clone(), pending_paths.clone()))
+                        Arc::new(FsWatcher::new(
+                            tx.clone(),
+                            pending_paths.clone(),
+                            poll_interval,
+                        ))
                     }
                 }
             }
-            _ => Arc::new(FsWatcher::new(tx.clone(), pending_paths.clone())),
+            _ => Arc::new(FsWatcher::new(
+                tx.clone(),
+                pending_paths.clone(),
+                poll_interval,
+            )),
         };
 
         // If the path doesn't exist yet (e.g. settings.jsonc), watch the parent dir to learn when it's created.

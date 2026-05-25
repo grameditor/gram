@@ -24,17 +24,22 @@ pub struct FsWatcher {
     tx: smol::channel::Sender<()>,
     pending_path_events: Arc<Mutex<Vec<PathEvent>>>,
     registrations: Mutex<BTreeMap<Arc<std::path::Path>, WatcherRegistrationId>>,
+    poll_fallback: Mutex<Option<PollFsWatcher>>,
+    poll_interval: Duration,
 }
 
 impl FsWatcher {
     pub fn new(
         tx: smol::channel::Sender<()>,
         pending_path_events: Arc<Mutex<Vec<PathEvent>>>,
+        poll_interval: Duration,
     ) -> Self {
         Self {
             tx,
             pending_path_events,
             registrations: Default::default(),
+            poll_fallback: Default::default(),
+            poll_interval,
         }
     }
 }
@@ -81,12 +86,18 @@ impl Watcher for FsWatcher {
                 return Ok(());
             }
         }
-        #[cfg(any(target_os = "linux", target_os = "macos"))]
+        #[cfg(any(target_os = "linux"))]
         {
             if self.registrations.lock().contains_key(path) {
                 log::trace!("path to watch is already watched: {path:?}");
                 return Ok(());
             }
+        }
+
+        match path.try_exists() {
+            Ok(true) => {}
+            Ok(false) => return Ok(()),
+            Err(e) => log::warn!("path ({path:?}) to watch may not exist: {e}"),
         }
 
         let cano_path = path
@@ -103,9 +114,9 @@ impl Watcher for FsWatcher {
 
         let registration_path = path.clone();
 
-        let registration_id = global({
+        let registration = global({
             let watch_path = path.clone();
-            let callback_path = path;
+            let callback_path = path.clone();
             |g| {
                 g.add(watch_path, mode, move |event: &notify::Event| {
                     log::trace!("watcher received event: {event:?}");
@@ -165,22 +176,41 @@ impl Watcher for FsWatcher {
                     }
                 })
             }
-        })??;
+        });
 
-        self.registrations
-            .lock()
-            .insert(registration_path, registration_id);
+        match registration {
+            Ok(Ok(registration_id)) => {
+                self.registrations
+                    .lock()
+                    .insert(registration_path, registration_id);
 
-        Ok(())
+                Ok(())
+            }
+            Err(e) | Ok(Err(e)) => {
+                log::warn!("Fall back to poll watcher: {}", e,);
+
+                let mut fallback = self.poll_fallback.lock();
+                if fallback.is_none() {
+                    *fallback = Some(PollFsWatcher::new(
+                        self.tx.clone(),
+                        self.pending_path_events.clone(),
+                        self.poll_interval,
+                    )?);
+                }
+                fallback.as_ref().unwrap().add(&*path)
+            }
+        }
     }
 
     fn remove(&self, path: &std::path::Path) -> anyhow::Result<()> {
         log::trace!("remove watched path: {path:?}");
-        let Some(registration) = self.registrations.lock().remove(path) else {
-            return Ok(());
-        };
-
-        global(|w| w.remove(registration))
+        if let Some(registration) = self.registrations.lock().remove(path) {
+            global(|w| w.remove(registration))?;
+        }
+        if let Some(fallback) = self.poll_fallback.lock().as_ref() {
+            fallback.remove(path)?;
+        }
+        Ok(())
     }
 }
 
