@@ -282,6 +282,7 @@ impl VsCodeSettings {
             vertical_scroll_margin: self.read_f32("editor.cursorSurroundingLines"),
             completion_menu_scrollbar: None,
             supertab_fallback: None,
+            sync_kill_ring: None,
         }
     }
 

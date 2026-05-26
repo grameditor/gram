@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add a basic picker for recent files (`recent_files::Toggle`)
+- Sync kill ring with system clipboard (#216)
+- Add option to control kill ring sync (#216)
+- Add separate KillLine and KillRingCut (kill-region) actions (#216)
 
 ### Fixed
 

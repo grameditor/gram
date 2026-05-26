@@ -8,7 +8,7 @@ pub use settings::{
     GoToDefinitionFallback, HideMouseMode, MinimapThumb, MinimapThumbBorder, MultiCursorModifier,
     ScrollBeyondLastLine, ScrollbarDiagnostics, SeedQuerySetting, ShowMinimap, SnippetSortOrder,
 };
-use settings::{RegisterSetting, RelativeLineNumbers, Settings, SupertabFallback};
+use settings::{RegisterSetting, RelativeLineNumbers, Settings, SupertabFallback, SyncKillRing};
 use ui::scrollbars::{ScrollbarVisibility, ShowScrollbar};
 
 /// Imports from the VSCode settings at
@@ -59,6 +59,7 @@ pub struct EditorSettings {
     pub minimum_contrast_for_highlights: f32,
     pub completion_menu_scrollbar: ShowScrollbar,
     pub supertab_fallback: SupertabFallback,
+    pub sync_kill_ring: SyncKillRing,
 }
 #[derive(Debug, Clone)]
 pub struct Jupyter {
@@ -297,6 +298,7 @@ impl Settings for EditorSettings {
             minimum_contrast_for_highlights: editor.minimum_contrast_for_highlights.unwrap().0,
             completion_menu_scrollbar: editor.completion_menu_scrollbar.map(Into::into).unwrap(),
             supertab_fallback: editor.supertab_fallback.unwrap(),
+            sync_kill_ring: editor.sync_kill_ring.unwrap(),
         }
     }
 }

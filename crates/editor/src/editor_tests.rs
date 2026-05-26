@@ -7314,7 +7314,7 @@ async fn test_cut_line_ends(cx: &mut TestAppContext) {
     cx.assert_editor_state(indoc! {"The quick brownˇ"});
 
     cx.set_state(indoc! {"The emacs foxˇ"});
-    cx.update_editor(|e, window, cx| e.kill_ring_cut(&KillRingCut, window, cx));
+    cx.update_editor(|e, window, cx| e.kill_line(&KillLine, window, cx));
     cx.assert_editor_state(indoc! {"The emacs foxˇ"});
 
     cx.set_state(indoc! {"
@@ -7357,7 +7357,7 @@ async fn test_cut_line_ends(cx: &mut TestAppContext) {
         The quick« brownˇ»
         fox jumps overˇ
         the lazy dog"});
-    cx.update_editor(|e, window, cx| e.kill_ring_cut(&KillRingCut, window, cx));
+    cx.update_editor(|e, window, cx| e.kill_line(&KillLine, window, cx));
     cx.assert_editor_state(indoc! {"
         The quickˇ
         fox jumps overˇthe lazy dog"});
@@ -7447,6 +7447,29 @@ async fn test_clipboard(cx: &mut TestAppContext) {
         ˇx jumps over
         fox jumps over
         tˇhe lazy dog"});
+}
+
+#[gpui::test]
+async fn test_kill_ring(cx: &mut TestAppContext) {
+    init_test(cx, |_| {});
+
+    let mut cx = EditorTestContext::new(cx).await;
+
+    cx.set_state("An extensible, customizable, «free/libreˇ» text editor — and more.");
+    cx.update_editor(|e, window, cx| e.kill_ring_copy(&KillRingCopy, window, cx));
+    cx.assert_editor_state("An extensible, customizable, «free/libreˇ» text editor — and more.");
+
+    cx.set_state("The ˇ editor");
+    cx.update_editor(|e, window, cx| e.kill_ring_yank(&KillRingYank, window, cx));
+    cx.assert_editor_state("The free/libreˇ editor");
+
+    cx.set_state("The «freeˇ»/libre editor");
+    cx.update_editor(|e, window, cx| e.kill_ring_cut(&KillRingCut, window, cx));
+    cx.assert_editor_state("The ˇ/libre editor");
+
+    cx.set_state("The /libre ˇ editor");
+    cx.update_editor(|e, window, cx| e.kill_ring_yank(&KillRingYank, window, cx));
+    cx.assert_editor_state("The /libre freeˇ editor");
 }
 
 #[gpui::test]

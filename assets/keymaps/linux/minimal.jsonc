@@ -2,16 +2,23 @@
   {
     "bindings": {
       "escape": "menu::Cancel",
-    }
+    },
   },
   {
-    "context": "Editor && (showing_completions || showing_code_actions)",
+    "context": "Editor && showing_completions",
     "bindings": {
       "up": "editor::ContextMenuPrevious",
       "down": "editor::ContextMenuNext",
       "enter": "editor::ConfirmCompletion",
+    },
+  },
+  {
+    "context": "Editor && showing_code_actions",
+    "bindings": {
+      "up": "editor::ContextMenuPrevious",
+      "down": "editor::ContextMenuNext",
       "enter": "editor::ConfirmCodeAction",
-    }
+    },
   },
   {
     "context": "Picker || menu || Prompt",
@@ -31,13 +38,13 @@
     "bindings": {
       "backspace": "editor::Backspace",
       "enter": "menu::Confirm",
-    }
+    },
   },
   {
     "context": "SettingsWindow",
     "bindings": {
       "escape": "workspace::CloseWindow",
-    }
+    },
   },
   {
     "context": "menu",
@@ -45,6 +52,6 @@
       "enter": "menu::Confirm",
       "left": "app_menu::ActivateMenuLeft",
       "right": "app_menu::ActivateMenuRight",
-    }
+    },
   },
 ]

@@ -387,6 +387,8 @@ TBD: Centered layout related settings
   "completion_menu_scrollbar": "never", // auto, system, always, never
   // What should the Supertab action do when not completing?
   "supertab_fallback": "tab", // tab, indent
+  // Sync the kill ring (emacs mode)
+  "sync_kill_ring": "clipboard", // clipboard, primary or none
   // Turn on colorization of brackets in editors (configurable per language)
   "colorize_brackets": true,
 ```

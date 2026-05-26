@@ -6278,6 +6278,19 @@ fn language_settings_data() -> Vec<SettingsPageItem> {
             metadata: None,
             files: USER,
         }),
+        SettingsPageItem::SettingItem(SettingItem {
+            title: "Sync Kill Ring",
+            description: "Whether to sync the kill ring with clipboard or primary selection.",
+            field: Box::new(SettingField {
+                json_path: Some("editor.sync_kill_ring"),
+                pick: |settings_content| settings_content.editor.sync_kill_ring.as_ref(),
+                write: |settings_content, value| {
+                    settings_content.editor.sync_kill_ring = value;
+                },
+            }),
+            metadata: None,
+            files: USER,
+        }),
         SettingsPageItem::SectionHeader("Inlay Hints"),
         SettingsPageItem::SettingItem(SettingItem {
             title: "Enabled",

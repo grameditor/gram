@@ -225,6 +225,13 @@ pub struct EditorSettingsContent {
     /// 1. Tab: Insert a literal tab character (default).
     /// 2. Indent: Indent the current line.
     pub supertab_fallback: Option<SupertabFallback>,
+
+    /// Which clipboard should the kill ring be synced to?
+    ///
+    /// 1. Clipboard: Sync with system clipboard (Emacs 24+)
+    /// 2. Primary: Sync with primary selection (Emacs <24, Linux only)
+    /// 3. None: Do not sync kill ring (Old Gram behaviour)
+    pub sync_kill_ring: Option<SyncKillRing>,
 }
 
 #[derive(
@@ -792,6 +799,34 @@ pub enum SnippetSortOrder {
     /// Place snippets at the bottom of the completion list
     Bottom,
     /// Do not show snippets in the completion list
+    None,
+}
+
+/// Whether to synchronize the kill ring with system clipboards
+///
+/// Default: clipboard
+#[derive(
+    Copy,
+    Clone,
+    Debug,
+    Default,
+    Serialize,
+    Deserialize,
+    PartialEq,
+    Eq,
+    JsonSchema,
+    MergeFrom,
+    strum::VariantArray,
+    strum::VariantNames,
+)]
+#[serde(rename_all = "snake_case")]
+pub enum SyncKillRing {
+    /// Sync the kill ring with the system clipboard
+    #[default]
+    Clipboard,
+    /// Sync the kill ring with the primary selection (Linux only)
+    Primary,
+    /// Do not sync the kill ring with any clipboard
     None,
 }
 

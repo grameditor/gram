@@ -160,7 +160,7 @@ use selections_collection::{MutableSelectionsCollection, SelectionsCollection};
 use serde::{Deserialize, Serialize};
 use settings::{
     GitGutterSetting, RelativeLineNumbers, Settings, SettingsLocation, SettingsStore,
-    SupertabFallback, update_settings_file,
+    SupertabFallback, SyncKillRing, update_settings_file,
 };
 use smallvec::{SmallVec, smallvec};
 use snippet::Snippet;
@@ -10892,7 +10892,7 @@ impl Editor {
         cx.write_to_clipboard(item);
     }
 
-    pub fn kill_ring_cut(&mut self, _: &KillRingCut, window: &mut Window, cx: &mut Context<Self>) {
+    pub fn kill_line(&mut self, _: &KillLine, window: &mut Window, cx: &mut Context<Self>) {
         self.hide_mouse_cursor(HideMouseCursorOrigin::TypingAction, cx);
         self.change_selections(SelectionEffects::no_scroll(), window, cx, |s| {
             s.move_with(|snapshot, sel| {
@@ -10905,7 +10905,41 @@ impl Editor {
             });
         });
         let item = self.cut_common(false, window, cx);
-        cx.set_global(KillRing(item))
+        cx.set_global(KillRing(item.clone()));
+
+        let sync_kill_ring = EditorSettings::get_global(cx).sync_kill_ring;
+        match sync_kill_ring {
+            SyncKillRing::Clipboard => cx.write_to_clipboard(item),
+            #[cfg(any(target_os = "linux", target_os = "freebsd"))]
+            SyncKillRing::Primary => cx.write_to_primary(item),
+            _ => {}
+        };
+    }
+
+    pub fn kill_ring_cut(&mut self, _: &KillRingCut, window: &mut Window, cx: &mut Context<Self>) {
+        self.hide_mouse_cursor(HideMouseCursorOrigin::TypingAction, cx);
+        let item = self.cut_common(false, window, cx);
+        cx.set_global(KillRing(item.clone()));
+
+        let sync_kill_ring = EditorSettings::get_global(cx).sync_kill_ring;
+        match sync_kill_ring {
+            SyncKillRing::Clipboard => cx.write_to_clipboard(item),
+            #[cfg(any(target_os = "linux", target_os = "freebsd"))]
+            SyncKillRing::Primary => cx.write_to_primary(item),
+            _ => {}
+        };
+    }
+
+    pub fn kill_ring_copy(&mut self, _: &KillRingCopy, _: &mut Window, cx: &mut Context<Self>) {
+        let item = self.copy_common(false, cx);
+        cx.set_global(KillRing(item.clone()));
+        let sync_kill_ring = EditorSettings::get_global(cx).sync_kill_ring;
+        match sync_kill_ring {
+            SyncKillRing::Clipboard => cx.write_to_clipboard(item),
+            #[cfg(any(target_os = "linux", target_os = "freebsd"))]
+            SyncKillRing::Primary => cx.write_to_primary(item),
+            _ => {}
+        };
     }
 
     pub fn kill_ring_yank(
@@ -10915,7 +10949,18 @@ impl Editor {
         cx: &mut Context<Self>,
     ) {
         self.hide_mouse_cursor(HideMouseCursorOrigin::TypingAction, cx);
-        let (text, metadata) = if let Some(KillRing(item)) = cx.try_global() {
+
+        let sync_kill_ring = EditorSettings::get_global(cx).sync_kill_ring;
+        let item = match sync_kill_ring {
+            SyncKillRing::Clipboard => cx.read_from_clipboard(),
+            #[cfg(any(target_os = "linux", target_os = "freebsd"))]
+            SyncKillRing::Primary => cx.read_from_primary(),
+            _ => None,
+        };
+
+        let (text, metadata) = if let Some(item) =
+            item.or_else(|| cx.try_global().map(|KillRing(item)| item.clone()))
+        {
             if let Some(ClipboardEntry::String(kill_ring)) = item.entries().first() {
                 (kill_ring.text().to_string(), kill_ring.metadata_json())
             } else {
@@ -10936,6 +10981,11 @@ impl Editor {
     }
 
     fn do_copy(&self, strip_leading_indents: bool, cx: &mut Context<Self>) {
+        let item = self.copy_common(strip_leading_indents, cx);
+        cx.write_to_clipboard(item);
+    }
+
+    fn copy_common(&self, strip_leading_indents: bool, cx: &mut Context<Self>) -> ClipboardItem {
         let selections = self.selections.all::<Point>(&self.display_snapshot(cx));
         let buffer = self.buffer.read(cx).read(cx);
         let mut text = String::new();
@@ -11008,6 +11058,7 @@ impl Editor {
                         text += "\n";
                     }
                     prev_selection_was_entire_line = is_entire_line && !is_multiline_trim;
+
                     let mut len = 0;
                     for chunk in buffer.text_for_range(trimmed_range.start..trimmed_range.end) {
                         text.push_str(chunk);
@@ -11029,10 +11080,7 @@ impl Editor {
             }
         }
 
-        cx.write_to_clipboard(ClipboardItem::new_string_with_json_metadata(
-            text,
-            clipboard_selections,
-        ));
+        ClipboardItem::new_string_with_json_metadata(text, clipboard_selections)
     }
 
     pub fn do_paste(

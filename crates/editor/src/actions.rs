@@ -1,6 +1,6 @@
 //! This module contains all actions supported by [`Editor`].
 use super::*;
-use gpui::{actions, Action};
+use gpui::{Action, actions};
 use project::project_settings::GoToDiagnosticSeverityFilter;
 use schemars::JsonSchema;
 use util::serde::default_true;
@@ -588,6 +588,10 @@ actions!(
         InsertUuidV7,
         /// Joins the current line with the next line.
         JoinLines,
+        /// Copies to kill ring (Emacs-style).
+        KillRingCopy,
+        /// Cuts rest of line to kill ring (Emacs-style).
+        KillLine,
         /// Cuts to kill ring (Emacs-style).
         KillRingCut,
         /// Yanks from kill ring (Emacs-style).
