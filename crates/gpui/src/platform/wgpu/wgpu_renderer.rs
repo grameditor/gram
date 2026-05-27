@@ -105,6 +105,7 @@ pub struct WgpuRenderer {
     surface: wgpu::Surface<'static>,
     size: PhysicalSize<u32>,
     surface_format: wgpu::TextureFormat,
+    present_mode: wgpu::PresentMode,
     alpha_mode: wgpu::CompositeAlphaMode,
     pipelines: WgpuPipelines,
     bind_group_layouts: WgpuBindGroupLayouts,
@@ -185,15 +186,17 @@ impl WgpuRenderer {
             height: config.size.height.0 as u32,
         };
 
+        let present_mode = config
+            .preferred_present_mode
+            .filter(|mode| surface_caps.present_modes.contains(mode))
+            .unwrap_or(wgpu::PresentMode::Fifo);
+
         let surface_config = wgpu::SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
             format: surface_format,
             width: size.width,
             height: size.height,
-            present_mode: config
-                .preferred_present_mode
-                .filter(|mode| surface_caps.present_modes.contains(mode))
-                .unwrap_or(wgpu::PresentMode::Fifo),
+            present_mode,
             desired_maximum_frame_latency: 2,
             alpha_mode,
             view_formats: vec![],
@@ -247,6 +250,7 @@ impl WgpuRenderer {
         let (path_msaa_texture, path_msaa_view) = Self::create_msaa_if_needed(
             &device,
             surface_format,
+            present_mode,
             config.size.width.0 as u32,
             config.size.height.0 as u32,
             rendering_params.path_sample_count,
@@ -836,7 +840,7 @@ impl WgpuRenderer {
             format: self.surface_format,
             width: self.size.width,
             height: self.size.height,
-            present_mode: wgpu::PresentMode::Fifo,
+            present_mode: self.present_mode,
             desired_maximum_frame_latency: 2,
             alpha_mode: self.alpha_mode,
             view_formats: vec![],
