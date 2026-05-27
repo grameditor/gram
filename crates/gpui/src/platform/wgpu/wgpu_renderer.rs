@@ -250,7 +250,6 @@ impl WgpuRenderer {
         let (path_msaa_texture, path_msaa_view) = Self::create_msaa_if_needed(
             &device,
             surface_format,
-            present_mode,
             config.size.width.0 as u32,
             config.size.height.0 as u32,
             rendering_params.path_sample_count,
@@ -266,6 +265,7 @@ impl WgpuRenderer {
             surface,
             size,
             surface_format,
+            present_mode,
             alpha_mode,
             pipelines,
             bind_group_layouts,
