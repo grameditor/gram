@@ -66,6 +66,7 @@ struct PathRasterizationVertex {
 pub struct WgpuSurfaceConfig {
     pub size: Size<DevicePixels>,
     pub transparent: bool,
+    pub preferred_present_mode: Option<wgpu::PresentMode>,
 }
 
 struct WgpuPipelines {
@@ -189,7 +190,10 @@ impl WgpuRenderer {
             format: surface_format,
             width: size.width,
             height: size.height,
-            present_mode: wgpu::PresentMode::Fifo,
+            present_mode: config
+                .preferred_present_mode
+                .filter(|mode| surface_caps.present_modes.contains(mode))
+                .unwrap_or(wgpu::PresentMode::Fifo),
             desired_maximum_frame_latency: 2,
             alpha_mode,
             view_formats: vec![],
