@@ -37,6 +37,7 @@ load-grammars = [
     "tree-sitter-odin",
     "tree-sitter-python",
     "tree-sitter-regex",
+    "tree-sitter-roto",
     "tree-sitter-rust",
     "tree-sitter-scheme",
     "tree-sitter-sql",
@@ -112,6 +113,7 @@ tree-sitter-md = { workspace = true, optional = true }
 tree-sitter-odin = { workspace = true, optional = true }
 tree-sitter-python = { workspace = true, optional = true }
 tree-sitter-regex = { workspace = true, optional = true }
+tree-sitter-roto = { workspace = true, optional = true }
 tree-sitter-rust = { workspace = true, optional = true }
 tree-sitter-scheme = { workspace = true, optional = true }
 tree-sitter-sql = { workspace = true, optional = true }

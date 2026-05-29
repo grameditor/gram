@@ -59,6 +59,7 @@ Some work out-of-the box and others rely on 3rd party extensions.
 - [ReStructuredText](./languages/rst.md)
 - [Racket](./languages/racket.md)
 - [Roc](./languages/roc.md)
+- [Roto](./languages/roto.md) \*
 - [Ruby](./languages/ruby.md)
 - [Rust](./languages/rust.md) \*
 - [Scala](./languages/scala.md)

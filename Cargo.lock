@@ -5536,6 +5536,7 @@ dependencies = [
  "tree-sitter-odin",
  "tree-sitter-python",
  "tree-sitter-regex",
+ "tree-sitter-roto",
  "tree-sitter-rust",
  "tree-sitter-scheme",
  "tree-sitter-sequel",
@@ -11727,6 +11728,15 @@ name = "tree-sitter-regex"
 version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bd8a59be9f0ac131fd8f062eaaba14882b2fa5a6a7882a20134cb1d60df2e625"
+dependencies = [
+ "cc",
+ "tree-sitter-language",
+]
+
+[[package]]
+name = "tree-sitter-roto"
+version = "0.1.0"
+source = "git+https://codeberg.org/NLnetLabs/tree-sitter-roto?rev=05c92730f7edc34b82b2b19d536bddc0ed75641e#05c92730f7edc34b82b2b19d536bddc0ed75641e"
 dependencies = [
  "cc",
  "tree-sitter-language",

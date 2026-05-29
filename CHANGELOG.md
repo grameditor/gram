@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sync kill ring with system clipboard (#216)
 - Add option to control kill ring sync (#216)
 - Add separate KillLine and KillRingCut (kill-region) actions (#216)
+- [Roto][roto] language support
+
+roto: https://roto.docs.nlnetlabs.nl/en/stable/
 
 ### Fixed
 

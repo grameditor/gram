@@ -541,6 +541,7 @@ tree-sitter-md = { git = "https://github.com/tree-sitter-grammars/tree-sitter-ma
 tree-sitter-odin = { git = "https://github.com/tree-sitter-grammars/tree-sitter-odin", rev = "d2ca8efb4487e156a60d5bd6db2598b872629403" }
 tree-sitter-python = "0.25"
 tree-sitter-regex = "0.25"
+tree-sitter-roto = { git = "https://codeberg.org/NLnetLabs/tree-sitter-roto", rev = "05c92730f7edc34b82b2b19d536bddc0ed75641e" }
 tree-sitter-ruby = "0.23"
 tree-sitter-rust = "0.24"
 tree-sitter-scheme = { git = "https://github.com/6cdh/tree-sitter-scheme", rev = "c6cb7c7d7a04b3f5d999c28e2e9c0c31b2d50ece" }

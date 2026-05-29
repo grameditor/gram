@@ -97,6 +97,7 @@ pub fn init(languages: Arc<LanguageRegistry>, fs: Arc<dyn Fs>, node: NodeRuntime
         ("opentofu-vars", tree_sitter_hcl::LANGUAGE),
         ("python", tree_sitter_python::LANGUAGE),
         ("regex", tree_sitter_regex::LANGUAGE),
+        ("roto", tree_sitter_roto::LANGUAGE),
         ("rust", tree_sitter_rust::LANGUAGE),
         ("scheme", tree_sitter_scheme::LANGUAGE),
         ("sql", tree_sitter_sql::LANGUAGE),
@@ -353,6 +354,10 @@ pub fn init(languages: Arc<LanguageRegistry>, fs: Arc<dyn Fs>, node: NodeRuntime
         },
         LanguageInfo {
             name: "gram-keybind-context",
+            ..Default::default()
+        },
+        LanguageInfo {
+            name: "roto",
             ..Default::default()
         },
     ];
