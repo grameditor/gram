@@ -643,3 +643,43 @@ Gram uses a different regular expression engine from Vim. This means that you wi
 > **Note**: To help with the transition, the command palette will fix parentheses and replace groups for you when you write a Vim-style substitute command, `:%s//`. So, Gram will convert `%s:/\(a\)(b)/\1/` into a search for "(a)\(b\)" and a replacement of "$1".
 
 For the full syntax supported by Gram's regex engine [see the regex crate documentation](https://docs.rs/regex/latest/regex/#syntax).
+
+## Smaller tips for vim users
+
+### Space as leader and default keybindings
+
+The default key bindings for space interfere with using space as leader, and in
+particular getting the which key-popup to stay open. To fix this, add this key
+binding to your user keymap:
+
+```jsonc
+// Make which-key persist longer by disabling
+// the default action vim::WrappingRight
+{
+  "context": "(VimControl && !menu)",
+  "bindings": {
+    "space": null
+  }
+}
+```
+
+Note that this overrides a default binding, so this is mainly for those that
+want to use space as the leader key.
+
+### Keep selection during indent/outdent
+
+This is a common rebinding used by vim users to retain the block selection after
+indent and outdent using the `<` and `<` keys, allowing you to hit the keys
+multiple times to indent/outdent to the desired depth:
+
+```jsonc
+// keep selection during indent/outdent
+{
+  "context": "vim_mode == normal || vim_mode == visual",
+  "bindings": {
+    "<": ["workspace::SendKeystrokes", "< g v"],
+    ">": ["workspace::SendKeystrokes", "> g v"]
+  }
+}
+```
+
