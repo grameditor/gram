@@ -4098,24 +4098,28 @@ impl GitPanel {
                                 }) {
                                     match &this.entries.get(ix) {
                                         Some(GitListEntry::Status(entry)) => {
-                                            items.push(this.render_status_entry(
+                                            if let Some(status_item) = this.render_status_entry(
                                                 ix,
                                                 entry,
                                                 0,
                                                 has_write_access,
                                                 window,
                                                 cx,
-                                            ));
+                                            ) {
+                                                items.push(status_item);
+                                            }
                                         }
                                         Some(GitListEntry::TreeStatus(entry)) => {
-                                            items.push(this.render_status_entry(
+                                            if let Some(status_item) = this.render_status_entry(
                                                 ix,
                                                 &entry.entry,
                                                 entry.depth,
                                                 has_write_access,
                                                 window,
                                                 cx,
-                                            ));
+                                            ) {
+                                                items.push(status_item);
+                                            }
                                         }
                                         Some(GitListEntry::Directory(entry)) => {
                                             items.push(this.render_directory_entry(
@@ -4359,7 +4363,7 @@ impl GitPanel {
         has_write_access: bool,
         window: &Window,
         cx: &Context<Self>,
-    ) -> AnyElement {
+    ) -> Option<AnyElement> {
         let tree_view = GitPanelSettings::get_global(cx).tree_view;
         let path_style = self.project.read(cx).path_style(cx);
         let git_path_style = ProjectSettings::get_global(cx).git.path_style;
@@ -4404,11 +4408,7 @@ impl GitPanel {
         let checkbox_id: ElementId =
             ElementId::Name(format!("entry_{}_{}_checkbox", display_name, ix).into());
 
-        let active_repo = self
-            .project
-            .read(cx)
-            .active_repository(cx)
-            .expect("active repository must be set");
+        let active_repo = self.project.read(cx).active_repository(cx)?;
         let repo = active_repo.read(cx);
         let stage_status = GitPanel::stage_status_for_entry(entry, &repo);
         let mut is_staged: ToggleState = match stage_status {
@@ -4472,46 +4472,48 @@ impl GitPanel {
                 }
             });
 
-        h_flex()
-            .id(id)
-            .h(self.list_item_height())
-            .w_full()
-            .pl_3()
-            .pr_1()
-            .gap_1p5()
-            .border_1()
-            .border_r_2()
-            .when(selected && self.focus_handle.is_focused(window), |el| {
-                el.border_color(cx.theme().colors().panel_focused_border)
-            })
-            .bg(base_bg)
-            .hover(|s| s.bg(hover_bg))
-            .active(|s| s.bg(active_bg))
-            .child(name_row)
-            .child(
-                div()
-                    .id(checkbox_wrapper_id)
-                    .flex_none()
-                    .occlude()
-                    .cursor_pointer()
-                    .child(
-                        Checkbox::new(checkbox_id, is_staged)
-                            .disabled(!has_write_access)
-                            .fill()
-                            .elevation(ElevationIndex::Surface)
-                            .on_click_ext({
-                                let entry = entry.clone();
-                                let this = cx.weak_entity();
-                                move |_, click, window, cx| {
-                                    this.update(cx, |this, cx| {
-                                        if !has_write_access {
-                                            return;
-                                        }
-                                        if click.modifiers().shift {
-                                            this.stage_bulk(ix, cx);
-                                        } else {
-                                            let list_entry =
-                                                if GitPanelSettings::get_global(cx).tree_view {
+        Some(
+            h_flex()
+                .id(id)
+                .h(self.list_item_height())
+                .w_full()
+                .pl_3()
+                .pr_1()
+                .gap_1p5()
+                .border_1()
+                .border_r_2()
+                .when(selected && self.focus_handle.is_focused(window), |el| {
+                    el.border_color(cx.theme().colors().panel_focused_border)
+                })
+                .bg(base_bg)
+                .hover(|s| s.bg(hover_bg))
+                .active(|s| s.bg(active_bg))
+                .child(name_row)
+                .child(
+                    div()
+                        .id(checkbox_wrapper_id)
+                        .flex_none()
+                        .occlude()
+                        .cursor_pointer()
+                        .child(
+                            Checkbox::new(checkbox_id, is_staged)
+                                .disabled(!has_write_access)
+                                .fill()
+                                .elevation(ElevationIndex::Surface)
+                                .on_click_ext({
+                                    let entry = entry.clone();
+                                    let this = cx.weak_entity();
+                                    move |_, click, window, cx| {
+                                        this.update(cx, |this, cx| {
+                                            if !has_write_access {
+                                                return;
+                                            }
+                                            if click.modifiers().shift {
+                                                this.stage_bulk(ix, cx);
+                                            } else {
+                                                let list_entry = if GitPanelSettings::get_global(cx)
+                                                    .tree_view
+                                                {
                                                     GitListEntry::TreeStatus(GitTreeStatusEntry {
                                                         entry: entry.clone(),
                                                         depth,
@@ -4519,54 +4521,61 @@ impl GitPanel {
                                                 } else {
                                                     GitListEntry::Status(entry.clone())
                                                 };
-                                            this.toggle_staged_for_entry(&list_entry, window, cx);
+                                                this.toggle_staged_for_entry(
+                                                    &list_entry,
+                                                    window,
+                                                    cx,
+                                                );
+                                            }
+                                            cx.stop_propagation();
+                                        })
+                                        .ok();
+                                    }
+                                })
+                                .tooltip(move |_window, cx| {
+                                    let action = match stage_status {
+                                        StageStatus::Staged => "Unstage",
+                                        StageStatus::Unstaged | StageStatus::PartiallyStaged => {
+                                            "Stage"
                                         }
-                                        cx.stop_propagation();
-                                    })
-                                    .ok();
-                                }
-                            })
-                            .tooltip(move |_window, cx| {
-                                let action = match stage_status {
-                                    StageStatus::Staged => "Unstage",
-                                    StageStatus::Unstaged | StageStatus::PartiallyStaged => "Stage",
-                                };
-                                let tooltip_name = action.to_string();
+                                    };
+                                    let tooltip_name = action.to_string();
 
-                                Tooltip::for_action(tooltip_name, &ToggleStaged, cx)
-                            }),
-                    ),
-            )
-            .on_click({
-                cx.listener(move |this, event: &ClickEvent, window, cx| {
-                    this.selected_entry = Some(ix);
-                    cx.notify();
-                    if event.modifiers().secondary() {
-                        this.open_file(&Default::default(), window, cx)
-                    } else {
-                        this.open_diff(&Default::default(), window, cx);
-                        this.focus_handle.focus(window, cx);
-                    }
+                                    Tooltip::for_action(tooltip_name, &ToggleStaged, cx)
+                                }),
+                        ),
+                )
+                .on_click({
+                    cx.listener(move |this, event: &ClickEvent, window, cx| {
+                        this.selected_entry = Some(ix);
+                        cx.notify();
+                        if event.modifiers().secondary() {
+                            this.open_file(&Default::default(), window, cx)
+                        } else {
+                            this.open_diff(&Default::default(), window, cx);
+                            this.focus_handle.focus(window, cx);
+                        }
+                    })
                 })
-            })
-            .on_mouse_down(
-                MouseButton::Right,
-                move |event: &MouseDownEvent, window, cx| {
-                    // why isn't this happening automatically? we are passing MouseButton::Right to `on_mouse_down`?
-                    if event.button != MouseButton::Right {
-                        return;
-                    }
+                .on_mouse_down(
+                    MouseButton::Right,
+                    move |event: &MouseDownEvent, window, cx| {
+                        // why isn't this happening automatically? we are passing MouseButton::Right to `on_mouse_down`?
+                        if event.button != MouseButton::Right {
+                            return;
+                        }
 
-                    let Some(this) = handle.upgrade() else {
-                        return;
-                    };
-                    this.update(cx, |this, cx| {
-                        this.deploy_entry_context_menu(event.position, ix, window, cx);
-                    });
-                    cx.stop_propagation();
-                },
-            )
-            .into_any_element()
+                        let Some(this) = handle.upgrade() else {
+                            return;
+                        };
+                        this.update(cx, |this, cx| {
+                            this.deploy_entry_context_menu(event.position, ix, window, cx);
+                        });
+                        cx.stop_propagation();
+                    },
+                )
+                .into_any_element(),
+        )
     }
 
     fn render_directory_entry(
