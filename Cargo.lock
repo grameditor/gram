@@ -8656,11 +8656,9 @@ dependencies = [
 name = "recent_files"
 version = "2.1.2"
 dependencies = [
- "chrono",
  "file_icons",
  "fuzzy",
  "gpui",
- "log",
  "menu",
  "picker",
  "postage",
@@ -8676,7 +8674,6 @@ dependencies = [
  "anyhow",
  "app_actions",
  "askpass",
- "chrono",
  "editor",
  "extension_host",
  "file_finder",
@@ -14246,7 +14243,6 @@ dependencies = [
  "anyhow",
  "app_actions",
  "async-recursion",
- "chrono",
  "client",
  "collections",
  "component",

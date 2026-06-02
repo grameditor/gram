@@ -28,7 +28,6 @@ test-support = [
 any_vec.workspace = true
 anyhow.workspace = true
 async-recursion.workspace = true
-chrono.workspace = true
 client.workspace = true
 collections.workspace = true
 component.workspace = true

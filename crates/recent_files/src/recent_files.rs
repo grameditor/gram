@@ -194,16 +194,16 @@ impl RecentFilesDelegate {
         let (left, right) = string_match.split_at_from_end(if cfg!(windows) { "\\" } else { "/" });
         if let Some(right) = right {
             (
-                HighlightedLabel::new(right.string.clone(), right.positions.clone()),
+                HighlightedLabel::new(right.string.clone(), right.positions),
                 Some(
-                    HighlightedLabel::new(left.string.clone(), left.positions.clone())
+                    HighlightedLabel::new(left.string.clone(), left.positions)
                         .size(LabelSize::Small)
                         .italic(),
                 ),
             )
         } else {
             (
-                HighlightedLabel::new(left.string.clone(), left.positions.clone()),
+                HighlightedLabel::new(left.string.clone(), left.positions),
                 None,
             )
         }

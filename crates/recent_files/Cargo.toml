@@ -14,11 +14,9 @@ path = "src/recent_files.rs"
 doctest = false
 
 [dependencies]
-chrono.workspace = true
 file_icons.workspace = true
 fuzzy.workspace = true
 gpui.workspace = true
-log.workspace = true
 menu.workspace = true
 picker.workspace = true
 postage.workspace = true

@@ -197,7 +197,7 @@ impl Watcher for FsWatcher {
                         self.poll_interval,
                     )?);
                 }
-                fallback.as_ref().unwrap().add(&*path)
+                fallback.as_ref().unwrap().add(&path)
             }
         }
     }

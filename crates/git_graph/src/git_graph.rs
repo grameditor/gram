@@ -1049,7 +1049,7 @@ impl GitGraph {
                                     )
                                     .child({
                                         let copy_sha = full_sha.clone();
-                                        Button::new("commit-sha-button", truncated_sha.clone())
+                                        Button::new("commit-sha-button", truncated_sha)
                                             .color(Color::Muted)
                                             .icon(IconName::FileGit)
                                             .icon_color(Color::Muted)
