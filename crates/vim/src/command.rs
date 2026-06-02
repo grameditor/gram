@@ -29,7 +29,7 @@ use std::{
     sync::OnceLock,
     time::Instant,
 };
-use task::{HideStrategy, RevealStrategy, SpawnInTerminal, TaskId};
+use task::{HideStrategy, RevealStrategy, SaveStrategy, SpawnInTerminal, TaskId};
 use ui::ActiveTheme;
 use util::{
     ResultExt,
@@ -2454,6 +2454,7 @@ impl ShellExec {
                     show_summary: false,
                     show_command: false,
                     show_rerun: false,
+                    save: SaveStrategy::default(),
                 };
 
                 let task_status = workspace.spawn_in_terminal(spawn_in_terminal, window, cx);

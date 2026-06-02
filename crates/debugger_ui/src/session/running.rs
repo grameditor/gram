@@ -48,8 +48,8 @@ use serde_json::Value;
 use settings::Settings;
 use stack_frame_list::StackFrameList;
 use task::{
-    BuildTaskDefinition, DebugScenario, GramDebugConfig, Shell, ShellBuilder, SpawnInTerminal,
-    TaskContext, substitute_variables_in_str,
+    BuildTaskDefinition, DebugScenario, GramDebugConfig, SaveStrategy, Shell, ShellBuilder,
+    SpawnInTerminal, TaskContext, substitute_variables_in_str,
 };
 use terminal_view::TerminalView;
 use ui::{
@@ -1275,6 +1275,7 @@ impl RunningState {
             show_summary: false,
             show_command: false,
             show_rerun: false,
+            save: SaveStrategy::default(),
         };
 
         let workspace = self.workspace.clone();

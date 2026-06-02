@@ -1,14 +1,15 @@
 use std::process::ExitStatus;
 
 use anyhow::Result;
-use gpui::{AppContext, Context, Entity, Task};
+use gpui::{AppContext, AsyncWindowContext, Context, Entity, Task, WeakEntity};
 use language::Buffer;
 use project::{TaskSourceKind, WorktreeId};
 use remote::ConnectionState;
-use task::{DebugScenario, ResolvedTask, SpawnInTerminal, TaskContext, TaskTemplate};
+use task::{DebugScenario, ResolvedTask, SaveStrategy, SpawnInTerminal, TaskContext, TaskTemplate};
 use ui::Window;
+use util::TryFutureExt;
 
-use crate::{Toast, Workspace, notifications::NotificationId};
+use crate::{SaveIntent, Toast, Workspace, notifications::NotificationId};
 
 impl Workspace {
     pub fn schedule_task(
@@ -71,30 +72,66 @@ impl Workspace {
             });
         }
 
-        if let Some(terminal_provider) = self.terminal_provider.as_ref() {
-            let task_status = terminal_provider.spawn(spawn_in_terminal, window, cx);
+        if self.terminal_provider.is_some() {
+            let task = cx.spawn_in(window, async move |workspace, cx| {
+                Self::save_for_task(&workspace, spawn_in_terminal.save, cx).await;
 
-            let task = cx.spawn(async |w, cx| {
-                let res = cx.background_spawn(task_status).await;
-                match res {
-                    Some(Ok(status)) => {
-                        if status.success() {
-                            log::debug!("Task spawn succeeded");
-                        } else {
-                            log::debug!("Task spawn failed, code: {:?}", status.code());
-                        }
-                    }
-                    Some(Err(e)) => {
-                        log::error!("Task spawn failed: {e:#}");
-                        _ = w.update(cx, |w, cx| {
-                            let id = NotificationId::unique::<ResolvedTask>();
-                            w.show_toast(Toast::new(id, format!("Task spawn failed: {e}")), cx);
+                let spawn_task = workspace.update_in(cx, |workspace, window, cx| {
+                    workspace
+                        .terminal_provider
+                        .as_ref()
+                        .map(|terminal_provider| {
+                            terminal_provider.spawn(spawn_in_terminal, window, cx)
                         })
-                    }
-                    None => log::debug!("Task spawn got cancelled"),
-                };
+                });
+                if let Some(spawn_task) = spawn_task.ok().flatten() {
+                    let res = cx.background_spawn(spawn_task).await;
+                    match res {
+                        Some(Ok(status)) => {
+                            if status.success() {
+                                log::debug!("Task spawn succeeded");
+                            } else {
+                                log::debug!("Task spawn failed, code: {:?}", status.code());
+                            }
+                        }
+                        Some(Err(e)) => {
+                            log::error!("Task spawn failed: {e:#}");
+                            _ = workspace.update(cx, |w, cx| {
+                                let id = NotificationId::unique::<ResolvedTask>();
+                                w.show_toast(Toast::new(id, format!("Task spawn failed: {e}")), cx);
+                            })
+                        }
+                        None => log::debug!("Task spawn got cancelled"),
+                    };
+                }
             });
             self.scheduled_tasks.push(task);
+        }
+    }
+
+    pub async fn save_for_task(
+        workspace: &WeakEntity<Self>,
+        save_strategy: SaveStrategy,
+        cx: &mut AsyncWindowContext,
+    ) {
+        let save_action = match save_strategy {
+            SaveStrategy::All => {
+                let save_all = workspace.update_in(cx, |workspace, window, cx| {
+                    let task = workspace.save_all_internal(SaveIntent::SaveAll, window, cx);
+                    cx.background_spawn(async { task.await.map(|_| ()) })
+                });
+                save_all.ok()
+            }
+            SaveStrategy::Current => {
+                let save_current = workspace.update_in(cx, |workspace, window, cx| {
+                    workspace.save_active_item(SaveIntent::SaveAll, window, cx)
+                });
+                save_current.ok()
+            }
+            SaveStrategy::None => None,
+        };
+        if let Some(save_action) = save_action {
+            save_action.log_err().await;
         }
     }
 

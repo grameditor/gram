@@ -4,7 +4,7 @@ use collections::HashMap;
 use dap::{DapLocator, DebugRequest, adapters::DebugAdapterName};
 use gpui::SharedString;
 use serde::{Deserialize, Serialize};
-use task::{DebugScenario, SpawnInTerminal, TaskTemplate};
+use task::{DebugScenario, SaveStrategy, SpawnInTerminal, TaskTemplate};
 
 pub(crate) struct GoLocator;
 
@@ -266,6 +266,7 @@ mod tests {
             tags: vec![],
             show_summary: true,
             show_command: true,
+            save: SaveStrategy::default(),
         };
 
         let scenario = locator
@@ -293,6 +294,7 @@ mod tests {
             tags: vec![],
             show_summary: true,
             show_command: true,
+            save: SaveStrategy::default(),
         };
 
         let scenario = locator
@@ -431,6 +433,7 @@ mod tests {
             tags: vec![],
             show_summary: true,
             show_command: true,
+            save: SaveStrategy::default(),
         };
 
         let scenario = locator
