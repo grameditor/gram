@@ -45,7 +45,12 @@ Gram supports ways to spawn (and rerun) commands using its integrated terminal t
     // Whether to show the task line in the output of the spawned task, defaults to `true`.
     "show_summary": true,
     // Whether to show the command line in the output of the spawned task, defaults to `true`.
-    "show_command": true
+    "show_command": true,
+    // Which edited buffers to save before running the task:
+    // * `none` — don't save any buffers (default)
+    // * `all` — save all edited buffers
+    // * `current` — save current buffer only
+    "save": "none",
     // Represents the tags for inline runnable indicators, or spawning multiple tasks at once.
     // "tags": []
   }
