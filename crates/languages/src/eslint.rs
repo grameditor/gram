@@ -84,13 +84,22 @@ impl LspInstaller for EsLintLspAdapter {
         _: Option<Toolchain>,
         _: &AsyncApp,
     ) -> Option<LanguageServerBinary> {
-        let path = delegate.which("eslint-language-server".as_ref()).await?;
+        let mut path = delegate.which("eslint-language-server".as_ref()).await;
+        if path.is_none() {
+            path = delegate
+                .which("vscode-eslint-language-server".as_ref())
+                .await;
+        }
 
-        return Some(LanguageServerBinary {
-            path: path,
-            env: None,
-            arguments: vec!["--stdio".into()],
-        });
+        if let Some(path) = path {
+            Some(LanguageServerBinary {
+                path: path,
+                env: None,
+                arguments: vec!["--stdio".into()],
+            })
+        } else {
+            None
+        }
     }
 
     async fn fetch_latest_server_version(
