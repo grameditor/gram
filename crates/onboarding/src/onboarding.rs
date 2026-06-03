@@ -207,7 +207,7 @@ impl Onboarding {
 
 impl Render for Onboarding {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        let image = match theme::appearance(cx) {
+        let image = match cx.theme().appearance {
             Appearance::Light => VectorName::LogoLight,
             Appearance::Dark => VectorName::LogoDark,
         };

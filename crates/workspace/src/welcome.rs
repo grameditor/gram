@@ -336,7 +336,7 @@ impl WelcomePage {
                             .map(|nick| nick.into())
                             .unwrap_or_else(|| display_name.clone()),
                     ),
-                    RemoteConnectionOptions::Wsl(_) => (IconName::Linux, display_name),
+                    RemoteConnectionOptions::Wsl(_) => (IconName::ServerCrash, display_name),
                 }
             }
         };
@@ -376,7 +376,7 @@ impl Render for WelcomePage {
                 .into_any_element()
         };
 
-        let image = match theme::appearance(cx) {
+        let image = match cx.theme().appearance {
             Appearance::Light => VectorName::LogoLight,
             Appearance::Dark => VectorName::LogoDark,
         };

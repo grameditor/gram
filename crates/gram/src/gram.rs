@@ -1080,7 +1080,7 @@ fn open_about(cx: &mut App) {
     impl Render for AboutWindow {
         fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
             let ok_is_focused = self.ok.focus_handle.contains_focused(window, cx);
-            let image = match theme::appearance(cx) {
+            let image = match cx.theme().appearance {
                 Appearance::Light => VectorName::LogoLight,
                 Appearance::Dark => VectorName::LogoDark,
             };
