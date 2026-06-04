@@ -1272,8 +1272,7 @@ mod tests {
         // First, collect all expected tab positions
         let mut all_tab_stops = Vec::new();
         let mut byte_offset = 1;
-        let mut char_offset = 1;
-        for ch in buffer_snapshot.text().chars() {
+        for (char_offset, ch) in (1..).zip(buffer_snapshot.text().chars()) {
             if ch == '\t' {
                 all_tab_stops.push(TabStop {
                     byte_offset,
@@ -1281,7 +1280,6 @@ mod tests {
                 });
             }
             byte_offset += ch.len_utf8() as u32;
-            char_offset += 1;
         }
 
         // Test with various distances

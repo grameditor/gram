@@ -152,15 +152,13 @@ fn populate_pane_items(
     window: &mut Window,
     cx: &mut Context<Pane>,
 ) {
-    let mut item_index = pane.items_len();
     let mut active_item_index = None;
-    for item in items {
+    items.iter().enumerate().for_each(|(item_index, item)| {
         if Some(item.item_id().as_u64()) == active_item {
             active_item_index = Some(item_index);
         }
-        pane.add_item(Box::new(item), false, false, None, window, cx);
-        item_index += 1;
-    }
+        pane.add_item(Box::new(item.clone()), false, false, None, window, cx);
+    });
     if let Some(index) = active_item_index {
         pane.activate_item(index, false, false, window, cx);
     }
