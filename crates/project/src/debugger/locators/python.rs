@@ -5,7 +5,7 @@ use async_trait::async_trait;
 use dap::{DapLocator, DebugRequest, adapters::DebugAdapterName};
 use gpui::SharedString;
 
-use task::{DebugScenario, SpawnInTerminal, TaskTemplate, VariableName};
+use task::{DebugScenario, SaveStrategy, SpawnInTerminal, TaskTemplate, VariableName};
 
 pub(crate) struct PythonLocator;
 
@@ -119,6 +119,7 @@ mod test {
             shell: task::Shell::System,
             show_summary: false,
             show_command: false,
+            save: SaveStrategy::default(),
         };
 
         let expected_scenario = DebugScenario {
