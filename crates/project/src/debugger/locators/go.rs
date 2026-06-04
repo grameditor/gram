@@ -4,7 +4,7 @@ use collections::HashMap;
 use dap::{DapLocator, DebugRequest, adapters::DebugAdapterName};
 use gpui::SharedString;
 use serde::{Deserialize, Serialize};
-use task::{DebugScenario, SaveStrategy, SpawnInTerminal, TaskTemplate};
+use task::{DebugScenario, SpawnInTerminal, TaskTemplate};
 
 pub(crate) struct GoLocator;
 
@@ -246,7 +246,7 @@ impl DapLocator for GoLocator {
 mod tests {
     use super::*;
     use gpui::TestAppContext;
-    use task::{HideStrategy, RevealStrategy, RevealTarget, Shell, TaskTemplate};
+    use task::{HideStrategy, RevealStrategy, RevealTarget, SaveStrategy, Shell, TaskTemplate};
 
     #[gpui::test]
     async fn test_create_scenario_for_go_build(_: &mut TestAppContext) {

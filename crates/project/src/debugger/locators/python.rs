@@ -5,7 +5,7 @@ use async_trait::async_trait;
 use dap::{DapLocator, DebugRequest, adapters::DebugAdapterName};
 use gpui::SharedString;
 
-use task::{DebugScenario, SaveStrategy, SpawnInTerminal, TaskTemplate, VariableName};
+use task::{DebugScenario, SpawnInTerminal, TaskTemplate, VariableName};
 
 pub(crate) struct PythonLocator;
 
@@ -98,6 +98,7 @@ impl DapLocator for PythonLocator {
 #[cfg(test)]
 mod test {
     use serde_json::json;
+    use task::SaveStrategy;
 
     use super::*;
 
