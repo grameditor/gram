@@ -3601,6 +3601,22 @@ impl Workspace {
         }
     }
 
+    pub fn close_item(&mut self, item: &dyn ItemHandle, window: &mut Window, cx: &mut App) -> bool {
+        let result = self.panes.iter().find_map(|pane| {
+            pane.read(cx)
+                .index_for_item(item)
+                .map(|ix| (pane.clone(), ix))
+        });
+        if let Some((pane, _)) = result {
+            pane.update(cx, |pane, cx| {
+                pane.remove_item(item.item_id(), false, true, window, cx);
+            });
+            true
+        } else {
+            false
+        }
+    }
+
     fn activate_pane_at_index(
         &mut self,
         action: &ActivatePane,

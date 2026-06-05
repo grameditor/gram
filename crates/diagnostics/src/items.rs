@@ -12,7 +12,7 @@ use ui::{Button, ButtonLike, Color, Icon, IconName, Label, Tooltip, h_flex, prel
 use util::ResultExt;
 use workspace::{StatusBarSettings, StatusItemView, ToolbarItemEvent, Workspace, item::ItemHandle};
 
-use crate::{Deploy, IncludeWarnings, ProjectDiagnosticsEditor};
+use crate::{IncludeWarnings, ProjectDiagnosticsEditor, Toggle};
 
 /// The status bar item that displays diagnostic counts.
 pub struct DiagnosticIndicator {
@@ -89,7 +89,7 @@ impl Render for DiagnosticIndicator {
                 ButtonLike::new("diagnostic-indicator")
                     .child(diagnostic_indicator)
                     .tooltip(move |_window, cx| {
-                        Tooltip::for_action("Project Diagnostics", &Deploy, cx)
+                        Tooltip::for_action("Project Diagnostics", &Toggle, cx)
                     })
                     .on_click(cx.listener(|this, _, window, cx| {
                         if let Some(workspace) = this.workspace.upgrade() {
@@ -99,7 +99,7 @@ impl Render for DiagnosticIndicator {
                                 );
                             }
                             workspace.update(cx, |workspace, cx| {
-                                ProjectDiagnosticsEditor::deploy(
+                                ProjectDiagnosticsEditor::toggle(
                                     workspace,
                                     &Default::default(),
                                     window,

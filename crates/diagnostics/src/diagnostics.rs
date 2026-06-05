@@ -55,6 +55,8 @@ actions!(
     [
         /// Opens the project diagnostics view.
         Deploy,
+        /// Toggle the project diagnostics view.
+        Toggle,
         /// Toggles the display of warning-level diagnostics.
         ToggleWarnings,
         /// Toggles automatic refresh of diagnostics.
@@ -163,6 +165,7 @@ impl ProjectDiagnosticsEditor {
         _: &mut Context<Workspace>,
     ) {
         workspace.register_action(Self::deploy);
+        workspace.register_action(Self::toggle);
     }
 
     fn new(
@@ -393,6 +396,35 @@ impl ProjectDiagnosticsEditor {
                 .is_some_and(|item| item.item_id() == existing.item_id());
 
             workspace.activate_item(&existing, true, !is_active, window, cx);
+        } else {
+            let workspace_handle = cx.entity().downgrade();
+
+            let include_warnings = match cx.try_global::<IncludeWarnings>() {
+                Some(include_warnings) => include_warnings.0,
+                None => ProjectSettings::get_global(cx).diagnostics.include_warnings,
+            };
+
+            let diagnostics = cx.new(|cx| {
+                ProjectDiagnosticsEditor::new(
+                    include_warnings,
+                    workspace.project().clone(),
+                    workspace_handle,
+                    window,
+                    cx,
+                )
+            });
+            workspace.add_item_to_active_pane(Box::new(diagnostics), None, true, window, cx);
+        }
+    }
+
+    fn toggle(
+        workspace: &mut Workspace,
+        _: &Toggle,
+        window: &mut Window,
+        cx: &mut Context<Workspace>,
+    ) {
+        if let Some(existing) = workspace.item_of_type::<ProjectDiagnosticsEditor>(cx) {
+            workspace.close_item(&existing, window, cx);
         } else {
             let workspace_handle = cx.entity().downgrade();
 
@@ -654,10 +686,8 @@ impl ProjectDiagnosticsEditor {
                     }
                 }
 
-                let editor_blocks = anchor_ranges
-                    .into_iter()
-                    .zip_eq(result_blocks)
-                    .filter_map(|(anchor, block)| {
+                let editor_blocks = anchor_ranges.into_iter().zip_eq(result_blocks).filter_map(
+                    |(anchor, block)| {
                         let block = block?;
                         let editor = this.editor.downgrade();
                         Some(BlockProperties {
@@ -667,7 +697,8 @@ impl ProjectDiagnosticsEditor {
                             render: Arc::new(move |bcx| block.render_block(editor.clone(), bcx)),
                             priority: 1,
                         })
-                    });
+                    },
+                );
 
                 let block_ids = this.editor.update(cx, |editor, cx| {
                     editor.display_map.update(cx, |display_map, cx| {

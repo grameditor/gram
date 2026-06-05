@@ -550,7 +550,7 @@
       "ctrl-tab": "tab_switcher::Toggle",
       "cmd-shift-o": "tab_switcher::Open",
       "cmd-shift-p": "command_palette::Toggle",
-      "cmd-shift-m": "diagnostics::Deploy",
+      "cmd-shift-m": "diagnostics::Toggle",
       "cmd-shift-e": "project_panel::ToggleFocus",
       "cmd-shift-b": "outline_panel::ToggleFocus",
       "ctrl-shift-g": "git_panel::ToggleFocus",
