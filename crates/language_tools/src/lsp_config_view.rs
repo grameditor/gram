@@ -410,7 +410,7 @@ impl LspConfigView {
             .child(Headline::new("Language Server Configuration").size(HeadlineSize::Small))
             .child(
                 IconButton::new("lsp-config-info", IconName::Info)
-                    .icon_size(IconSize::Custom(rems_from_px(24.0)))
+                    .icon_size(IconSize::Custom(rems(1.5)))
                     .tooltip(Tooltip::text("Language Servers Documentation"))
                     .on_click(move |_, _, cx| cx.open_url("gram://docs/language-servers")),
             )

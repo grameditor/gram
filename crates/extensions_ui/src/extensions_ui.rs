@@ -1091,7 +1091,7 @@ impl ExtensionsPage {
         h_flex()
             .key_context(key_context)
             .h_8()
-            .min_w(rems_from_px(384.))
+            .min_w(rems(24.))
             .flex_1()
             .pl_1p5()
             .pr_2()

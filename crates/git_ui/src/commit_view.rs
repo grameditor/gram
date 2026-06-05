@@ -535,7 +535,7 @@ impl CommitView {
                 h_flex()
                     .w(gutter_width)
                     .justify_center()
-                    .child(self.render_commit_avatar(&commit.sha, rems_from_px(48.), window, cx)),
+                    .child(self.render_commit_avatar(&commit.sha, rems(3.), window, cx)),
             )
             .child(
                 h_flex()

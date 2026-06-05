@@ -731,7 +731,7 @@ impl Render for QuickSearch {
                                                 &focus_handle,
                                                 cx,
                                             )
-                                            .size(rems_from_px(10.)),
+                                            .size(TextSize::XSmall.rems(cx)),
                                         ),
                                     {
                                         let focus_handle = focus_handle.clone();

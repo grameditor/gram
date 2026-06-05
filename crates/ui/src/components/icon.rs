@@ -182,14 +182,6 @@ impl Icon {
         self.size = size.rems();
         self
     }
-
-    /// Sets a custom size for the icon, in [`Rems`].
-    ///
-    /// Not to be exposed outside of the `ui` crate.
-    pub(crate) fn custom_size(mut self, size: Rems) -> Self {
-        self.size = size;
-        self
-    }
 }
 
 impl Transformable for Icon {

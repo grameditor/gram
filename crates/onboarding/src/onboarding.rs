@@ -15,7 +15,7 @@ use std::sync::Arc;
 use theme::Appearance;
 use ui::{
     Divider, KeyBinding, ParentElement as _, StatefulInteractiveElement, Vector, VectorName,
-    WithScrollbar as _, prelude::*, rems_from_px,
+    WithScrollbar as _, prelude::*,
 };
 pub use workspace::welcome::ShowWelcome;
 use workspace::welcome::WelcomePage;
@@ -255,7 +255,7 @@ impl Render for Onboarding {
                                     .child(
                                         h_flex()
                                             .gap_4()
-                                            .child(Vector::square(image, rems_from_px(90.0)))
+                                            .child(Vector::square(image, rems(6.)))
                                             .child(
                                                 v_flex()
                                                     .child(
@@ -274,14 +274,13 @@ impl Render for Onboarding {
                                         Button::new("finish_setup", "Finish Setup")
                                             .style(ButtonStyle::Filled)
                                             .size(ButtonSize::Medium)
-                                            .width(Rems(12.0))
                                             .key_binding(
                                                 KeyBinding::for_action_in(
                                                     &Finish,
                                                     &self.focus_handle,
                                                     cx,
                                                 )
-                                                .size(rems_from_px(12.)),
+                                                .size(TextSize::Small.rems(cx)),
                                             )
                                             .on_click(|_, window, cx| {
                                                 window.dispatch_action(Finish.boxed_clone(), cx);

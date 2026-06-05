@@ -68,8 +68,9 @@ impl RenderOnce for Indicator {
         };
 
         match self.kind {
-            IndicatorKind::Icon(icon) => container
-                .child(icon.map(|icon| icon.custom_size(rems_from_px(8.)).color(self.color))),
+            IndicatorKind::Icon(icon) => {
+                container.child(icon.map(|icon| icon.size(IconSize::Indicator).color(self.color)))
+            }
             IndicatorKind::Dot => container
                 .w_1p5()
                 .h_1p5()

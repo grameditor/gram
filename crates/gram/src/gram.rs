@@ -1106,7 +1106,7 @@ fn open_about(cx: &mut App) {
                             .w_full()
                             .gap_2()
                             .items_center()
-                            .child(Vector::square(image, rems_from_px(64.)))
+                            .child(Vector::square(image, rems(4.)))
                             .child(Headline::new(self.headline.clone()).size(HeadlineSize::Small))
                             .child(
                                 Label::new("What cannot be mended\nmust be transcended.")

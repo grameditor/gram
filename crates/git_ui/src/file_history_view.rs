@@ -286,7 +286,7 @@ impl FileHistoryView {
         cx: &mut App,
     ) -> impl IntoElement {
         let remote = self.remote.as_ref().filter(|r| r.host_supports_avatars());
-        let size = rems_from_px(20.);
+        let size = rems(1.25);
 
         if let Some(remote) = remote {
             let avatar_asset = CommitAvatarAsset::new(remote.clone(), sha.clone());
@@ -339,46 +339,39 @@ impl FileHistoryView {
                 h_flex()
                     .h_8()
                     .w_full()
-                    .pl_0p5()
-                    .pr_2p5()
+                    .p_1()
                     .gap_2()
                     .child(
-                        div()
-                            .w(rems_from_px(52.))
-                            .flex_none()
-                            .child(Chip::new(pr_number)),
+                        div().min_w(rems(8.)).flex_row().text_right().child(
+                            Label::new(relative_timestamp)
+                                .size(LabelSize::Small)
+                                .color(Color::Muted)
+                                .italic()
+                                .truncate(),
+                        ),
                     )
-                    .child(self.render_commit_avatar(&entry.sha, window, cx))
+                    .child(
+                        h_flex().min_w_0().w_full().justify_between().child(
+                            Label::new(&entry.subject)
+                                .size(LabelSize::Small)
+                                .color(Color::Default)
+                                .truncate(),
+                        ),
+                    )
                     .child(
                         h_flex()
-                            .min_w_0()
-                            .w_full()
-                            .justify_between()
+                            .gap_1()
+                            .ml_auto()
+                            .child(self.render_commit_avatar(&entry.sha, window, cx))
                             .child(
-                                h_flex()
-                                    .min_w_0()
-                                    .w_full()
-                                    .gap_1()
-                                    .child(
-                                        Label::new(entry.author_name.clone())
-                                            .size(LabelSize::Small)
-                                            .color(Color::Default)
-                                            .truncate(),
-                                    )
-                                    .child(
-                                        Label::new(&entry.subject)
-                                            .size(LabelSize::Small)
-                                            .color(Color::Muted)
-                                            .truncate(),
-                                    ),
-                            )
-                            .child(
-                                h_flex().flex_none().child(
-                                    Label::new(relative_timestamp)
+                                div().w_full().child(
+                                    Label::new(entry.author_name.clone())
                                         .size(LabelSize::Small)
-                                        .color(Color::Muted),
+                                        .color(Color::Muted)
+                                        .truncate(),
                                 ),
-                            ),
+                            )
+                            .child(h_flex().flex_none().child(Chip::new(pr_number))),
                     ),
             )
             .on_click(cx.listener(move |this, _, window, cx| {
@@ -465,7 +458,7 @@ impl Render for FileHistoryView {
             .bg(cx.theme().colors().editor_background)
             .child(
                 h_flex()
-                    .h(rems_from_px(41.))
+                    .h(rems(2.5))
                     .pl_3()
                     .pr_2()
                     .justify_between()

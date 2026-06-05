@@ -3853,7 +3853,7 @@ impl EditorElement {
                         let buffer_id = for_excerpt.buffer_id;
                         let toggle_chevron_icon =
                             FileIcons::get_chevron_icon(!is_folded, cx).map(Icon::from_path);
-                        let button_size = rems_from_px(28.);
+                        let button_size = ButtonSize::Medium.rems();
 
                         header.child(
                             div()
@@ -8699,21 +8699,9 @@ impl EditorElement {
                 let buffer_font_size = self.style.text.font_size;
                 match buffer_font_size {
                     AbsoluteLength::Pixels(pixels) => {
-                        let rem_size_scale = {
-                            // Our default UI font size is 14px on a 16px base scale.
-                            // This means the default UI font size is 0.875rems.
-                            let default_font_size_scale = 14. / ui::BASE_REM_SIZE_IN_PX;
-
-                            // We then determine the delta between a single rem and the default font
-                            // size scale.
-                            let default_font_size_delta = 1. - default_font_size_scale;
-
-                            // Finally, we add this delta to 1rem to get the scale factor that
-                            // should be used to scale up the UI.
-                            1. + default_font_size_delta
-                        };
-
-                        Some(pixels * rem_size_scale)
+                        // Our default UI font size is 16px on a 16px base scale.
+                        // This means the default UI font size is 1rems.
+                        Some(pixels)
                     }
                     AbsoluteLength::Rems(rems) => {
                         Some(rems.to_pixels(ui::BASE_REM_SIZE_IN_PX.into()))

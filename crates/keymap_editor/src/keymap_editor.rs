@@ -42,8 +42,8 @@ use workspace::{
     register_serializable_item,
 };
 
-pub use ui_components::*;
 use app_actions::{ChangeKeybinding, OpenKeymap};
+pub use ui_components::*;
 
 use crate::{
     action_completion_provider::ActionCompletionProvider,
@@ -1846,7 +1846,7 @@ impl Render for KeymapEditor {
                                                     .style(ButtonStyle::Outlined)
                                                     .key_binding(
                                                         ui::KeyBinding::for_action_in(&OpenCreateKeybindingModal, &focus_handle, cx)
-                                                            .map(|kb| kb.size(rems_from_px(10.))),
+                                                            .map(|kb| kb.size(TextSize::XSmall.rems(cx))),
                                                     )
                                                     .on_click(|_, window, cx| {
                                                         window.dispatch_action(

@@ -115,7 +115,7 @@ impl RenderOnce for SectionButton {
                     )
                     .child(
                         KeyBinding::for_action_in(action_ref, &self.focus_handle, cx)
-                            .size(rems_from_px(12.)),
+                            .size(TextSize::Small.rems(cx)),
                     ),
             )
             .on_click(move |_, window, cx| window.dispatch_action(self.action.boxed_clone(), cx))
