@@ -424,7 +424,15 @@ impl ProjectDiagnosticsEditor {
         cx: &mut Context<Workspace>,
     ) {
         if let Some(existing) = workspace.item_of_type::<ProjectDiagnosticsEditor>(cx) {
-            workspace.close_item(&existing, window, cx);
+            let is_active = workspace
+                .active_item(cx)
+                .is_some_and(|item| item.item_id() == existing.item_id());
+
+            if !is_active {
+                workspace.activate_item(&existing, true, !is_active, window, cx);
+            } else {
+                workspace.close_item(&existing, window, cx);
+            }
         } else {
             let workspace_handle = cx.entity().downgrade();
 
