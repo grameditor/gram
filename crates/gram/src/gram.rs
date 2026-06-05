@@ -4456,13 +4456,13 @@ mod tests {
         // From the Atom keymap
         use workspace::ActivatePreviousPane;
         // From the JetBrains keymap
-        use diagnostics::Deploy;
+        use diagnostics::Toggle;
 
         workspace
             .update(cx, |workspace, _, _| {
                 workspace.register_action(|_, _: &ActionA, _window, _cx| {});
                 workspace.register_action(|_, _: &ActionB, _window, _cx| {});
-                workspace.register_action(|_, _: &Deploy, _window, _cx| {});
+                workspace.register_action(|_, _: &Toggle, _window, _cx| {});
             })
             .unwrap();
         app_state
@@ -4549,7 +4549,7 @@ mod tests {
 
         cx.background_executor.run_until_parked();
 
-        assert_key_bindings_for(workspace.into(), cx, vec![("6", &Deploy)], line!());
+        assert_key_bindings_for(workspace.into(), cx, vec![("6", &Toggle)], line!());
     }
 
     #[gpui::test]
