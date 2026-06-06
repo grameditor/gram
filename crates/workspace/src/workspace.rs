@@ -274,6 +274,11 @@ actions!(
     ]
 );
 
+/// Activate tab #X
+#[derive(PartialEq, Clone, Deserialize, JsonSchema, Action)]
+#[action(namespace = workspace)]
+pub struct ActivateTab(pub usize);
+
 /// Activates a specific pane by its index.
 #[derive(Clone, Deserialize, PartialEq, JsonSchema, Action)]
 #[action(namespace = workspace)]
@@ -5251,6 +5256,13 @@ impl Workspace {
                 },
             ))
             .on_action(cx.listener(Workspace::cancel))
+            .on_action(cx.listener(
+                |workspace: &mut Workspace, action: &ActivateTab, window, cx| {
+                    workspace.active_pane.update(cx, |pane, cx| {
+                        pane.activate_item(action.0, true, true, window, cx);
+                    });
+                },
+            ))
     }
 
     #[cfg(any(test, feature = "test-support"))]
