@@ -1209,7 +1209,12 @@ impl Render for LspButton {
 
         let lsp_button = cx.weak_entity();
 
-        let icon_size = StatusBarSettings::get_global(cx).icon_size;
+        let status_bar = StatusBarSettings::get_global(cx);
+        let icon_size = status_bar.icon_size;
+        let anchor = match status_bar.position {
+            settings::StatusBarPosition::Bottom => Corner::BottomLeft,
+            settings::StatusBarPosition::Top => Corner::TopLeft,
+        };
 
         div().child(
             PopoverMenu::new("lsp-tool")
@@ -1219,7 +1224,7 @@ impl Render for LspButton {
                         .ok()
                         .flatten()
                 })
-                .anchor(Corner::BottomLeft)
+                .anchor(anchor)
                 .with_handle(self.popover_menu_handle.clone())
                 .trigger_with_tooltip(
                     IconButton::new("gram-lsp-tool-button", icon_name)
