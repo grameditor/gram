@@ -198,7 +198,7 @@ impl RecentFilesDelegate {
                 Some(
                     HighlightedLabel::new(left.string.clone(), left.positions)
                         .size(LabelSize::Small)
-                        .italic(),
+                        .color(Color::Muted),
                 ),
             )
         } else {
