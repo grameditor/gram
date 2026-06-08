@@ -415,7 +415,7 @@ moka = { version = "0.12.15", features = ["sync"] }
 nanoid = "0.4"
 nbformat = "1.0.0"
 nix = "0.31"
-notify = "9.0.0-rc.4"
+notify = "=9.0.0-rc.3"
 num-format = "0.4.4"
 num-traits = "0.2"
 objc = "=0.2.6"
