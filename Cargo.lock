@@ -4,7 +4,7 @@ version = 4
 
 [[package]]
 name = "activity_indicator"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "editor",
@@ -211,7 +211,7 @@ checksum = "7f202df86484c868dbad7eaa557ef785d5c66295e41b460ef922eca0723b842c"
 
 [[package]]
 name = "app_actions"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "gpui",
  "schemars",
@@ -315,7 +315,7 @@ dependencies = [
 
 [[package]]
 name = "askpass"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "futures 0.3.32",
@@ -331,7 +331,7 @@ dependencies = [
 
 [[package]]
 name = "assets"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "gpui",
@@ -934,7 +934,7 @@ dependencies = [
 
 [[package]]
 name = "breadcrumbs"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "app_actions",
  "editor",
@@ -958,7 +958,7 @@ dependencies = [
 
 [[package]]
 name = "buffer_diff"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "clock",
  "ctor",
@@ -1371,7 +1371,7 @@ checksum = "c8d4a3bb8b1e0c1050499d1815f5ab16d04f0959b233085fb31653fbfc9d98f9"
 
 [[package]]
 name = "cli"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "askpass",
@@ -1396,7 +1396,7 @@ dependencies = [
 
 [[package]]
 name = "client"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "async-tungstenite",
@@ -1425,7 +1425,7 @@ dependencies = [
 
 [[package]]
 name = "clock"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "parking_lot",
  "serde",
@@ -1493,7 +1493,7 @@ dependencies = [
 
 [[package]]
 name = "collections"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "indexmap",
  "rustc-hash 2.1.2",
@@ -1533,7 +1533,7 @@ dependencies = [
 
 [[package]]
 name = "command_palette"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "app_actions",
@@ -1561,7 +1561,7 @@ dependencies = [
 
 [[package]]
 name = "command_palette_hooks"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "collections",
  "derive_more",
@@ -1571,7 +1571,7 @@ dependencies = [
 
 [[package]]
 name = "component"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "collections",
  "documented",
@@ -2010,7 +2010,7 @@ dependencies = [
 
 [[package]]
 name = "crashes"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "bitcode",
  "crash-handler",
@@ -2149,7 +2149,7 @@ checksum = "f27ae1dd37df86211c42e150270f82743308803d90a6f6e6651cd730d5e1732f"
 
 [[package]]
 name = "dap"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "async-compression",
@@ -2192,7 +2192,7 @@ dependencies = [
 
 [[package]]
 name = "dap_adapters"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2265,7 +2265,7 @@ checksum = "be1e0bca6c3637f992fc1cc7cbc52a78c1ef6db076dbf1059c4323d6a2048376"
 
 [[package]]
 name = "db"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "gpui",
@@ -2282,7 +2282,7 @@ dependencies = [
 
 [[package]]
 name = "debug_adapter_extension"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2297,7 +2297,7 @@ dependencies = [
 
 [[package]]
 name = "debugger_tools"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "dap",
@@ -2314,7 +2314,7 @@ dependencies = [
 
 [[package]]
 name = "debugger_ui"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "alacritty_terminal",
  "anyhow",
@@ -2443,7 +2443,7 @@ checksum = "abd57806937c9cc163efc8ea3910e00a62e2aeb0b8119f1793a978088f8f6b04"
 
 [[package]]
 name = "diagnostics"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "collections",
@@ -2572,7 +2572,7 @@ dependencies = [
 
 [[package]]
 name = "docs"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "app_actions",
@@ -2669,7 +2669,7 @@ checksum = "3b31a881d38439026e3d5dd938ab20328d36e23caca8fd5981c42e4b677f5842"
 
 [[package]]
 name = "editor"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "aho-corasick",
  "anyhow",
@@ -2782,7 +2782,7 @@ dependencies = [
 
 [[package]]
 name = "encoding_selector"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "editor",
  "encoding_rs",
@@ -2988,7 +2988,7 @@ dependencies = [
 
 [[package]]
 name = "explorer_command_injector"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "windows 0.61.3",
  "windows-core 0.61.2",
@@ -3012,7 +3012,7 @@ dependencies = [
 
 [[package]]
 name = "extension"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3044,7 +3044,7 @@ dependencies = [
 
 [[package]]
 name = "extension_cli"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "clap",
@@ -3067,7 +3067,7 @@ dependencies = [
 
 [[package]]
 name = "extension_host"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "async-compression",
@@ -3111,7 +3111,7 @@ dependencies = [
 
 [[package]]
 name = "extensions_ui"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "app_actions",
  "client",
@@ -3213,7 +3213,7 @@ dependencies = [
 
 [[package]]
 name = "file_finder"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "collections",
@@ -3243,7 +3243,7 @@ dependencies = [
 
 [[package]]
 name = "file_icons"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "gpui",
  "serde",
@@ -3447,7 +3447,7 @@ dependencies = [
 
 [[package]]
 name = "fs"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "async-tar",
@@ -3489,7 +3489,7 @@ dependencies = [
 
 [[package]]
 name = "fs_benchmarks"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "fs",
  "gpui",
@@ -3638,7 +3638,7 @@ dependencies = [
 
 [[package]]
 name = "fuzzy"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "gpui",
  "log",
@@ -3738,7 +3738,7 @@ dependencies = [
 
 [[package]]
 name = "git"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "askpass",
@@ -3789,7 +3789,7 @@ dependencies = [
 
 [[package]]
 name = "git_graph"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "app_actions",
@@ -3812,7 +3812,7 @@ dependencies = [
 
 [[package]]
 name = "git_hosting_providers"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3833,7 +3833,7 @@ dependencies = [
 
 [[package]]
 name = "git_ui"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "app_actions",
@@ -3953,7 +3953,7 @@ dependencies = [
 
 [[package]]
 name = "go_to_line"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "editor",
  "gpui",
@@ -4019,7 +4019,7 @@ dependencies = [
 
 [[package]]
 name = "gpui"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "as-raw-xcb-connection",
@@ -4116,7 +4116,7 @@ dependencies = [
 
 [[package]]
 name = "gpui_macros"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "gpui",
  "heck",
@@ -4127,7 +4127,7 @@ dependencies = [
 
 [[package]]
 name = "gpui_tokio"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "gpui",
@@ -4137,7 +4137,7 @@ dependencies = [
 
 [[package]]
 name = "gram"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "activity_indicator",
  "anyhow",
@@ -4410,7 +4410,7 @@ dependencies = [
 
 [[package]]
 name = "html_to_markdown"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "html5ever",
@@ -4455,7 +4455,7 @@ dependencies = [
 
 [[package]]
 name = "http_client"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "async-compression",
@@ -4478,7 +4478,7 @@ dependencies = [
 
 [[package]]
 name = "http_client_tls"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "rustls",
  "rustls-platform-verifier",
@@ -4585,7 +4585,7 @@ dependencies = [
 
 [[package]]
 name = "icons"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "serde",
  "strum 0.28.0",
@@ -4758,7 +4758,7 @@ dependencies = [
 
 [[package]]
 name = "image_viewer"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "db",
@@ -4841,7 +4841,7 @@ dependencies = [
 
 [[package]]
 name = "inspector_ui"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "app_actions",
@@ -4863,7 +4863,7 @@ dependencies = [
 
 [[package]]
 name = "install_cli"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "client",
@@ -5128,7 +5128,7 @@ dependencies = [
 
 [[package]]
 name = "journal"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "chrono",
@@ -5177,7 +5177,7 @@ dependencies = [
 
 [[package]]
 name = "json_schema_store"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "dap",
@@ -5233,7 +5233,7 @@ dependencies = [
 
 [[package]]
 name = "keymap_editor"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "app_actions",
@@ -5342,7 +5342,7 @@ dependencies = [
 
 [[package]]
 name = "language"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5402,7 +5402,7 @@ dependencies = [
 
 [[package]]
 name = "language_extension"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5422,7 +5422,7 @@ dependencies = [
 
 [[package]]
 name = "language_selector"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "editor",
@@ -5441,7 +5441,7 @@ dependencies = [
 
 [[package]]
 name = "language_tools"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "app_actions",
@@ -5468,7 +5468,7 @@ dependencies = [
 
 [[package]]
 name = "languages"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "adot-tree-sitter-toml",
  "anyhow",
@@ -5694,7 +5694,7 @@ dependencies = [
 
 [[package]]
 name = "line_ending_selector"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "editor",
  "gpui",
@@ -5793,7 +5793,7 @@ checksum = "112b39cec0b298b6c1999fee3e31427f74f676e4cb9879ed1a121b43661a4154"
 
 [[package]]
 name = "lsp"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "async-pipe",
@@ -5931,7 +5931,7 @@ dependencies = [
 
 [[package]]
 name = "markdown"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "assets",
  "base64",
@@ -5955,7 +5955,7 @@ dependencies = [
 
 [[package]]
 name = "markdown_preview"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "app_actions",
@@ -6032,7 +6032,7 @@ dependencies = [
 
 [[package]]
 name = "media"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "bindgen",
@@ -6078,7 +6078,7 @@ dependencies = [
 
 [[package]]
 name = "menu"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "gpui",
 ]
@@ -6120,7 +6120,7 @@ dependencies = [
 
 [[package]]
 name = "migrator"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "log",
@@ -6226,7 +6226,7 @@ checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
 
 [[package]]
 name = "miniprofiler_ui"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "app_actions",
  "gpui",
@@ -6306,7 +6306,7 @@ dependencies = [
 
 [[package]]
 name = "multi_buffer"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "buffer_diff",
@@ -6409,7 +6409,7 @@ dependencies = [
 
 [[package]]
 name = "nc"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "futures 0.3.32",
@@ -6428,7 +6428,7 @@ dependencies = [
 
 [[package]]
 name = "net"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "async-io",
  "smol",
@@ -6477,7 +6477,7 @@ dependencies = [
 
 [[package]]
 name = "node_runtime"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "async-compression",
@@ -6523,7 +6523,7 @@ checksum = "0676bb32a98c1a483ce53e500a81ad9c3d5b3f7c920c28c24e9cb0980d0b5bc8"
 
 [[package]]
 name = "notifications"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "app_actions",
  "component",
@@ -6829,7 +6829,7 @@ dependencies = [
 
 [[package]]
 name = "onboarding"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "app_actions",
@@ -6980,7 +6980,7 @@ dependencies = [
 
 [[package]]
 name = "outline"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "app_actions",
  "editor",
@@ -7005,7 +7005,7 @@ dependencies = [
 
 [[package]]
 name = "outline_panel"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "app_actions",
@@ -7070,7 +7070,7 @@ dependencies = [
 
 [[package]]
 name = "panel"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "editor",
  "gpui",
@@ -7157,7 +7157,7 @@ dependencies = [
 
 [[package]]
 name = "paths"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "dirs 6.0.0",
  "ignore",
@@ -7699,7 +7699,7 @@ dependencies = [
 
 [[package]]
 name = "picker"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "editor",
@@ -7981,7 +7981,7 @@ checksum = "e8cf8e6a8aa66ce33f63993ffc4ea4271eb5b0530a9002db8455ea6050c77bfa"
 
 [[package]]
 name = "prettier"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "collections",
@@ -8090,7 +8090,7 @@ dependencies = [
 
 [[package]]
 name = "project"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "aho-corasick",
  "anyhow",
@@ -8163,7 +8163,7 @@ dependencies = [
 
 [[package]]
 name = "project_benchmarks"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "clap",
@@ -8180,7 +8180,7 @@ dependencies = [
 
 [[package]]
 name = "project_panel"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "app_actions",
@@ -8216,7 +8216,7 @@ dependencies = [
 
 [[package]]
 name = "project_symbols"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "editor",
@@ -8289,7 +8289,7 @@ dependencies = [
 
 [[package]]
 name = "proto"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "prost",
@@ -8654,7 +8654,7 @@ dependencies = [
 
 [[package]]
 name = "recent_files"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "file_icons",
  "fuzzy",
@@ -8669,7 +8669,7 @@ dependencies = [
 
 [[package]]
 name = "recent_projects"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "app_actions",
@@ -8764,7 +8764,7 @@ dependencies = [
 
 [[package]]
 name = "refineable"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "derive_refineable",
 ]
@@ -8815,14 +8815,14 @@ checksum = "dc897dd8d9e8bd1ed8cdad82b5966c3e0ecae09fb1907d58efaa013543185d0a"
 
 [[package]]
 name = "release_channel"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "gpui",
 ]
 
 [[package]]
 name = "remote"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "askpass",
@@ -8851,7 +8851,7 @@ dependencies = [
 
 [[package]]
 name = "remote_server"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "askpass",
@@ -8916,7 +8916,7 @@ checksum = "19b30a45b0cd0bcca8037f3d0dc3421eaf95327a17cad11964fb8179b4fc4832"
 
 [[package]]
 name = "repl"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "alacritty_terminal",
  "anyhow",
@@ -8963,7 +8963,7 @@ dependencies = [
 
 [[package]]
 name = "reqwest_client"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "bytes 1.11.1",
@@ -9051,7 +9051,7 @@ dependencies = [
 
 [[package]]
 name = "rope"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "arrayvec",
  "criterion",
@@ -9083,7 +9083,7 @@ dependencies = [
 
 [[package]]
 name = "rpc"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "async-tungstenite",
@@ -9422,7 +9422,7 @@ dependencies = [
 
 [[package]]
 name = "scheduler"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "async-task",
  "backtrace",
@@ -9434,7 +9434,7 @@ dependencies = [
 
 [[package]]
 name = "schema_generator"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "clap",
@@ -9521,7 +9521,7 @@ checksum = "1c107b6f4780854c8b126e228ea8869f4d7b71260f962fefb57b996b8959ba6b"
 
 [[package]]
 name = "search"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "any_vec",
  "anyhow",
@@ -9729,7 +9729,7 @@ dependencies = [
 
 [[package]]
 name = "session"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "db",
  "gpui",
@@ -9740,7 +9740,7 @@ dependencies = [
 
 [[package]]
 name = "settings"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "collections",
@@ -9773,7 +9773,7 @@ dependencies = [
 
 [[package]]
 name = "settings_json"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "pretty_assertions",
@@ -9789,7 +9789,7 @@ dependencies = [
 
 [[package]]
 name = "settings_macros"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "quote",
  "settings",
@@ -9798,7 +9798,7 @@ dependencies = [
 
 [[package]]
 name = "settings_profile_selector"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "app_actions",
  "editor",
@@ -9816,7 +9816,7 @@ dependencies = [
 
 [[package]]
 name = "settings_ui"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "app_actions",
@@ -10055,7 +10055,7 @@ checksum = "4aaa7368fcf4852a4c2dd92df0cace6a71f2091ca0a23391ce7f3a31833f1523"
 
 [[package]]
 name = "snippet"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "smallvec",
@@ -10063,7 +10063,7 @@ dependencies = [
 
 [[package]]
 name = "snippet_provider"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "collections",
@@ -10085,7 +10085,7 @@ dependencies = [
 
 [[package]]
 name = "snippets_ui"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "file_finder",
  "file_icons",
@@ -10149,7 +10149,7 @@ dependencies = [
 
 [[package]]
 name = "sqlez"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "collections",
@@ -10167,7 +10167,7 @@ dependencies = [
 
 [[package]]
 name = "sqlez_macros"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "sqlez",
  "sqlformat",
@@ -10241,7 +10241,7 @@ dependencies = [
 
 [[package]]
 name = "story"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "gpui",
  "itertools 0.14.0",
@@ -10256,7 +10256,7 @@ checksum = "2b2231b7c3057d5e4ad0156fb3dc807d900806020c5ffa3ee6ff2c8c76fb8520"
 
 [[package]]
 name = "streaming_diff"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "ordered-float",
  "rand 0.10.1",
@@ -10354,7 +10354,7 @@ checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 
 [[package]]
 name = "sum_tree"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "arrayvec",
  "ctor",
@@ -10444,7 +10444,7 @@ dependencies = [
 
 [[package]]
 name = "svg_preview"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "app_actions",
  "file_icons",
@@ -10580,7 +10580,7 @@ dependencies = [
 
 [[package]]
 name = "system_specs"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "gpui",
@@ -10593,7 +10593,7 @@ dependencies = [
 
 [[package]]
 name = "tab_switcher"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "collections",
  "ctor",
@@ -10647,7 +10647,7 @@ checksum = "adb6935a6f5c20170eeceb1a3835a49e12e19d792f6dd344ccc76a985ca5a6ca"
 
 [[package]]
 name = "task"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "app_actions",
@@ -10670,7 +10670,7 @@ dependencies = [
 
 [[package]]
 name = "tasks_ui"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "app_actions",
@@ -10739,7 +10739,7 @@ dependencies = [
 
 [[package]]
 name = "terminal"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "alacritty_terminal",
  "anyhow",
@@ -10779,7 +10779,7 @@ dependencies = [
 
 [[package]]
 name = "terminal_view"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "app_actions",
@@ -10814,7 +10814,7 @@ dependencies = [
 
 [[package]]
 name = "text"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "clock",
@@ -10835,7 +10835,7 @@ dependencies = [
 
 [[package]]
 name = "theme"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "collections",
@@ -10860,7 +10860,7 @@ dependencies = [
 
 [[package]]
 name = "theme_extension"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "extension",
@@ -10871,7 +10871,7 @@ dependencies = [
 
 [[package]]
 name = "theme_importer"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "clap",
@@ -10891,7 +10891,7 @@ dependencies = [
 
 [[package]]
 name = "theme_selector"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "app_actions",
  "fs",
@@ -11005,7 +11005,7 @@ dependencies = [
 
 [[package]]
 name = "time_format"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "objc2-core-foundation",
  "sys-locale",
@@ -11110,7 +11110,7 @@ checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 
 [[package]]
 name = "title_bar"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "app_actions",
  "gpui",
@@ -11333,7 +11333,7 @@ checksum = "756daf9b1013ebe47a8776667b466417e2d4c5679d441c26230efd9ef78692db"
 
 [[package]]
 name = "toolchain_selector"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "convert_case 0.11.0",
@@ -11887,7 +11887,7 @@ dependencies = [
 
 [[package]]
 name = "ui"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "chrono",
  "component",
@@ -11910,7 +11910,7 @@ dependencies = [
 
 [[package]]
 name = "ui_input"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "component",
  "editor",
@@ -11923,7 +11923,7 @@ dependencies = [
 
 [[package]]
 name = "ui_macros"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "component",
  "quote",
@@ -11932,7 +11932,7 @@ dependencies = [
 
 [[package]]
 name = "ui_prompt"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "gpui",
  "markdown",
@@ -12133,7 +12133,7 @@ checksum = "06abde3611657adf66d383f00b093d7faecc7fa57071cce2578660c9f1010821"
 
 [[package]]
 name = "util"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "async-fs",
@@ -12172,7 +12172,7 @@ dependencies = [
 
 [[package]]
 name = "util_macros"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "perf",
  "quote",
@@ -12259,7 +12259,7 @@ checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 
 [[package]]
 name = "vim"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "app_actions",
@@ -12311,7 +12311,7 @@ dependencies = [
 
 [[package]]
 name = "vim_mode_setting"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "settings",
 ]
@@ -12918,7 +12918,7 @@ dependencies = [
 
 [[package]]
 name = "watch"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "futures 0.3.32",
  "parking_lot",
@@ -13276,7 +13276,7 @@ dependencies = [
 
 [[package]]
 name = "which_key"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "command_palette",
  "gpui",
@@ -14237,7 +14237,7 @@ dependencies = [
 
 [[package]]
 name = "workspace"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "any_vec",
  "anyhow",
@@ -14283,7 +14283,7 @@ dependencies = [
 
 [[package]]
 name = "worktree"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "async-lock",
@@ -14757,7 +14757,7 @@ dependencies = [
 
 [[package]]
 name = "zlog"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "anyhow",
  "chrono",
@@ -14768,7 +14768,7 @@ dependencies = [
 
 [[package]]
 name = "zlog_settings"
-version = "2.1.2"
+version = "2.2.0"
 dependencies = [
  "collections",
  "gpui",

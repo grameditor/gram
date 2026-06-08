@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-06-08
+
 ### Added
 
 - Add a basic picker for recent files (`recent_files::Toggle`)
@@ -21,8 +23,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update git2 to 0.21.0 to support SHA-256 object repos (#325) (zed#57587)
 - Add action to activate tab by index (`workspace::ActivateTab`)
 
-roto: https://roto.docs.nlnetlabs.nl/en/stable/
-
 ### Fixed
 
 - Fix nav history when clicking line numbers to jump in multibuffer
@@ -34,13 +34,15 @@ roto: https://roto.docs.nlnetlabs.nl/en/stable/
 - Use eslint language server if installed as vscode-eslint-language-server
 - Fix LSP menu anchor when status bar is at top
 - Reduce git CPU usage on large repos (zed#56406)
-- Downgrade notify to 9.0.0-rc.3 to fix broken fsevent watches
+- Downgrade notify to 9.0.0-rc.3 to fix broken FSEvent watches (Mac OS)
 
 ### Changed
 
 - Make clicking SHA in git graph commit pane open commit diff view
 - Try to improve UI font sizing and spacing (#321)
 - Make diagnostics indicator toggle diagnostics editor
+
+roto: https://roto.docs.nlnetlabs.nl/en/stable/
 
 ## [2.1.2] - 2026-05-23
 
