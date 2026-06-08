@@ -115,11 +115,12 @@ impl Watcher for FsWatcher {
         let registration_path = path.clone();
 
         let registration = global({
+            let debug_path = path.clone();
             let watch_path = path.clone();
             let callback_path = path.clone();
             |g| {
                 g.add(watch_path, mode, move |event: &notify::Event| {
-                    log::trace!("watcher received event: {event:?}");
+                    log::trace!("watcher ({:?}) received event: {:?}", debug_path, event);
                     let kind = match event.kind {
                         EventKind::Create(_) => Some(PathEventKind::Created),
                         EventKind::Modify(_) => Some(PathEventKind::Changed),
