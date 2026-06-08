@@ -42,7 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Try to improve UI font sizing and spacing (#321)
 - Make diagnostics indicator toggle diagnostics editor
 
-roto: https://roto.docs.nlnetlabs.nl/en/stable/
+[roto]: https://roto.docs.nlnetlabs.nl/en/stable/
 
 ## [2.1.2] - 2026-05-23
 
