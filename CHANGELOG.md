@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add option to control kill ring sync (#216)
 - Add separate KillLine and KillRingCut (kill-region) actions (#216)
 - [Roto][roto] language support
+- Add 'View File History' to tab context menu
+- Add option to change status bar icon size
+- Add option to save edited buffer before a task (#326) by @coma94
+- Add actions to move to start and end of larger syntax node (zed#45331)
+- Update git2 to 0.21.0 to support SHA-256 object repos (#325) (zed#57587)
+- Add action to activate tab by index (`workspace::ActivateTab`)
 
 roto: https://roto.docs.nlnetlabs.nl/en/stable/
 
@@ -23,6 +29,18 @@ roto: https://roto.docs.nlnetlabs.nl/en/stable/
 - Fix missing app menu button (the sword)
 - Fix vim change surrounds for MiniQuotes, MiniBrackets, and AnyQuotes (zed#51067)
 - Prefer Mailbox present mode on Wayland to avoid FIFO stalls (#318) (zed#57077)
+- Fall back to poll watcher if watch creation fails
+- Fix panic in git_panel render_status_entry (#323) by @SED4906
+- Use eslint language server if installed as vscode-eslint-language-server
+- Fix LSP menu anchor when status bar is at top
+- Reduce git CPU usage on large repos (zed#56406)
+- Downgrade notify to 9.0.0-rc.3 to fix broken fsevent watches
+
+### Changed
+
+- Make clicking SHA in git graph commit pane open commit diff view
+- Try to improve UI font sizing and spacing (#321)
+- Make diagnostics indicator toggle diagnostics editor
 
 ## [2.1.2] - 2026-05-23
 
