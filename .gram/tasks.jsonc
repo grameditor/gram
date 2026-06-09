@@ -12,5 +12,12 @@
     "args": ["run", "--profile", "release-fast"],
     "allow_concurrent_runs": true,
     "use_new_terminal": false
+  },
+  {
+    "label": "Nextest all",
+    "command": "cargo",
+    "args": ["nextest", "run", "--workspace", "--no-fail-fast"],
+    "allow_concurrent_runs": false,
+    "use_new_terminal": false
   }
 ]
