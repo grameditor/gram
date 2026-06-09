@@ -34,6 +34,11 @@ The log may contain enough context to help you debug the issue yourself, or you 
 
 If you're running into performance issues — such as hitches, hangs, or general unresponsiveness — having a performance profile will help zero in on what is getting stuck.
 
+## Minidumps
+
+If Gram is crashing you can set `GRAM_GENERATE_MINIDUMPS=1` when running Gram to get the editor to generate a crash dump file that
+can be analyzed to debug the issue. See [debugging-crashes.md](./debugging-crashes.md) for more details.
+
 ### macOS
 
 Xcode Instruments (which comes bundled with [Xcode](https://apps.apple.com/us/app/xcode/id497799835)) is the standard tool for profiling on macOS.

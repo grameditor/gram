@@ -2019,7 +2019,6 @@ dependencies = [
  "mach2 0.6.0",
  "minidumper",
  "paths",
- "release_channel",
  "serde",
  "serde_json",
  "smol",

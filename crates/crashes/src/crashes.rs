@@ -1,7 +1,6 @@
 use crash_handler::{CrashEventResult, CrashHandler};
 use log::info;
 use minidumper::{Client, LoopAction, MinidumpBinary, SocketName};
-use release_channel::{RELEASE_CHANNEL, ReleaseChannel};
 use serde::{Deserialize, Serialize};
 
 #[cfg(not(target_os = "windows"))]
@@ -35,33 +34,24 @@ const CRASH_HANDLER_CONNECT_TIMEOUT: Duration = Duration::from_secs(10);
 static PANIC_THREAD_ID: AtomicU32 = AtomicU32::new(0);
 
 pub async fn init(crash_init: InitCrashHandler) {
-    let gen_var = match env::var("GRAM_GENERATE_MINIDUMPS") {
-        Ok(v) => {
-            if v == "false" || v == "0" {
-                Some(false)
-            } else {
-                Some(true)
-            }
-        }
-        Err(_) => None,
+    let generate_minidumps = match env::var("GRAM_GENERATE_MINIDUMPS") {
+        Ok(v) => v == "true" || v == "1",
+        Err(_) => false,
     };
 
-    match (gen_var, *RELEASE_CHANNEL) {
-        (Some(false), _) | (None, ReleaseChannel::Dev) => {
-            let old_hook = panic::take_hook();
-            panic::set_hook(Box::new(move |info| {
-                unsafe { env::set_var("RUST_BACKTRACE", "1") };
-                old_hook(info);
-                // prevent the macOS crash dialog from popping up
-                if cfg!(target_os = "macos") {
-                    std::process::exit(1);
-                }
-            }));
-            return;
-        }
-        _ => {
-            panic::set_hook(Box::new(panic_hook));
-        }
+    if generate_minidumps {
+        panic::set_hook(Box::new(panic_hook));
+    } else {
+        let old_hook = panic::take_hook();
+        panic::set_hook(Box::new(move |info| {
+            unsafe { env::set_var("RUST_BACKTRACE", "1") };
+            old_hook(info);
+            // prevent the macOS crash dialog from popping up
+            if cfg!(target_os = "macos") {
+                std::process::exit(1);
+            }
+        }));
+        return;
     }
 
     let exe = env::current_exe().expect("unable to find ourselves");
