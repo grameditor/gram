@@ -1,5 +1,7 @@
-use client::GRAM_URL_SCHEME;
 use gpui::{AsyncApp, actions};
+
+/// prefix for the gram:// url scheme
+const GRAM_URL_SCHEME: &str = "gram";
 
 actions!(
     cli,

@@ -4866,7 +4866,6 @@ name = "install_cli"
 version = "2.2.0"
 dependencies = [
  "anyhow",
- "client",
  "gpui",
  "release_channel",
  "smol",

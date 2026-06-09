@@ -561,6 +561,3 @@ impl ProtoClient for Client {
         false
     }
 }
-
-/// prefix for the gram:// url scheme
-pub const GRAM_URL_SCHEME: &str = "gram";
