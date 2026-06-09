@@ -275,7 +275,6 @@ impl Client {
     pub fn production(cx: &mut App) -> Arc<Self> {
         let http = Arc::new(HttpClientWithUrl::new_url(
             cx.http_client(),
-            "http://localhost:9090",
             cx.http_client().proxy().cloned(),
         ));
         Self::new(http, cx)
