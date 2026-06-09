@@ -1,4 +1,3 @@
-use adapters::latest_github_release;
 use anyhow::Context as _;
 use collections::HashMap;
 use dap::{StartDebuggingRequestArguments, adapters::DebugTaskDefinition};
@@ -24,7 +23,7 @@ impl JsDebugAdapter {
         &self,
         delegate: &Arc<dyn DapDelegate>,
     ) -> Result<AdapterVersion> {
-        let release = latest_github_release(
+        let release = http_client::github::latest_github_release(
             &format!("microsoft/{}", Self::ADAPTER_NPM_NAME),
             true,
             false,
@@ -187,7 +186,10 @@ impl DebugAdapter for JsDebugAdapter {
         DebugAdapterName(Self::ADAPTER_NAME.into())
     }
 
-    async fn config_from_gram_format(&self, gram_scenario: GramDebugConfig) -> Result<DebugScenario> {
+    async fn config_from_gram_format(
+        &self,
+        gram_scenario: GramDebugConfig,
+    ) -> Result<DebugScenario> {
         let mut args = json!({
             "type": "pwa-node",
             "request": match gram_scenario.request {

@@ -9,6 +9,7 @@ use http::HeaderValue;
 pub use http::{self, Method, Request, Response, StatusCode, Uri, request::Builder};
 
 use futures::future::BoxFuture;
+#[cfg(feature = "test-support")]
 use parking_lot::Mutex;
 use std::sync::Arc;
 #[cfg(feature = "test-support")]

@@ -4,7 +4,6 @@ use dap::{
     StartDebuggingRequestArguments,
     adapters::{
         DebugTaskDefinition, DownloadedFileType, TcpArguments, download_adapter_from_github,
-        latest_github_release,
     },
 };
 use fs::Fs;
@@ -35,7 +34,7 @@ impl GoDebugAdapter {
     async fn fetch_latest_adapter_version(
         delegate: &Arc<dyn DapDelegate>,
     ) -> Result<AdapterVersion> {
-        let release = latest_github_release(
+        let release = http_client::github::latest_github_release(
             "zed-industries/delve-shim-dap",
             true,
             false,
@@ -361,7 +360,10 @@ impl DebugAdapter for GoDebugAdapter {
         })
     }
 
-    async fn config_from_gram_format(&self, gram_scenario: GramDebugConfig) -> Result<DebugScenario> {
+    async fn config_from_gram_format(
+        &self,
+        gram_scenario: GramDebugConfig,
+    ) -> Result<DebugScenario> {
         let mut args = match &gram_scenario.request {
             dap::DebugRequest::Attach(attach_config) => {
                 json!({

@@ -3,7 +3,7 @@ use std::{path::PathBuf, sync::OnceLock};
 use anyhow::{Context as _, Result};
 use async_trait::async_trait;
 use collections::HashMap;
-use dap::adapters::{DebugTaskDefinition, latest_github_release};
+use dap::adapters::DebugTaskDefinition;
 use futures::StreamExt;
 use gpui::AsyncApp;
 use serde_json::Value;
@@ -49,8 +49,13 @@ impl CodeLldbDebugAdapter {
         &self,
         delegate: &Arc<dyn DapDelegate>,
     ) -> Result<AdapterVersion> {
-        let release =
-            latest_github_release("vadimcn/codelldb", true, false, delegate.http_client()).await?;
+        let release = http_client::github::latest_github_release(
+            "vadimcn/codelldb",
+            true,
+            false,
+            delegate.http_client(),
+        )
+        .await?;
 
         let arch = match std::env::consts::ARCH {
             "aarch64" => "arm64",
@@ -89,7 +94,10 @@ impl DebugAdapter for CodeLldbDebugAdapter {
         DebugAdapterName(Self::ADAPTER_NAME.into())
     }
 
-    async fn config_from_gram_format(&self, gram_scenario: GramDebugConfig) -> Result<DebugScenario> {
+    async fn config_from_gram_format(
+        &self,
+        gram_scenario: GramDebugConfig,
+    ) -> Result<DebugScenario> {
         let mut configuration = json!({
             "request": match gram_scenario.request {
                 DebugRequest::Launch(_) => "launch",
