@@ -711,11 +711,13 @@ fn render_markdown_table(parsed: &ParsedMarkdownTable, cx: &mut RenderContext) -
         })
         .child(
             div()
+                .id("markdown-table-scroll-container")
                 .rounded_sm()
                 .overflow_hidden()
+                .overflow_x_scroll()
                 .border_1()
                 .border_color(cx.border_color)
-                .min_w_0()
+                .max_w_full()
                 .grid()
                 .grid_cols_max_content(max_column_count as u16)
                 .children(cells),
