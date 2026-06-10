@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Fixed
+
+- Prevent table cutoff in markdown preview (#332) by @kmkkiii
+
 ## [2.2.0] - 2026-06-08
 
 ### Added
