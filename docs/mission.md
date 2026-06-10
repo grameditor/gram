@@ -191,9 +191,26 @@ If you don't want to use an editor that has gone down the AI route but do want a
 capable, general-purpose, open source text editor, what other options are there?
 
 Here are some other editors that I have used and would consider reasonable
-alternatives to Zed.
+alternatives to Zed. What they all have in common is that they are first and
+foremost _text editors_, and do not push or endorse LLM services. Some of them
+are also strict about the use of LLMs to develop the editors themselves, but
+not all of them are.
 
-- [Neovim](https://neovim.io) / [Vim](https://www.vim.org)
+> *Note:* Gram is also not AI free. I have not and do not think it is feasible to
+remove all generated code from the code base. Not all of it is clearly marked as
+such. We also merge patches from upstream sometimes, mainly to fix bugs. This
+stance may change in the future.
+
+As far as I know, these editors are completely free of AI-generated code.
+
+- [Vim Classic](https://vim-classic.org)
 - [Emacs](https://www.gnu.org/software/emacs/)
+
+These editors may not be AI free, but I am still OK with recommending them.
+
+- [Neovim](https://neovim.io)
+- [Vim](https://www.vim.org)
 - [Flow Control](https://flow-control.dev) - A TUI-based and very promising
   editor with planned collaboration features.
+- [Helix](https://helix-editor.com)
+- [Kakoune](https://kakoune.org)
