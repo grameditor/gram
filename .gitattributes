@@ -1,28 +1,30 @@
 [attr]crlf eol=crlf
+[attr]rust text eol=lf whitespace=tab-in-indent,trailing-space,tabwidth=4
 
 * text=auto eol=lf
 
 *.bat crlf
 *.ps1 crlf
 
+*.rs             rust diff=rust
+
 # SHELL -> Shell, json -> JSON
-*.entitlements     linguist-language=XML
-*.git*             linguist-language=Shell
-*.in               linguist-language=Shell
-*.isl              linguist-vendored
-*.json             linguist-detectable
-*.jsonc            linguist-language=JSON
-*.plist            linguist-language=XML
-*.prettierignore   linguist-language=Shell
-*.prettierrc       linguist-language=JSON
-*.provisionprofile linguist-vendored
-*.wit              linguist-language=WebAssembly
-*.xml              linguist-detectable
-*.yaml             linguist-detectable
-*.yml              linguist-language=YAML
-cargo.lock         linguist-language=TOML
-/script/*          linguist-language=Shell
-/script/*.hbs      linguist-language=Handlebars
-/script/*.ps1      linguist-language=PowerShell
-/script/*.py       linguist-language=Python
-/script/*.toml     linguist-language=TOML
+*.entitlements   linguist-language=XML
+*.git*           linguist-language=Shell
+*.in             linguist-language=Shell
+*.isl            linguist-vendored
+*.json           linguist-detectable
+*.jsonc          linguist-language=JSON
+*.plist          linguist-language=XML
+*.prettierignore linguist-language=Shell
+*.prettierrc     linguist-language=JSON
+*.wit            linguist-language=WebAssembly
+*.xml            linguist-detectable
+*.yaml           linguist-detectable
+*.yml            linguist-language=YAML
+Cargo.lock       linguist-language=TOML
+/script/*        linguist-language=Shell
+/script/*.hbs    linguist-language=Handlebars
+/script/*.ps1    linguist-language=PowerShell
+/script/*.py     linguist-language=Python
+/script/*.toml   linguist-language=TOML
