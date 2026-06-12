@@ -80,11 +80,14 @@ On Mac OS, Gram can be installed using [Homebrew](https://brew.sh):
 brew install --cask gram
 ```
 
-<!--
 ### Windows
 
-TODO: Windows installation guide.
--->
+It's possible to install Gram with [MSYS2](https://msys2.org) distribution. To do
+so, run this command inside of one of these environments: UCRT64, CLANG64 or CLANGARM64
+
+```sh
+pacman -S ${MINGW_PACKAGE_PREFIX}-gram
+```
 
 ## Build from source
 
