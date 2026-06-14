@@ -440,6 +440,9 @@ pub async fn handle_cli_connection(
     }
 }
 
+// TODO: This and crates/gram/src/main.rs:restore_or_create_workspace() are almost
+// identical which has already caused bugs (see #340). Should see if we can reduce
+// the duplication and fix any other differences.
 async fn open_workspaces(
     paths: Vec<String>,
     diff_paths: Vec<[String; 2]>,
@@ -468,13 +471,9 @@ async fn open_workspaces(
     };
 
     if grouped_locations.is_empty() {
-        // If we have no paths to open, show the welcome screen if this is the first launch
         if matches!(KEY_VALUE_STORE.read_kvp(FIRST_OPEN), Ok(None)) {
-            cx.update(|cx| show_onboarding_view(app_state, cx).detach())
-                .log_err();
-        }
-        // If not the first launch, show an empty window with empty editor
-        else {
+            cx.update(|cx| show_onboarding_view(app_state, cx))?.await?;
+        } else {
             cx.update(|cx| {
                 let open_options = OpenOptions {
                     env,
@@ -489,9 +488,8 @@ async fn open_workspaces(
                         }
                     }
                 })
-                .detach();
-            })
-            .log_err();
+            })?
+            .await?;
         }
     } else {
         // If there are paths to open, open a workspace for each grouping of paths
