@@ -27,9 +27,9 @@ use std::time::Duration;
 use ui::SharedString;
 use util::ResultExt;
 use util::paths::PathWithPosition;
-use workspace::PathList;
 use workspace::item::ItemHandle;
 use workspace::{AppState, OpenOptions, SerializedWorkspaceLocation, Workspace};
+use workspace::{PathList, WorkspaceSettings};
 
 #[derive(Default, Debug)]
 pub struct OpenRequest {
@@ -481,7 +481,13 @@ async fn open_workspaces(
                     ..Default::default()
                 };
                 workspace::open_new(open_options, app_state, cx, |workspace, window, cx| {
-                    Editor::new_file(workspace, &Default::default(), window, cx)
+                    let restore_on_startup = WorkspaceSettings::get_global(cx).restore_on_startup;
+                    match restore_on_startup {
+                        workspace::RestoreOnStartupBehavior::Launchpad => {}
+                        _ => {
+                            Editor::new_file(workspace, &Default::default(), window, cx);
+                        }
+                    }
                 })
                 .detach();
             })
@@ -1046,7 +1052,9 @@ mod tests {
         let request = cx.update(|cx| {
             OpenRequest::parse(
                 RawOpenRequest {
-                    urls: vec!["gram://git/clone/?repo=https://github.com/GramEditor/gram.git".into()],
+                    urls: vec![
+                        "gram://git/clone/?repo=https://github.com/GramEditor/gram.git".into(),
+                    ],
                     ..Default::default()
                 },
                 cx,
@@ -1069,7 +1077,9 @@ mod tests {
         let request = cx.update(|cx| {
             OpenRequest::parse(
                 RawOpenRequest {
-                    urls: vec!["gram://git/clone?repo=https://github.com/GramEditor/gram.git".into()],
+                    urls: vec![
+                        "gram://git/clone?repo=https://github.com/GramEditor/gram.git".into(),
+                    ],
                     ..Default::default()
                 },
                 cx,
@@ -1093,7 +1103,8 @@ mod tests {
             OpenRequest::parse(
                 RawOpenRequest {
                     urls: vec![
-                        "gram://git/clone/?repo=https%3A%2F%2Fgithub.com%2FGramEditor%2Fgram.git".into(),
+                        "gram://git/clone/?repo=https%3A%2F%2Fgithub.com%2FGramEditor%2Fgram.git"
+                            .into(),
                     ],
                     ..Default::default()
                 },
