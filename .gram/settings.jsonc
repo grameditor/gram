@@ -39,9 +39,17 @@
     },
   },
   "file_types": {
-    "Dockerfile": ["Dockerfile*[!dockerignore]"],
-    "JSONC": ["**/assets/{settings,keymaps}/**/*.json", "**/assets/{settings,keymaps}/**/*.jsonc", "renovate.json"],
-    "Git Ignore": ["dockerignore"],
+    "Dockerfile": [
+      "Dockerfile*[!dockerignore]"
+    ],
+    "JSONC": [
+      "**/assets/{settings,keymaps}/**/*.json",
+      "**/assets/{settings,keymaps}/**/*.jsonc",
+      "renovate.json"
+    ],
+    "Git Ignore": [
+      "dockerignore"
+    ],
   },
   "hard_tabs": false,
   "formatter": "auto",

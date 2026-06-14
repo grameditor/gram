@@ -5,7 +5,9 @@
     "build": {
       "label": "Build Gram",
       "command": "cargo",
-      "args": ["build"]
+      "args": [
+        "build"
+      ]
     }
   },
   {
@@ -14,7 +16,9 @@
     "build": {
       "label": "Build Gram",
       "command": "cargo",
-      "args": ["build"]
+      "args": [
+        "build"
+      ]
     }
   }
 ]
