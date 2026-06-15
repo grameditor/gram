@@ -1,9 +1,12 @@
+use anyhow::Result;
+use gpui::BackgroundExecutor;
 use notify::EventKind;
 use parking_lot::Mutex;
+use smol::{Timer, channel::Sender};
 use std::{
     collections::{BTreeMap, HashMap},
     ops::DerefMut,
-    path::Path,
+    path::{Path, PathBuf},
     sync::{Arc, OnceLock},
     time::Duration,
 };
@@ -21,16 +24,16 @@ pub enum WatcherMode {
 }
 
 pub struct FsWatcher {
-    tx: smol::channel::Sender<()>,
+    tx: Sender<()>,
     pending_path_events: Arc<Mutex<Vec<PathEvent>>>,
-    registrations: Mutex<BTreeMap<Arc<std::path::Path>, WatcherRegistrationId>>,
-    poll_fallback: Mutex<Option<PollFsWatcher>>,
+    registrations: Mutex<BTreeMap<Arc<Path>, WatcherRegistrationId>>,
+    poll_fallback: Mutex<Option<Box<PollFsWatcher>>>,
     poll_interval: Duration,
 }
 
 impl FsWatcher {
     pub fn new(
-        tx: smol::channel::Sender<()>,
+        tx: Sender<()>,
         pending_path_events: Arc<Mutex<Vec<PathEvent>>>,
         poll_interval: Duration,
     ) -> Self {
@@ -40,6 +43,145 @@ impl FsWatcher {
             registrations: Default::default(),
             poll_fallback: Default::default(),
             poll_interval,
+        }
+    }
+
+    fn poll_path(&self, path: &Path) -> Result<()> {
+        let mut fallback = self.poll_fallback.lock();
+        if fallback.is_none() {
+            *fallback = Some(Box::new(PollFsWatcher::new(
+                self.tx.clone(),
+                self.pending_path_events.clone(),
+                self.poll_interval,
+            )?));
+        }
+        fallback.as_ref().unwrap().add(&path)
+    }
+}
+
+pub struct PendingWatcher(Arc<PendingWatcherImpl>);
+
+struct PendingWatcherImpl {
+    watcher: Arc<dyn Watcher>,
+    executor: BackgroundExecutor,
+    tx: Sender<()>,
+    pending_path_events: Arc<Mutex<Vec<PathEvent>>>,
+    poll_interval: Duration,
+    pending_paths: Mutex<HashMap<PathBuf, Sender<()>>>,
+}
+
+impl PendingWatcher {
+    pub fn new(
+        watcher: Arc<dyn Watcher>,
+        executor: BackgroundExecutor,
+        tx: Sender<()>,
+        pending_path_events: Arc<Mutex<Vec<PathEvent>>>,
+        poll_interval: Duration,
+    ) -> Self {
+        Self(Arc::new(PendingWatcherImpl {
+            watcher,
+            executor,
+            tx,
+            pending_path_events,
+            poll_interval,
+            pending_paths: Mutex::default(),
+        }))
+    }
+}
+
+impl PendingWatcherImpl {
+    fn add_pending_path(self: &Arc<Self>, path: &Path) {
+        let path = path.to_path_buf();
+        let mut pending_paths = self.pending_paths.lock();
+        if pending_paths.contains_key(&path) {
+            return;
+        }
+
+        let (tx, rx) = smol::channel::bounded(1);
+        pending_paths.insert(path.clone(), tx);
+        drop(pending_paths);
+
+        let this = Arc::downgrade(self);
+        let poll_interval = self.poll_interval;
+        self.executor
+            .spawn(async move {
+                loop {
+                    if rx.try_recv().is_ok() {
+                        break;
+                    }
+
+                    match path.try_exists() {
+                        Ok(true) => {
+                            if let Some(this) = this.upgrade() {
+                                this.handle_path_created(&path);
+                            }
+                            break;
+                        }
+                        Ok(false) => {}
+                        Err(e) => log::warn!("Failed to check pending watch {path:?}: {e}"),
+                    }
+
+                    Timer::after(poll_interval).await;
+                }
+            })
+            .detach();
+    }
+
+    fn cancel_pending_path(&self, path: &Path) -> bool {
+        if let Some(tx) = self.pending_paths.lock().remove(path) {
+            tx.try_send(()).is_ok()
+        } else {
+            false
+        }
+    }
+
+    fn handle_path_created(&self, path: &PathBuf) {
+        match self.watcher.add(path) {
+            Ok(()) => {
+                self.pending_paths.lock().remove(path);
+                push_path_events(
+                    &self.tx,
+                    &self.pending_path_events,
+                    vec![PathEvent {
+                        path: path.clone(),
+                        kind: Some(PathEventKind::Created),
+                    }],
+                );
+            }
+            Err(e) => log::warn!("Failed to add watch for {path:?}: {e}"),
+        }
+    }
+}
+
+impl Drop for PendingWatcherImpl {
+    fn drop(&mut self) {
+        for (_, tx) in self.pending_paths.get_mut().drain() {
+            tx.try_send(()).ok();
+        }
+    }
+}
+
+impl Watcher for PendingWatcher {
+    fn add(&self, path: &Path) -> Result<()> {
+        match self.0.watcher.add(path) {
+            Ok(()) => Ok(()),
+            Err(e) => {
+                if !path.exists() {
+                    log::trace!("Pending watch add for {path:?}: {e}");
+                    self.0.add_pending_path(path);
+                    Ok(())
+                } else {
+                    Err(e)
+                }
+            }
+        }
+    }
+
+    fn remove(&self, path: &Path) -> Result<()> {
+        if self.0.cancel_pending_path(path) {
+            Ok(())
+        } else {
+            self.0.watcher.remove(path)
         }
     }
 }
@@ -61,7 +203,7 @@ impl Drop for FsWatcher {
 }
 
 impl Watcher for FsWatcher {
-    fn add(&self, path: &std::path::Path) -> anyhow::Result<()> {
+    fn add(&self, path: &Path) -> Result<()> {
         log::trace!("watcher add: {path:?}");
         let tx = self.tx.clone();
         let pending_paths = self.pending_path_events.clone();
@@ -73,10 +215,7 @@ impl Watcher for FsWatcher {
             if let Some((watched_path, _)) = self
                 .registrations
                 .lock()
-                .range::<std::path::Path, _>((
-                    std::ops::Bound::Unbounded,
-                    std::ops::Bound::Included(path),
-                ))
+                .range::<Path, _>((std::ops::Bound::Unbounded, std::ops::Bound::Included(path)))
                 .next_back()
                 && path.starts_with(watched_path.as_ref())
             {
@@ -96,16 +235,16 @@ impl Watcher for FsWatcher {
 
         match path.try_exists() {
             Ok(true) => {}
-            Ok(false) => return Ok(()),
-            Err(e) => log::warn!("path ({path:?}) to watch may not exist: {e}"),
+            Ok(false) => anyhow::bail!("Path to watch does not exist: {path:?}"),
+            Err(e) => anyhow::bail!("Path to watch may not exist: {path:?}: {e}"),
         }
 
         let cano_path = path
             .canonicalize()
-            .map(|v| SanitizedPath::new_arc::<std::path::Path>(v.as_ref()))
+            .map(|v| SanitizedPath::new_arc::<Path>(v.as_ref()))
             .ok();
         let root_path = SanitizedPath::new_arc(path);
-        let path: Arc<std::path::Path> = path.into();
+        let path: Arc<Path> = path.into();
 
         #[cfg(any(target_os = "windows", target_os = "macos"))]
         let mode = notify::RecursiveMode::Recursive;
@@ -162,18 +301,7 @@ impl Watcher for FsWatcher {
                     }
 
                     if !path_events.is_empty() {
-                        path_events.sort();
-                        let mut pending_paths = pending_paths.lock();
-                        if pending_paths.is_empty() {
-                            tx.try_send(()).ok();
-                        }
-                        coalesce_pending_rescans(&mut pending_paths, &mut path_events);
-                        util::extend_sorted(
-                            &mut *pending_paths,
-                            path_events,
-                            usize::MAX,
-                            |a, b| a.path.cmp(&b.path),
-                        );
+                        push_path_events(&tx, &pending_paths, path_events);
                     }
                 })
             }
@@ -189,21 +317,12 @@ impl Watcher for FsWatcher {
             }
             Err(e) | Ok(Err(e)) => {
                 log::warn!("Fall back to poll watcher: {}", e,);
-
-                let mut fallback = self.poll_fallback.lock();
-                if fallback.is_none() {
-                    *fallback = Some(PollFsWatcher::new(
-                        self.tx.clone(),
-                        self.pending_path_events.clone(),
-                        self.poll_interval,
-                    )?);
-                }
-                fallback.as_ref().unwrap().add(&path)
+                return self.poll_path(&path);
             }
         }
     }
 
-    fn remove(&self, path: &std::path::Path) -> anyhow::Result<()> {
+    fn remove(&self, path: &Path) -> Result<()> {
         log::trace!("remove watched path: {path:?}");
         if let Some(registration) = self.registrations.lock().remove(path) {
             global(|w| w.remove(registration))?;
@@ -216,15 +335,15 @@ impl Watcher for FsWatcher {
 }
 
 pub(crate) struct PollFsWatcher {
-    watcher: Mutex<(notify::PollWatcher, Vec<Arc<std::path::Path>>)>,
+    watcher: Mutex<(notify::PollWatcher, Vec<Arc<Path>>)>,
 }
 
 impl PollFsWatcher {
     pub fn new(
-        tx: smol::channel::Sender<()>,
+        tx: Sender<()>,
         pending_path_events: Arc<Mutex<Vec<PathEvent>>>,
         poll_interval: Duration,
-    ) -> anyhow::Result<Self> {
+    ) -> Result<Self> {
         let config = notify::Config::default().with_poll_interval(poll_interval);
 
         let watcher = notify::PollWatcher::new(
@@ -243,7 +362,7 @@ impl PollFsWatcher {
                     _ => None,
                 };
 
-                let mut path_events = event
+                let path_events = event
                     .paths
                     .iter()
                     .map(|event_path| PathEvent {
@@ -253,14 +372,7 @@ impl PollFsWatcher {
                     .collect::<Vec<_>>();
 
                 if !path_events.is_empty() {
-                    path_events.sort();
-                    let mut pending_paths = pending_path_events.lock();
-                    if pending_paths.is_empty() {
-                        tx.try_send(()).ok();
-                    }
-                    util::extend_sorted(&mut *pending_paths, path_events, usize::MAX, |a, b| {
-                        a.path.cmp(&b.path)
-                    });
+                    push_path_events(&tx, &pending_path_events, path_events);
                 }
             },
             config,
@@ -273,7 +385,7 @@ impl PollFsWatcher {
 }
 
 impl Watcher for PollFsWatcher {
-    fn add(&self, path: &std::path::Path) -> anyhow::Result<()> {
+    fn add(&self, path: &Path) -> Result<()> {
         use notify::Watcher;
 
         if self
@@ -287,19 +399,43 @@ impl Watcher for PollFsWatcher {
             return Ok(());
         }
 
+        if !path.exists() {
+            anyhow::bail!("Path to watch does not exist: {path:?}");
+        }
+
         let mut guard = self.watcher.lock();
         guard.0.watch(path, notify::RecursiveMode::Recursive)?;
         guard.1.push(path.into());
         Ok(())
     }
 
-    fn remove(&self, path: &std::path::Path) -> anyhow::Result<()> {
+    fn remove(&self, path: &Path) -> Result<()> {
         use notify::Watcher;
         let mut guard = self.watcher.lock();
         guard.0.unwatch(path)?;
         guard.1.retain(|p| p.as_ref() != path);
         Ok(())
     }
+}
+
+fn push_path_events(
+    tx: &Sender<()>,
+    pending_path_events: &Arc<Mutex<Vec<PathEvent>>>,
+    mut path_events: Vec<PathEvent>,
+) {
+    if path_events.is_empty() {
+        return;
+    }
+
+    path_events.sort();
+    let mut pending_paths = pending_path_events.lock();
+    if pending_paths.is_empty() {
+        tx.try_send(()).ok();
+    }
+    coalesce_pending_rescans(&mut pending_paths, &mut path_events);
+    util::extend_sorted(&mut *pending_paths, path_events, usize::MAX, |a, b| {
+        a.path.cmp(&b.path)
+    });
 }
 
 fn coalesce_pending_rescans(pending_paths: &mut Vec<PathEvent>, path_events: &mut Vec<PathEvent>) {
@@ -357,12 +493,12 @@ pub struct WatcherRegistrationId(u32);
 
 struct WatcherRegistrationState {
     callback: Arc<dyn Fn(&notify::Event) + Send + Sync>,
-    path: Arc<std::path::Path>,
+    path: Arc<Path>,
 }
 
 struct WatcherState {
     watchers: HashMap<WatcherRegistrationId, WatcherRegistrationState>,
-    path_registrations: HashMap<Arc<std::path::Path>, u32>,
+    path_registrations: HashMap<Arc<Path>, u32>,
     last_registration: WatcherRegistrationId,
 }
 
@@ -385,10 +521,10 @@ impl GlobalWatcher {
     #[must_use]
     fn add(
         &self,
-        path: Arc<std::path::Path>,
+        path: Arc<Path>,
         mode: notify::RecursiveMode,
         cb: impl Fn(&notify::Event) + Send + Sync + 'static,
-    ) -> anyhow::Result<WatcherRegistrationId> {
+    ) -> Result<WatcherRegistrationId> {
         use notify::Watcher;
 
         self.watcher.lock().watch(&path, mode)?;
@@ -431,8 +567,7 @@ impl GlobalWatcher {
     }
 }
 
-static FS_WATCHER_INSTANCE: OnceLock<anyhow::Result<GlobalWatcher, notify::Error>> =
-    OnceLock::new();
+static FS_WATCHER_INSTANCE: OnceLock<Result<GlobalWatcher, notify::Error>> = OnceLock::new();
 
 #[cfg(test)]
 mod tests {
@@ -551,7 +686,7 @@ fn handle_event(event: Result<notify::Event, notify::Error>) {
     .log_err();
 }
 
-pub fn global<T>(f: impl FnOnce(&GlobalWatcher) -> T) -> anyhow::Result<T> {
+pub fn global<T>(f: impl FnOnce(&GlobalWatcher) -> T) -> Result<T> {
     let result = FS_WATCHER_INSTANCE.get_or_init(|| {
         notify::recommended_watcher(handle_event).map(|file_watcher| GlobalWatcher {
             state: Mutex::new(WatcherState {

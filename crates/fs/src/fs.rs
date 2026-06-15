@@ -65,7 +65,7 @@ use std::ffi::OsStr;
 #[cfg(any(test, feature = "test-support"))]
 pub use fake_git_repo::{LOAD_HEAD_TEXT_TASK, LOAD_INDEX_TEXT_TASK};
 
-use crate::fs_watcher::{FsWatcher, WatcherMode};
+use crate::fs_watcher::{FsWatcher, PendingWatcher, WatcherMode};
 
 pub trait Watcher: Send + Sync {
     fn add(&self, path: &Path) -> Result<()>;
@@ -418,8 +418,6 @@ impl FileHandle for std::fs::File {
         Ok(PathBuf::from(os_str))
     }
 }
-
-pub struct RealWatcher {}
 
 impl RealFs {
     pub fn new(git_binary_path: Option<PathBuf>, executor: BackgroundExecutor) -> Self {
@@ -1080,16 +1078,23 @@ impl Fs for RealFs {
             )),
         };
 
-        // If the path doesn't exist yet (e.g. settings.jsonc), watch the parent dir to learn when it's created.
-        if let Err(e) = watcher.add(path)
-            && let Some(parent) = path.parent()
-            && let Err(parent_e) = watcher.add(parent)
-        {
-            log::warn!(
-                "Failed to watch {} and its parent directory {}:\n{e}\n{parent_e}",
-                path.display(),
-                parent.display()
-            );
+        // If the path doesn't exist yet (e.g. settings.jsonc),
+        // wrap the watcher in a PendingWatcher and poll in the
+        // background until created.
+        let watcher = if !path.exists() {
+            Arc::new(PendingWatcher::new(
+                watcher,
+                self.executor.clone(),
+                tx.clone(),
+                pending_paths.clone(),
+                poll_interval,
+            ))
+        } else {
+            watcher
+        };
+
+        if let Err(e) = watcher.add(path) {
+            log::warn!("Failed to watch {}:\n{e}", path.display());
         }
 
         // Check if path is a symlink and follow the target parent
@@ -1266,17 +1271,6 @@ impl Fs for RealFs {
             Ordering::Release,
         );
         res
-    }
-}
-
-#[cfg(not(any(target_os = "linux", target_os = "freebsd")))]
-impl Watcher for RealWatcher {
-    fn add(&self, _: &Path) -> Result<()> {
-        Ok(())
-    }
-
-    fn remove(&self, _: &Path) -> Result<()> {
-        Ok(())
     }
 }
 
