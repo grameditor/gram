@@ -970,6 +970,14 @@ impl Worktree {
         }
     }
 
+    // TODO: do this for remote paths too?
+    pub fn refresh_entries_for_paths(&self, paths: Vec<Arc<RelPath>>) -> Option<barrier::Receiver> {
+        match self {
+            Worktree::Local(local) => Some(local.refresh_entries_for_paths(paths)),
+            Worktree::Remote(_) => None,
+        }
+    }
+
     pub async fn handle_create_entry(
         this: Entity<Self>,
         request: proto::CreateProjectEntry,
@@ -1842,14 +1850,6 @@ impl LocalWorktree {
             })
             .ok();
         rx
-    }
-
-    #[cfg(feature = "test-support")]
-    pub fn manually_refresh_entries_for_paths(
-        &self,
-        paths: Vec<Arc<RelPath>>,
-    ) -> barrier::Receiver {
-        self.refresh_entries_for_paths(paths)
     }
 
     pub fn add_path_prefix_to_scan(&self, path_prefix: Arc<RelPath>) -> barrier::Receiver {

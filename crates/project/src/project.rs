@@ -29,6 +29,7 @@ pub mod search_history;
 mod yarn;
 
 use dap::inline_value::{InlineValueLocation, VariableLookupKind, VariableScope};
+use postage::stream::Stream;
 
 use crate::{
     git_store::GitStore,
@@ -111,7 +112,7 @@ use std::{
     pin::pin,
     str::{self, FromStr},
     sync::Arc,
-    time::Duration,
+    time::{Duration, Instant},
 };
 
 use task_store::TaskStore;
@@ -167,6 +168,8 @@ pub enum OpenedBufferEvent {
     Err(BufferId, Arc<anyhow::Error>),
 }
 
+const REFRESH_DEBOUNCE: Duration = Duration::from_secs(5);
+
 /// Semantics-aware entity that is relevant to one or more [`Worktree`] with the files.
 /// `Project` is responsible for tasks, LSP and collab queries, synchronizing worktree states accordingly.
 /// Maps [`Worktree`] entries with its own logic using [`ProjectEntryId`] and [`ProjectPath`] structs.
@@ -204,6 +207,7 @@ pub struct Project {
     environment: Entity<ProjectEnvironment>,
     settings_observer: Entity<SettingsObserver>,
     toolchain_store: Option<Entity<ToolchainStore>>,
+    last_refresh: HashMap<ProjectPath, Instant>,
 }
 
 #[derive(Default)]
@@ -1154,6 +1158,8 @@ impl Project {
                 search_excluded_history: Self::new_search_history(),
 
                 toolchain_store: Some(toolchain_store),
+
+                last_refresh: HashMap::default(),
             }
         })
     }
@@ -1338,6 +1344,8 @@ impl Project {
                 search_excluded_history: Self::new_search_history(),
 
                 toolchain_store: Some(toolchain_store),
+
+                last_refresh: HashMap::default(),
             };
 
             // remote server -> local machine handlers
@@ -4543,6 +4551,38 @@ impl Project {
             anyhow::Ok(())
         })
         .detach_and_log_err(cx);
+    }
+
+    pub fn refresh_paths(
+        &mut self,
+        paths: impl IntoIterator<Item = ProjectPath>,
+        cx: &mut Context<Self>,
+    ) {
+        let now = Instant::now();
+        let mut worktree_paths = HashMap::<WorktreeId, Vec<Arc<RelPath>>>::default();
+
+        for path in paths {
+            if let Some(last) = self.last_refresh.get(&path) {
+                if now.duration_since(*last) < REFRESH_DEBOUNCE {
+                    continue;
+                }
+            }
+            worktree_paths
+                .entry(path.worktree_id)
+                .or_default()
+                .push(path.path.clone());
+            self.last_refresh.insert(path, now);
+        }
+
+        for (worktree_id, paths) in worktree_paths {
+            if let Some(worktree) = self.worktree_for_id(worktree_id, cx) {
+                worktree.update(cx, |worktree, _| {
+                    if let Some(mut rx) = worktree.refresh_entries_for_paths(paths) {
+                        let _ = rx.recv();
+                    }
+                });
+            }
+        }
     }
 }
 

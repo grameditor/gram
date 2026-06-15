@@ -4323,6 +4323,14 @@ impl Workspace {
     ) {
         cx.emit(Event::ActiveItemChanged);
         let active_entry = self.active_project_path(cx);
+
+        if focus_changed && let Some(item) = self.active_pane.read(cx).active_item() {
+            let paths = item.project_paths(cx).into_iter().collect::<Vec<_>>();
+            self.project.update(cx, |project, cx| {
+                project.refresh_paths(paths, cx);
+            });
+        }
+
         self.project.update(cx, |project, cx| {
             project.set_active_path(active_entry.clone(), cx)
         });

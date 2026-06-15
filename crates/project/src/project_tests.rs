@@ -10002,9 +10002,8 @@ async fn test_rescan_with_gitignore(cx: &mut gpui::TestAppContext) {
     });
 
     tree.read_with(cx, |tree, _| {
-        tree.as_local()
+        tree.refresh_entries_for_paths(vec![rel_path("ignored-dir").into()])
             .unwrap()
-            .manually_refresh_entries_for_paths(vec![rel_path("ignored-dir").into()])
     })
     .recv()
     .await;
