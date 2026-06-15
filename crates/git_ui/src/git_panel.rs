@@ -918,6 +918,9 @@ impl GitPanel {
 
     fn focus_in(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         if !self.focus_handle.contains_focused(window, cx) {
+            self.project.update(cx, |project, cx| {
+                project.refresh_git(cx);
+            });
             cx.emit(Event::Focus);
         }
     }

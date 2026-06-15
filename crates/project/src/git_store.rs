@@ -2924,6 +2924,29 @@ impl GitStore {
             paths_by_git_repo
         })
     }
+
+    pub fn refresh(&self, cx: &mut App) {
+        let GitStoreState::Local {
+            project_environment: _,
+            downstream,
+            next_repository_id: _,
+            fs: _,
+        } = &self.state
+        else {
+            return;
+        };
+
+        for (_, repo) in &self.repositories {
+            repo.update(cx, |repo, cx| {
+                repo.schedule_scan(
+                    downstream
+                        .as_ref()
+                        .map(|downstream| downstream.updates_tx.clone()),
+                    cx,
+                );
+            });
+        }
+    }
 }
 
 impl BufferGitState {

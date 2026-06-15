@@ -4584,6 +4584,11 @@ impl Project {
             }
         }
     }
+
+    pub fn refresh_git(&mut self, cx: &mut Context<Self>) {
+        self.git_store
+            .update(cx, |git_store, cx| git_store.refresh(cx));
+    }
 }
 
 pub struct PathMatchCandidateSet {
