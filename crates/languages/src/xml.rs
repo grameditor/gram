@@ -32,7 +32,7 @@ impl XmlLspAdapter {
     const SERVER_NAME: LanguageServerName = LanguageServerName::new_static("lemminx");
 
     fn os_binary_stem(arch: &str) -> String {
-        if Self::OS_NAME == "osx" {
+        if Self::OS_NAME == "linux" || Self::OS_NAME == "osx" {
             format!("lemminx-{}-{}", Self::OS_NAME, arch)
         } else {
             format!("lemminx-{}", Self::OS_NAME)
