@@ -460,7 +460,8 @@ impl SettingsStore {
                 async move {
                     let res = async move {
                         let old_text = Self::load_settings(&fs).await?;
-                        let new_text = update(old_text, cx)?;
+                        let new_text = update(old_text, cx.clone())?;
+                        let new_text_2 = new_text.clone();
                         let settings_path = paths::settings_file().as_path();
                         if fs.is_file(settings_path).await {
                             let resolved_path =
@@ -483,6 +484,10 @@ impl SettingsStore {
                                     format!("Failed to write settings to file {:?}", settings_path)
                                 })?;
                         }
+                        cx.update_global(|store: &mut SettingsStore, cx| {
+                            store.set_user_settings(&new_text_2, cx)
+                        })?;
+                        cx.update(|cx| cx.refresh_windows())?;
                         anyhow::Ok(())
                     }
                     .await;
