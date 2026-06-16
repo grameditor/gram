@@ -19,7 +19,6 @@ use git::{
     repository::{RepoPath, repo_path},
     status::{StatusCode, TrackedStatus},
 };
-use git2::RepositoryInitOptions;
 use gpui::{App, BackgroundExecutor, FutureExt, SemanticVersion, UpdateGlobal};
 use itertools::Itertools;
 use language::{
@@ -46,6 +45,7 @@ use std::{
     env, mem,
     num::NonZeroU32,
     ops::Range,
+    process::{Command, Output},
     str::FromStr,
     sync::{Arc, OnceLock},
     task::Poll,
@@ -9408,7 +9408,6 @@ async fn test_file_status(cx: &mut gpui::TestAppContext) {
     // Set up git repository before creating the worktree.
     let work_dir = root.path().join("project");
     let mut repo = git_init(work_dir.as_path());
-    repo.add_ignore_rule(IGNORE_RULE).unwrap();
     git_add(A_TXT, &repo);
     git_add(E_TXT, &repo);
     git_add(DOTGITIGNORE, &repo);
@@ -9619,7 +9618,6 @@ async fn test_ignored_dirs_events(cx: &mut gpui::TestAppContext) {
     // Set up git repository before creating the worktree.
     let work_dir = root.path().join("project");
     let repo = git_init(work_dir.as_path());
-    repo.add_ignore_rule(IGNORE_RULE).unwrap();
     git_add("src/main.rs", &repo);
     git_add(".gitignore", &repo);
     git_commit("Initial commit", &repo);
@@ -10645,112 +10643,152 @@ fn assert_entry_git_state(
     );
 }
 
-#[track_caller]
-fn git_init(path: &Path) -> git2::Repository {
-    let mut init_opts = RepositoryInitOptions::new();
-    init_opts.initial_head("main");
-    git2::Repository::init_opts(path, &init_opts).expect("Failed to initialize git repository")
+#[cfg(any())]
+const GIT_STATUS_CONFLICTED: &str = "UU";
+
+#[allow(clippy::disallowed_methods)]
+fn git_cmd(work_dir: &Path) -> Command {
+    let mut cmd = Command::new("git");
+    cmd.current_dir(work_dir)
+        .env("GIT_CONFIG_GLOBAL", "")
+        .env("GIT_CONFIG_SYSTEM", "")
+        .env("GIT_AUTHOR_NAME", "test")
+        .env("GIT_AUTHOR_EMAIL", "test@zed.dev")
+        .env("GIT_COMMITTER_NAME", "test")
+        .env("GIT_COMMITTER_EMAIL", "test@zed.dev");
+    cmd
+}
+
+#[allow(clippy::disallowed_methods)]
+fn check_git(output: &Output) {
+    assert!(
+        output.status.success(),
+        "git failed: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
 }
 
 #[track_caller]
-fn git_add<P: AsRef<Path>>(path: P, repo: &git2::Repository) {
-    let path = path.as_ref();
-    let mut index = repo.index().expect("Failed to get index");
-    index.add_path(path).expect("Failed to add file");
-    index.write().expect("Failed to write index");
+fn git_init(path: &Path) -> PathBuf {
+    let output = git_cmd(path)
+        .args(["init", "-b", "main"])
+        .output()
+        .expect("Failed to run git init");
+    check_git(&output);
+    path.to_path_buf()
 }
 
 #[track_caller]
-fn git_remove_index(path: &Path, repo: &git2::Repository) {
-    let mut index = repo.index().expect("Failed to get index");
-    index.remove_path(path).expect("Failed to add file");
-    index.write().expect("Failed to write index");
+fn git_add<P: AsRef<Path>>(path: P, work_dir: &Path) {
+    let output = git_cmd(work_dir)
+        .args(["add"])
+        .arg(path.as_ref())
+        .output()
+        .expect("Failed to run git add");
+    check_git(&output);
 }
 
 #[track_caller]
-fn git_commit(msg: &'static str, repo: &git2::Repository) {
-    use git2::Signature;
+fn git_remove_index(path: &Path, work_dir: &Path) {
+    let output = git_cmd(work_dir)
+        .args(["rm", "--cached"])
+        .arg(path)
+        .output()
+        .expect("Failed to run git rm");
+    check_git(&output);
+}
 
-    let signature = Signature::now("test", "test@zed.dev").unwrap();
-    let oid = repo.index().unwrap().write_tree().unwrap();
-    let tree = repo.find_tree(oid).unwrap();
-    if let Ok(head) = repo.head() {
-        let parent_obj = head.peel(git2::ObjectType::Commit).unwrap();
+#[track_caller]
+fn git_commit(msg: &str, work_dir: &Path) {
+    let output = git_cmd(work_dir)
+        .args(["commit", "-m", msg])
+        .output()
+        .expect("Failed to run git commit");
+    check_git(&output);
+}
 
-        let parent_commit = parent_obj.as_commit().unwrap();
+#[track_caller]
+fn git_stash(work_dir: &Path) {
+    let output = git_cmd(work_dir)
+        .args(["stash"])
+        .output()
+        .expect("Failed to run git stash");
+    check_git(&output);
+}
 
-        repo.commit(
-            Some("HEAD"),
-            &signature,
-            &signature,
-            msg,
-            &tree,
-            &[parent_commit],
-        )
-        .expect("Failed to commit with parent");
-    } else {
-        repo.commit(Some("HEAD"), &signature, &signature, msg, &tree, &[])
-            .expect("Failed to commit");
-    }
+#[track_caller]
+fn git_reset(offset: usize, work_dir: &Path) {
+    let target = format!("HEAD~{}", offset + 1);
+    let output = git_cmd(work_dir)
+        .args(["reset", "--soft", &target])
+        .output()
+        .expect("Failed to run git reset");
+    check_git(&output);
 }
 
 #[cfg(any())]
 #[track_caller]
-fn git_cherry_pick(commit: &git2::Commit<'_>, repo: &git2::Repository) {
-    repo.cherrypick(commit, None).expect("Failed to cherrypick");
+fn git_branch(name: &str, work_dir: &Path) {
+    let output = git_cmd(work_dir)
+        .args(["branch", name])
+        .output()
+        .expect("Failed to run git branch");
+    check_git(&output);
 }
 
+#[cfg(any())]
 #[track_caller]
-fn git_stash(repo: &mut git2::Repository) {
-    use git2::Signature;
-
-    let signature = Signature::now("test", "test@zed.dev").unwrap();
-    repo.stash_save(&signature, "N/A", None)
-        .expect("Failed to stash");
+fn git_checkout(name: &str, work_dir: &Path) {
+    let output = git_cmd(work_dir)
+        .args(["checkout", name])
+        .output()
+        .expect("Failed to run git checkout");
+    check_git(&output);
 }
 
+#[cfg(any())]
 #[track_caller]
-fn git_reset(offset: usize, repo: &git2::Repository) {
-    let head = repo.head().expect("Couldn't get repo head");
-    let object = head.peel(git2::ObjectType::Commit).unwrap();
-    let commit = object.as_commit().unwrap();
-    let new_head = commit
-        .parents()
-        .inspect(|parnet| {
-            let _ = parnet.message();
+fn git_rev_parse(rev: &str, work_dir: &Path) -> String {
+    let output = git_cmd(work_dir)
+        .args(["rev-parse", rev])
+        .output()
+        .expect("Failed to run git rev-parse");
+    check_git(&output);
+    String::from_utf8(output.stdout).unwrap().trim().to_string()
+}
+
+#[cfg(any())]
+#[track_caller]
+fn git_status(work_dir: &Path) -> collections::HashMap<String, String> {
+    let output = git_cmd(work_dir)
+        .args(["status", "--porcelain=v1"])
+        .output()
+        .expect("Failed to run git status");
+    check_git(&output);
+    let stdout = String::from_utf8(output.stdout).unwrap();
+    stdout
+        .lines()
+        .filter(|line| !line.is_empty())
+        .map(|line| {
+            let status = line[..2].to_string();
+            let path = line[3..].to_string();
+            (path, status)
         })
-        .nth(offset)
-        .expect("Not enough history");
-    repo.reset(new_head.as_object(), git2::ResetType::Soft, None)
-        .expect("Could not reset");
-}
-
-#[cfg(any())]
-#[track_caller]
-fn git_branch(name: &str, repo: &git2::Repository) {
-    let head = repo
-        .head()
-        .expect("Couldn't get repo head")
-        .peel_to_commit()
-        .expect("HEAD is not a commit");
-    repo.branch(name, &head, false).expect("Failed to commit");
-}
-
-#[cfg(any())]
-#[track_caller]
-fn git_checkout(name: &str, repo: &git2::Repository) {
-    repo.set_head(name).expect("Failed to set head");
-    repo.checkout_head(None).expect("Failed to check out head");
-}
-
-#[cfg(any())]
-#[track_caller]
-fn git_status(repo: &git2::Repository) -> collections::HashMap<String, git2::Status> {
-    repo.statuses(None)
-        .unwrap()
-        .iter()
-        .map(|status| (status.path().unwrap().to_string(), status.status()))
         .collect()
+}
+
+#[cfg(any())]
+#[allow(clippy::disallowed_methods)]
+#[track_caller]
+fn git_cherry_pick_expect_conflict(commit: &str, work_dir: &Path) {
+    let output = git_cmd(work_dir)
+        .args(["cherry-pick", "--no-commit", commit])
+        .output()
+        .expect("Failed to run git cherry-pick");
+    assert!(
+        !output.status.success(),
+        "git cherry-pick unexpectedly succeeded"
+    );
 }
 
 #[gpui::test]
