@@ -10,6 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Fixed
 
 - Prevent table cutoff in markdown preview (#332) by @kmkkiii
+- Restore launchpad when using CLI without args (#340) by @ycna07
+- Build system / CI improvements (#335) by @koru
+- Add installation instructions for MSYS2 (#337) by @ognevny
+- Update settings immediately without relying on FS watcher notification
+- Watch files that don't exist yet by polling (like settings.jsonc)
+- Trigger full rescan when focusing project panel
+- Refresh git panel when focused
+- Refresh entries for paths whenever active item changes
+- Better version handling for debug builds
 
 ## [2.2.0] - 2026-06-08
 
