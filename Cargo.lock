@@ -4214,6 +4214,7 @@ dependencies = [
  "rayon",
  "recent_files",
  "recent_projects",
+ "regex",
  "release_channel",
  "remote",
  "repl",

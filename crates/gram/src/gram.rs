@@ -1056,7 +1056,11 @@ fn open_about(cx: &mut App) {
 
     impl AboutWindow {
         fn new(cx: &mut Context<Self>) -> Self {
-            let version = env!("CARGO_PKG_VERSION");
+            let version = match option_env!("GRAM_COMMIT_NAME") {
+                Some(commit_name) => commit_name,
+                None => env!("CARGO_PKG_VERSION"),
+            };
+
             let debug = if cfg!(debug_assertions) {
                 "(debug)"
             } else {

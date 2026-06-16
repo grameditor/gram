@@ -98,6 +98,7 @@ project_panel.workspace = true
 project_symbols.workspace = true
 recent_files.workspace = true
 recent_projects.workspace = true
+regex.workspace = true
 release_channel.workspace = true
 remote.workspace = true
 repl.workspace = true

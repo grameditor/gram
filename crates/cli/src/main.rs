@@ -691,15 +691,21 @@ mod linux {
     impl InstalledApp for App {
         fn gram_version_string(&self) -> String {
             format!(
-                "Gram {}{}{} – {}",
+                "Gram {}{}{}– {}",
                 if *release_channel::RELEASE_CHANNEL_NAME == "stable" {
                     "".to_string()
                 } else {
                     format!("{} ", *release_channel::RELEASE_CHANNEL_NAME)
                 },
-                option_env!("RELEASE_VERSION").unwrap_or_default(),
+                match option_env!("GRAM_COMMIT_NAME") {
+                    Some(commit_name) => format!("{commit_name} "),
+                    None => match option_env!("RELEASE_VERSION") {
+                        Some(version) => format!("{version} "),
+                        None => "".to_string(),
+                    },
+                },
                 match option_env!("GRAM_COMMIT_SHA") {
-                    Some(commit_sha) => format!(" {commit_sha} "),
+                    Some(commit_sha) => format!("({commit_sha}) "),
                     None => "".to_string(),
                 },
                 self.0.display(),
@@ -940,15 +946,21 @@ mod windows {
     impl InstalledApp for App {
         fn gram_version_string(&self) -> String {
             format!(
-                "Gram {}{}{} – {}",
+                "Gram {}{}{}– {}",
                 if *release_channel::RELEASE_CHANNEL_NAME == "stable" {
                     "".to_string()
                 } else {
                     format!("{} ", *release_channel::RELEASE_CHANNEL_NAME)
                 },
-                option_env!("RELEASE_VERSION").unwrap_or_default(),
+                match option_env!("GRAM_COMMIT_NAME") {
+                    Some(commit_name) => format!("{commit_name} "),
+                    None => match option_env!("RELEASE_VERSION") {
+                        Some(version) => format!("{version} "),
+                        None => "".to_string(),
+                    },
+                },
                 match option_env!("GRAM_COMMIT_SHA") {
-                    Some(commit_sha) => format!(" {commit_sha} "),
+                    Some(commit_sha) => format!("({commit_sha}) "),
                     None => "".to_string(),
                 },
                 self.0.display(),
@@ -1208,7 +1220,13 @@ mod mac_os {
         fn version(&self) -> String {
             match self {
                 Self::App { plist, .. } => plist.bundle_short_version_string.clone(),
-                Self::LocalPath { .. } => "<development>".to_string(),
+                Self::LocalPath { .. } => match option_env!("GRAM_COMMIT_NAME") {
+                    Some(commit_name) => format!("{commit_name} "),
+                    None => match option_env!("RELEASE_VERSION") {
+                        Some(version) => format!("{version} "),
+                        None => "<development>".to_string(),
+                    },
+                },
             }
         }
 

@@ -45,9 +45,8 @@ pub fn init(cx: &mut App) {
     SystemWindowTabs::init(cx);
 
     cx.observe_new(|workspace: &mut Workspace, window, cx| {
-        log::info!("titlebar: Observing new window");
         let Some(window) = window else {
-            log::info!("titlebar: Didn't get a window for some reason");
+            log::debug!("titlebar: Didn't get a window for some reason");
             return;
         };
         let item = cx.new(|cx| TitleBar::new("title-bar", workspace, window, cx));

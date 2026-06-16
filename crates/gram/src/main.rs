@@ -250,6 +250,13 @@ pub fn main() {
     }
 
     let app_version = AppVersion::load(env!("CARGO_PKG_VERSION"));
+    let version_name = match option_env!("GRAM_COMMIT_NAME") {
+        Some(commit_name) => format!("{commit_name}"),
+        None => match option_env!("RELEASE_VERSION") {
+            Some(version) => format!("{version} "),
+            None => "".to_string(),
+        },
+    };
     let app_commit_sha =
         option_env!("GRAM_COMMIT_SHA").map(|commit_sha| AppCommitSha::new(commit_sha.to_string()));
 
@@ -271,8 +278,8 @@ pub fn main() {
         .unwrap();
 
     log::info!(
-        "========== starting gram version {}, sha {} ==========",
-        app_version,
+        "========== starting gram {} sha={} ==========",
+        version_name,
         app_commit_sha
             .as_ref()
             .map(|sha| sha.short())

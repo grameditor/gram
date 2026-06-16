@@ -236,9 +236,7 @@ impl ThemeRegistry {
             return Ok(());
         }
 
-        log::info!("Loading user theme from {:?}", theme_path);
         let theme = read_user_theme(theme_path, fs).await?;
-
         self.insert_user_theme_families([theme]);
 
         Ok(())

@@ -66,17 +66,17 @@ pub fn run(command: Commands) -> anyhow::Result<()> {
             .context("running proxy on the remote server"),
         Commands::Version => {
             let release_channel = *RELEASE_CHANNEL;
-            match release_channel {
-                ReleaseChannel::Stable => {
-                    println!("{}", env!("CARGO_PKG_VERSION"))
-                }
+            let fallback = match release_channel {
+                ReleaseChannel::Stable => env!("CARGO_PKG_VERSION"),
                 ReleaseChannel::Dev => {
-                    println!(
-                        "{}",
-                        option_env!("GRAM_COMMIT_SHA").unwrap_or(release_channel.dev_name())
-                    )
+                    option_env!("GRAM_COMMIT_SHA").unwrap_or(release_channel.dev_name())
                 }
             };
+            let version_name = match option_env!("GRAM_COMMIT_NAME") {
+                Some(commit_name) => format!("{commit_name} "),
+                None => fallback.to_string(),
+            };
+            println!("{version_name}");
             Ok(())
         }
     }

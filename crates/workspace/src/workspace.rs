@@ -5750,7 +5750,7 @@ impl Render for Workspace {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         static FIRST_PAINT: AtomicBool = AtomicBool::new(true);
         if FIRST_PAINT.swap(false, std::sync::atomic::Ordering::Relaxed) {
-            log::info!("Rendered first frame");
+            log::trace!("Rendered first frame");
         }
         let mut context = KeyContext::new_with_defaults();
         context.add("Workspace");

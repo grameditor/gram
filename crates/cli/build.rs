@@ -20,7 +20,17 @@ fn main() {
     {
         let git_sha = String::from_utf8_lossy(&output.stdout);
         let git_sha = git_sha.trim();
-
         println!("cargo:rustc-env=GRAM_COMMIT_SHA={git_sha}");
+    }
+
+    if let Some(output) = Command::new("git")
+        .args(["describe", "--tags"])
+        .output()
+        .ok()
+        .filter(|output| output.status.success())
+    {
+        let git_name = String::from_utf8_lossy(&output.stdout);
+        let git_name = git_name.trim();
+        println!("cargo:rustc-env=GRAM_COMMIT_NAME={git_name}");
     }
 }
