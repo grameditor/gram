@@ -927,6 +927,14 @@ impl Worktree {
         }
     }
 
+    pub fn rescan_root(&mut self, cx: &Context<Worktree>) -> Task<Result<()>> {
+        let path = match self {
+            Worktree::Local(this) => this.snapshot.root_name.clone(),
+            Worktree::Remote(this) => this.snapshot.root_name.clone(),
+        };
+        self.rescan_directory(path, cx)
+    }
+
     /// Triggers a full rescan of a directory and all its contents from the file system.
     pub fn rescan_directory(
         &mut self,

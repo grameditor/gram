@@ -1051,6 +1051,11 @@ impl ProjectPanel {
     fn focus_in(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         if !self.focus_handle.contains_focused(window, cx) {
             cx.emit(Event::Focus);
+
+            let worktrees = self.project.read(cx).worktrees(cx).collect::<Vec<_>>();
+            for worktree in worktrees {
+                worktree.update(cx, |worktree, cx| worktree.rescan_root(cx).detach());
+            }
         }
     }
 
