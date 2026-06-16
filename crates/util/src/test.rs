@@ -1,7 +1,6 @@
 mod assertions;
 mod marked_text;
 
-use git2;
 use std::{
     ffi::OsStr,
     path::{Path, PathBuf},
@@ -46,7 +45,22 @@ fn write_tree(path: &Path, tree: serde_json::Value) {
                     fs::create_dir(&path).unwrap();
 
                     if path.file_name() == Some(OsStr::new(".git")) {
-                        git2::Repository::init(path.parent().unwrap()).unwrap();
+                        let output = std::process::Command::new("git")
+                            .args(["init", "-b", "main"])
+                            .current_dir(path.parent().unwrap())
+                            .env("GIT_CONFIG_GLOBAL", "")
+                            .env("GIT_CONFIG_SYSTEM", "")
+                            .env("GIT_AUTHOR_NAME", "test")
+                            .env("GIT_AUTHOR_EMAIL", "test@gram-editor.com")
+                            .env("GIT_COMMITTER_NAME", "test")
+                            .env("GIT_COMMITTER_EMAIL", "test@gram-editor.com")
+                            .output()
+                            .expect("failed to init git repo");
+                        assert!(
+                            output.status.success(),
+                            "git init failed: {}",
+                            String::from_utf8_lossy(&output.stderr)
+                        );
                     }
 
                     write_tree(&path, contents);

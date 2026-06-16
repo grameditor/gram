@@ -16,7 +16,7 @@ path = "src/util.rs"
 doctest = true
 
 [features]
-test-support = ["git2", "rand", "util_macros"]
+test-support = ["rand", "util_macros"]
 
 [dependencies]
 anyhow.workspace = true
@@ -27,7 +27,6 @@ dirs.workspace = true
 dunce = "1.0"
 futures-lite.workspace = true
 futures.workspace = true
-git2 = { workspace = true, optional = true }
 globset.workspace = true
 itertools.workspace = true
 log.workspace = true
@@ -59,7 +58,6 @@ mach2.workspace = true
 tendril = "0.4.3"
 
 [dev-dependencies]
-git2.workspace = true
 rand.workspace = true
 util_macros.workspace = true
 pretty_assertions.workspace = true
