@@ -71,9 +71,9 @@ Gram provides several Python language servers out of the box. By default, [based
 
 Other built-in language servers are:
 
-- [Ty](https://docs.astral.sh/ty/)&mdash;Up-and-coming language server from Astral, built for speed.
-- [Pyright](https://github.com/microsoft/pyright)&mdash;The basis for basedpyright.
-- [PyLSP](https://github.com/python-lsp/python-lsp-server)&mdash;A plugin-based language server that integrates with tools like `pycodestyle`, `autopep8`, and `yapf`.
+- [Ty](https://docs.astral.sh/ty/), an up-and-coming language server from Astral, built for speed.
+- [Pyright](https://github.com/microsoft/pyright), the basis for basedpyright.
+- [PyLSP](https://github.com/python-lsp/python-lsp-server), a plugin-based language server that integrates with tools like `pycodestyle`, `autopep8`, and `yapf`.
 
 These are disabled by default, but can be enabled in your settings. For example:
 
@@ -375,4 +375,6 @@ If a language server isn't responding or features like diagnostics or autocomple
 - Verify your `settings.json` or `pyrightconfig.json` is syntactically correct.
 - Restart Gram to reinitialize language server connections, or try restarting the language server using the {#action editor::RestartLanguageServer}
 
-If the language server is failing to resolve imports, and you're using a virtual environment, make sure that the right environment is chosen in the selector. You can use "Server Info" view to confirm which virtual environment Gram is sending to the language server&mdash;look for the `* Configuration` section at the end.
+If the language server is failing to resolve imports, and you're using a virtual environment, make sure that the right
+environment is chosen in the selector. You can use "Server Info" view to confirm which virtual environment Gram is
+sending to the language server. Look for the `* Configuration` section at the end.
