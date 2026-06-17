@@ -33,7 +33,6 @@ if [[ -n $apt ]]; then
         libssl-dev
         libzstd-dev
         libvulkan1
-        libgit2-dev
         make
         cmake
         clang
@@ -175,7 +174,6 @@ if [[ -n $pacman ]]; then
         cmake
         fontconfig
         wayland
-        libgit2
         libxcb
         libxkbcommon-x11
         openssl

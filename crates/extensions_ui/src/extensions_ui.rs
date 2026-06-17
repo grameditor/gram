@@ -7,7 +7,6 @@ use collections::{BTreeMap, BTreeSet};
 use editor::{Editor, EditorElement, EditorStyle};
 use extension_host::{ExtensionManifest, ExtensionOperation, ExtensionStore};
 use fuzzy::{StringMatchCandidate, match_strings};
-use git2::Repository;
 use gpui::{
     Action, App, ClipboardItem, Context, Corner, DismissEvent, Entity, EventEmitter, Flatten,
     FocusHandle, Focusable, InteractiveElement, KeyContext, ParentElement, Point, Render, Styled,
@@ -212,37 +211,50 @@ pub fn init(cx: &mut App) {
                                     return;
                                 }
                             };
-                            let repo = match Repository::clone(url.as_str(), temp_dir.keep()) {
-                                Ok(repo) => repo,
-                                Err(err) => {
-                                    workspace.show_error_with_link(
-                                        SharedString::from(format!(
-                                            "Failed to clone Git repository:\n{err:#}"
-                                        )),
-                                        "Learn more".into(),
-                                        "gram://docs/extensions/installing-extensions".into(),
-                                        cx,
-                                    );
-                                    return;
+
+                            let url = url.clone();
+                            let destination_dir = temp_dir.keep();
+                            let repo_dir = destination_dir.clone();
+                            let fs = workspace.app_state().fs.clone();
+                            cx.spawn_in(window, async move |workspace, cx| {
+                                let repo_url = url.as_str();
+                                match fs.git_clone(&repo_url, destination_dir.as_path()).await {
+                                    Ok(_) => {}
+                                    Err(err) => {
+                                        return workspace.update(cx, |workspace, cx| {
+                                            workspace.show_error_with_link(
+                                                SharedString::from(format!(
+                                                    "Failed to clone Git repository:\n{err:#}"
+                                                )),
+                                                "Learn more".into(),
+                                                "gram://docs/extensions/installing-extensions"
+                                                    .into(),
+                                                cx,
+                                            );
+                                        });
+                                    }
                                 }
-                            };
-                            let path = match repo.workdir().and_then(|path| path.to_str()) {
-                                Some(path) => path.to_string(),
-                                None => {
-                                    workspace.show_error_with_link(
-                                        "Failed to clone Git repository: No workdir found",
-                                        "Learn more",
-                                        "gram://docs/extensions/installing-extensions",
+                                let path = match repo_dir.to_str() {
+                                    Some(path) => path.to_string(),
+                                    None => {
+                                        return workspace.update(cx, |workspace, cx| {
+                                            workspace.show_error_with_link(
+                                                "Failed to clone Git repository: No workdir found",
+                                                "Learn more",
+                                                "gram://docs/extensions/installing-extensions",
+                                                cx,
+                                            );
+                                        });
+                                    }
+                                };
+                                cx.update(|window, cx| {
+                                    window.dispatch_action(
+                                        Box::new(InstallExtensionFromLocalPath { path }),
                                         cx,
-                                    );
-                                    return;
-                                }
-                            };
-                            log::info!("path={path}");
-                            window.dispatch_action(
-                                Box::new(InstallExtensionFromLocalPath { path }),
-                                cx,
-                            );
+                                    )
+                                })
+                            })
+                            .detach();
                         })
                         .detach();
                 },

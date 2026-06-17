@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refresh git panel when focused
 - Refresh entries for paths whenever active item changes
 - Better version handling for debug builds
+- Drop git2-rs dependency (zed#53453)
 
 ## [2.2.0] - 2026-06-08
 
