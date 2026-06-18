@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refresh entries for paths whenever active item changes
 - Better version handling for debug builds
 - Drop git2-rs dependency (zed#53453)
+- Actually toggle terminal on Toggle action
 
 ## [2.2.0] - 2026-06-08
 

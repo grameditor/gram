@@ -63,8 +63,19 @@ pub fn init(cx: &mut App) {
             });
             workspace.register_action(|workspace, _: &Toggle, window, cx| {
                 if is_enabled_in_workspace(workspace, cx) {
-                    if !workspace.toggle_panel_focus::<TerminalPanel>(window, cx) {
-                        workspace.close_panel::<TerminalPanel>(window, cx);
+                    let mut found = false;
+                    for dock in workspace.all_docks() {
+                        if dock.read(cx).is_open()
+                            && let Some(panel_index) =
+                                dock.read(cx).panel_index_for_type::<TerminalPanel>()
+                            && dock.read(cx).active_panel_index() == Some(panel_index)
+                        {
+                            workspace.close_panel::<TerminalPanel>(window, cx);
+                            found = true;
+                        }
+                    }
+                    if !found {
+                        workspace.focus_panel::<TerminalPanel>(window, cx);
                     }
                 }
             });
