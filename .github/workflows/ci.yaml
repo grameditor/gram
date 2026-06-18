@@ -37,6 +37,10 @@ jobs:
           available="$(diskspace)"
           echo "Available space: $available"
 
+      # TODO: only run if space is low
+      - name: cargo clean
+        run: cargo clean
+
       - name: Fix microslop # https://github.com/microsoft/python-environment-tools/issues/171
         if: runner.os == 'Windows'
         run: git config --global core.longpaths true
