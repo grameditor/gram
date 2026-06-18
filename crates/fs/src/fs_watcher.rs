@@ -278,13 +278,13 @@ impl Watcher for FsWatcher {
                                     kind,
                                 });
                             }
-                            if let Some(cano) = &cano_path
-                                && event_path.cmp(&cano) == std::cmp::Ordering::Equal
-                            {
-                                return Some(PathEvent {
-                                    path: root_path.to_path_buf(),
-                                    kind,
-                                });
+                            if let Some(cano) = &cano_path {
+                                if event_path.starts_with(cano) {
+                                    return Some(PathEvent {
+                                        path: event_path.as_path().to_path_buf(),
+                                        kind,
+                                    });
+                                }
                             }
                             return None;
                         })
