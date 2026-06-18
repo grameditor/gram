@@ -1,6 +1,6 @@
 use anyhow::Result;
 use gpui::BackgroundExecutor;
-use notify::EventKind;
+use notify::{EventKind, EventKindMask, Watcher as _};
 use parking_lot::Mutex;
 use smol::{Timer, channel::Sender};
 use std::{
@@ -344,7 +344,9 @@ impl PollFsWatcher {
         pending_path_events: Arc<Mutex<Vec<PathEvent>>>,
         poll_interval: Duration,
     ) -> Result<Self> {
-        let config = notify::Config::default().with_poll_interval(poll_interval);
+        let config = notify::Config::default()
+            .with_event_kinds(EventKindMask::CORE)
+            .with_poll_interval(poll_interval);
 
         let watcher = notify::PollWatcher::new(
             move |event: Result<notify::Event, notify::Error>| {
@@ -688,7 +690,8 @@ fn handle_event(event: Result<notify::Event, notify::Error>) {
 
 pub fn global<T>(f: impl FnOnce(&GlobalWatcher) -> T) -> Result<T> {
     let result = FS_WATCHER_INSTANCE.get_or_init(|| {
-        notify::recommended_watcher(handle_event).map(|file_watcher| GlobalWatcher {
+        let config = notify::Config::default().with_event_kinds(EventKindMask::CORE);
+        notify::RecommendedWatcher::new(handle_event, config).map(|file_watcher| GlobalWatcher {
             state: Mutex::new(WatcherState {
                 watchers: Default::default(),
                 path_registrations: Default::default(),
