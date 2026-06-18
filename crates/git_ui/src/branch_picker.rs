@@ -801,6 +801,7 @@ impl PickerDelegate for BranchListDelegate {
                     repo.update(cx, |repo, _| repo.change_branch(branch.name().to_string()))?
                         .await??;
 
+                    cx.refresh()?;
                     anyhow::Ok(())
                 })
                 .detach_and_prompt_err(
