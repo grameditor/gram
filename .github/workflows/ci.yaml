@@ -31,6 +31,12 @@ jobs:
           tool: |
             cargo-nextest
 
+      - name: Space on disk
+        run: |
+          diskspace() { echo $(df -a $1 | awk 'NR > 1 {avail+=$4} END {print avail}'); }
+          available="$(diskspace)"
+          echo "Available space: $available"
+
       - name: Fix microslop # https://github.com/microsoft/python-environment-tools/issues/171
         if: runner.os == 'Windows'
         run: git config --global core.longpaths true
