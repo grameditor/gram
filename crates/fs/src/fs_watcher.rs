@@ -529,13 +529,19 @@ impl GlobalWatcher {
     ) -> Result<WatcherRegistrationId> {
         use notify::Watcher;
 
-        self.watcher.lock().watch(&path, mode)?;
+        if self
+            .state
+            .lock()
+            .path_registrations
+            .get(&path)
+            .map_or(true, |&count| count == 0)
+        {
+            self.watcher.lock().watch(&path, mode)?;
+        }
 
         let mut state = self.state.lock();
-
         let id = state.last_registration;
         state.last_registration = WatcherRegistrationId(id.0 + 1);
-
         let registration_state = WatcherRegistrationState {
             callback: Arc::new(cb),
             path: path.clone(),
