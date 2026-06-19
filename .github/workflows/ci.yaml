@@ -6,6 +6,7 @@ on:
       - "main"
       - "test/*"
       - "test-gh/*"
+      - "test-ci/*"
     tags:
       - "*"
 
@@ -21,7 +22,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        # os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [macos-latest]
     steps:
       - uses: actions/checkout@v6
         with:
@@ -47,13 +49,15 @@ jobs:
       - name: run nextest
         if: runner.os == 'Linux'
         run: cargo-nextest nextest run --workspace --no-fail-fast --success-output never --show-progress none
-      - name: run nextest
+      - name: run failing test
         if: runner.os == 'macOS'
-        run: cargo-nextest nextest run --workspace --no-fail-fast --success-output never --show-progress none
+        run: RUST_LOG=trace cargo test -p gram gram::tests::test_opening_excluded_paths -- --no-capture
+      # - name: run nextest
+      #   if: runner.os == 'macOS'
+      #   run: cargo-nextest nextest run --workspace --no-fail-fast --success-output never --show-progress none
       - name: run nextest
         if: runner.os == 'Windows'
         env:
           MAKEOPTS: "-j2 -l2"
           CARGO_BUILD_JOBS: "2"
         run: cargo-nextest nextest run --workspace --no-fail-fast --success-output never --show-progress none
-
