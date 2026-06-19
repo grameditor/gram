@@ -3210,12 +3210,28 @@ mod tests {
 
         let project = Project::test(app_state.fs.clone(), [path!("/root").as_ref()], cx).await;
         project.update(cx, |project, _cx| {
-            project.languages().add(markdown_language())
+            project.languages().add(markdown_language());
+            project.languages().add(regex_language());
         });
         let window = cx.add_window(|window, cx| Workspace::test_new(project, window, cx));
         let workspace = window.root(cx).unwrap();
 
         let initial_entries = cx.read(|cx| workspace.file_project_paths(cx));
+        assert_eq!(
+            initial_entries.len(),
+            2,
+            "entries should be .gitignore and regular_dir/file"
+        );
+        assert!(
+            initial_entries
+                .iter()
+                .any(|e| *e.path == *rel_path(".gitignore"))
+        );
+        assert!(
+            initial_entries
+                .iter()
+                .any(|e| *e.path == *rel_path("regular_dir/file"))
+        );
         let paths_to_open = [
             PathBuf::from(path!("/root/excluded_dir/file")),
             PathBuf::from(path!("/root/.git/HEAD")),
@@ -3269,6 +3285,17 @@ mod tests {
         );
 
         let entries = cx.read(|cx| workspace.file_project_paths(cx));
+        assert_eq!(
+            entries.len(),
+            2,
+            "entries should be .gitignore and regular_dir/file"
+        );
+        assert!(entries.iter().any(|e| *e.path == *rel_path(".gitignore")));
+        assert!(
+            entries
+                .iter()
+                .any(|e| *e.path == *rel_path("regular_dir/file"))
+        );
         assert_eq!(
             initial_entries, entries,
             "Workspace entries should not change after opening excluded files and directories paths"
@@ -4821,6 +4848,16 @@ mod tests {
                 ..Default::default()
             },
             Some(tree_sitter_rust::LANGUAGE.into()),
+        ))
+    }
+
+    fn regex_language() -> Arc<language::Language> {
+        Arc::new(language::Language::new(
+            language::LanguageConfig {
+                name: "regex".into(),
+                ..Default::default()
+            },
+            Some(tree_sitter_regex::LANGUAGE.into()),
         ))
     }
 

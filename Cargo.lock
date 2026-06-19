@@ -4230,6 +4230,7 @@ dependencies = [
  "title_bar",
  "toolchain_selector",
  "tree-sitter-md",
+ "tree-sitter-regex",
  "tree-sitter-rust",
  "ui",
  "ui_input",
