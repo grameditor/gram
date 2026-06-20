@@ -19,7 +19,7 @@ use settings::Settings;
 use smallvec::{SmallVec, smallvec};
 use std::{ops::Range, rc::Rc, sync::Arc, sync::OnceLock};
 use theme::{AccentColors, ThemeSettings};
-use time::{OffsetDateTime, UtcOffset, format_description::BorrowedFormatItem};
+use time::{OffsetDateTime, UtcOffset, format_description::FormatDescriptionV3};
 use ui::{
     CommonAnimationExt as _, ContextMenu, ScrollableHandle, Table, TableInteractionState, Tooltip,
     prelude::*,
@@ -43,11 +43,13 @@ actions!(
     ]
 );
 
-fn timestamp_format() -> &'static [BorrowedFormatItem<'static>] {
-    static FORMAT: OnceLock<Vec<BorrowedFormatItem<'static>>> = OnceLock::new();
+fn timestamp_format() -> &'static FormatDescriptionV3<'static> {
+    static FORMAT: OnceLock<FormatDescriptionV3<'static>> = OnceLock::new();
     FORMAT.get_or_init(|| {
-        time::format_description::parse("[day] [month repr:short] [year] [hour]:[minute]")
-            .unwrap_or_default()
+        time::format_description::parse_borrowed::<3>(
+            "[day] [month repr:short] [year] [hour]:[minute]",
+        )
+        .unwrap()
     })
 }
 
@@ -955,8 +957,10 @@ impl GitGraph {
             .map(|datetime| {
                 let local_offset = UtcOffset::current_local_offset().unwrap_or(UtcOffset::UTC);
                 let local_datetime = datetime.to_offset(local_offset);
-                let format =
-                    time::format_description::parse("[month repr:short] [day], [year]").ok();
+                let format = time::format_description::parse_borrowed::<3>(
+                    "[month repr:short] [day], [year]",
+                )
+                .ok();
                 format
                     .and_then(|f| local_datetime.format(&f).ok())
                     .unwrap_or_default()
