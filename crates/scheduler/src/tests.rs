@@ -129,6 +129,24 @@ fn test_timer_ordering() {
 }
 
 #[test]
+fn test_foreground_task_can_hold_mut_borrow_across_await() {
+    TestScheduler::once(async |scheduler| {
+        let foreground = scheduler.foreground();
+        let (sender, mut receiver) = mpsc::unbounded::<()>();
+
+        foreground
+            .spawn(async move {
+                receiver.next().await;
+            })
+            .detach();
+
+        scheduler.run();
+        sender.unbounded_send(()).unwrap();
+        scheduler.run();
+    });
+}
+
+#[test]
 fn test_send_from_bg_to_fg() {
     TestScheduler::once(async |scheduler| {
         let foreground = scheduler.foreground();

@@ -203,12 +203,17 @@ where
         type Output = F::Output;
 
         fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+            let this = unsafe { self.get_unchecked_mut() };
             assert!(
-                self.id == thread_id(),
+                this.id == thread_id(),
                 "local task polled by a thread that didn't spawn it. Task spawned at {}",
-                self.location
+                this.location
             );
-            unsafe { self.map_unchecked_mut(|c| &mut *c.inner).poll(cx) }
+            // SAFETY: `inner` is structurally pinned by `Checked`; after
+            // `Checked` is pinned, `inner` is never moved. The thread check
+            // above ensures the local future is only polled by its spawning
+            // thread.
+            unsafe { Pin::new_unchecked(&mut *this.inner).poll(cx) }
         }
     }
 
