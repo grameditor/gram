@@ -881,7 +881,7 @@ impl<'a> HunkSink<'a> {
 
         self.hunks.push(InternalDiffHunk {
             buffer_range,
-            diff_base_byte_range: diff_base_byte_range.clone(),
+            diff_base_byte_range,
             base_word_diffs,
             buffer_word_diffs,
         });

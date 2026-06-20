@@ -32,6 +32,7 @@ impl TempTree {
     }
 }
 
+#[allow(clippy::disallowed_methods)]
 fn write_tree(path: &Path, tree: serde_json::Value) {
     use serde_json::Value;
     use std::fs;

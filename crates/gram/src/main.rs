@@ -251,7 +251,7 @@ pub fn main() {
 
     let app_version = AppVersion::load(env!("CARGO_PKG_VERSION"));
     let version_name = match option_env!("GRAM_COMMIT_NAME") {
-        Some(commit_name) => format!("{commit_name}"),
+        Some(commit_name) => commit_name.to_string(),
         None => match option_env!("RELEASE_VERSION") {
             Some(version) => format!("{version} "),
             None => "".to_string(),

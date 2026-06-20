@@ -3112,7 +3112,6 @@ dependencies = [
 name = "extensions_ui"
 version = "2.2.0"
 dependencies = [
- "anyhow",
  "app_actions",
  "client",
  "collections",
@@ -3120,7 +3119,6 @@ dependencies = [
  "editor",
  "extension",
  "extension_host",
- "fs",
  "fuzzy",
  "gpui",
  "language",

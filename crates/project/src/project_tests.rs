@@ -10668,6 +10668,7 @@ fn check_git(output: &Output) {
     );
 }
 
+#[allow(clippy::disallowed_methods)]
 #[track_caller]
 fn git_init(path: &Path) -> PathBuf {
     let output = git_cmd(path)
@@ -10678,6 +10679,7 @@ fn git_init(path: &Path) -> PathBuf {
     path.to_path_buf()
 }
 
+#[allow(clippy::disallowed_methods)]
 #[track_caller]
 fn git_add<P: AsRef<Path>>(path: P, work_dir: &Path) {
     let output = git_cmd(work_dir)
@@ -10688,6 +10690,7 @@ fn git_add<P: AsRef<Path>>(path: P, work_dir: &Path) {
     check_git(&output);
 }
 
+#[allow(clippy::disallowed_methods)]
 #[track_caller]
 fn git_remove_index(path: &Path, work_dir: &Path) {
     let output = git_cmd(work_dir)
@@ -10698,6 +10701,7 @@ fn git_remove_index(path: &Path, work_dir: &Path) {
     check_git(&output);
 }
 
+#[allow(clippy::disallowed_methods)]
 #[track_caller]
 fn git_commit(msg: &str, work_dir: &Path) {
     let output = git_cmd(work_dir)
@@ -10707,6 +10711,7 @@ fn git_commit(msg: &str, work_dir: &Path) {
     check_git(&output);
 }
 
+#[allow(clippy::disallowed_methods)]
 #[track_caller]
 fn git_stash(work_dir: &Path) {
     let output = git_cmd(work_dir)
@@ -10716,6 +10721,7 @@ fn git_stash(work_dir: &Path) {
     check_git(&output);
 }
 
+#[allow(clippy::disallowed_methods)]
 #[track_caller]
 fn git_reset(offset: usize, work_dir: &Path) {
     let target = format!("HEAD~{}", offset + 1);
@@ -10727,6 +10733,7 @@ fn git_reset(offset: usize, work_dir: &Path) {
 }
 
 #[cfg(any())]
+#[allow(clippy::disallowed_methods)]
 #[track_caller]
 fn git_branch(name: &str, work_dir: &Path) {
     let output = git_cmd(work_dir)
