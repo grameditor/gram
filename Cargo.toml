@@ -639,11 +639,15 @@ protobuf-src = { git = "https://codeberg.org/GramEditor/rust-protobuf-native", r
 split-debuginfo = "unpacked"
 incremental = true
 codegen-units = 16
+debug = "limited"
+opt-level = 1
 
 # mirror configuration for crates compiled for the build platform
 # (without this cargo will compile ~400 crates twice)
 [profile.dev.build-override]
 codegen-units = 16
+split-debuginfo = "unpacked"
+debug = "limited"
 
 [profile.dev.package]
 # proc-macros start
@@ -659,15 +663,20 @@ syn = { opt-level = 3 }
 proc-macro2 = { opt-level = 3 }
 # proc-macros end
 
-taffy = { opt-level = 3 }
 cranelift-codegen = { opt-level = 3 }
 cranelift-codegen-meta = { opt-level = 3 }
 cranelift-codegen-shared = { opt-level = 3 }
+minidumper = { opt-level = 3 }
 resvg = { opt-level = 3 }
 rustybuzz = { opt-level = 3 }
+serde_json = { opt-level = 3 }
+taffy = { opt-level = 3 }
+tree-sitter = { opt-level = 3 }
 ttf-parser = { opt-level = 3 }
-wasmtime-internal-cranelift = { opt-level = 3 }
 wasmtime = { opt-level = 3 }
+wasmtime-environ = { opt-level = 3 }
+wasmtime-internal-cranelift = { opt-level = 3 }
+
 # Build single-source-file crates with cg=1 as it helps make `cargo build` of a whole workspace a bit faster
 activity_indicator = { codegen-units = 1 }
 app_actions = { codegen-units = 1 }
