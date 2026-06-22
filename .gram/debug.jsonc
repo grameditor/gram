@@ -5,10 +5,9 @@
     "build": {
       "label": "Build Gram",
       "command": "cargo",
-      "args": [
-        "build"
-      ]
-    }
+      "env": { "GRAM_STATELESS": "1" },
+      "args": ["build"],
+    },
   },
   {
     "label": "Debug Gram (GDB)",
@@ -16,9 +15,8 @@
     "build": {
       "label": "Build Gram",
       "command": "cargo",
-      "args": [
-        "build"
-      ]
-    }
-  }
+      "env": { "GRAM_STATELESS": "1" },
+      "args": ["build"],
+    },
+  },
 ]
