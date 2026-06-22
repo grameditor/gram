@@ -724,8 +724,6 @@ pub(crate) struct PaintSurface {
     pub order: DrawOrder,
     pub bounds: Bounds<ScaledPixels>,
     pub content_mask: ContentMask<ScaledPixels>,
-    #[cfg(target_os = "macos")]
-    pub image_buffer: core_video::pixel_buffer::CVPixelBuffer,
 }
 
 impl From<PaintSurface> for Primitive {

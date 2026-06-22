@@ -24,8 +24,13 @@ impl WgpuContext {
             }
         };
 
+        #[cfg(any(target_os = "windows", target_os = "linux", target_os = "freebsd"))]
+        let backends = wgpu::Backends::VULKAN | wgpu::Backends::GL;
+        #[cfg(target_os = "macos")]
+        let backends = wgpu::Backends::METAL;
+
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
-            backends: wgpu::Backends::VULKAN | wgpu::Backends::GL,
+            backends,
             flags: wgpu::InstanceFlags::default(),
             backend_options: wgpu::BackendOptions::default(),
             memory_budget_thresholds: wgpu::MemoryBudgetThresholds::default(),

@@ -1,12 +1,17 @@
-use super::{BoolExt, MacDisplay, NSRange, NSStringExt, ns_string, renderer};
+use super::{BoolExt, MacDisplay, NSRange, NSStringExt, ns_string};
 use crate::{
-    AnyWindowHandle, Bounds, Capslock, DisplayLink, ExternalPaths, FileDropEvent,
+    AnyWindowHandle, Bounds, Capslock, DevicePixels, DisplayLink, ExternalPaths, FileDropEvent,
     ForegroundExecutor, KeyDownEvent, Keystroke, Modifiers, ModifiersChangedEvent, MouseButton,
     MouseDownEvent, MouseMoveEvent, MouseUpEvent, Pixels, PlatformAtlas, PlatformDisplay,
     PlatformInput, PlatformWindow, Point, PromptButton, PromptLevel, RequestFrameOptions,
     SharedString, Size, SystemWindowTab, Timer, WindowAppearance, WindowBackgroundAppearance,
     WindowBounds, WindowControlArea, WindowKind, WindowParams, dispatch_get_main_queue,
-    dispatch_sys::dispatch_async_f, platform::PlatformInputHandler, point, px, size,
+    dispatch_sys::dispatch_async_f,
+    platform::{
+        PlatformInputHandler,
+        wgpu::{WgpuContext, WgpuRenderer, WgpuSurfaceConfig},
+    },
+    point, px, size,
 };
 use block::ConcreteBlock;
 use cocoa::{
@@ -51,6 +56,7 @@ use std::{
     time::Duration,
 };
 use util::ResultExt;
+use wgpu::PresentMode;
 
 const WINDOW_STATE_IVAR: &str = "windowState";
 
@@ -178,10 +184,10 @@ unsafe fn build_classes() {
                     handle_view_event as extern "C" fn(&Object, Sel, id),
                 );
 
-                decl.add_method(
-                    sel!(makeBackingLayer),
-                    make_backing_layer as extern "C" fn(&Object, Sel) -> id,
-                );
+                // decl.add_method(
+                //     sel!(makeBackingLayer),
+                //     make_backing_layer as extern "C" fn(&Object, Sel) -> id,
+                // );
 
                 decl.add_protocol(Protocol::get("CALayerDelegate").unwrap());
                 decl.add_method(
@@ -395,7 +401,7 @@ struct MacWindowState {
     blurred_view: Option<id>,
     background_appearance: WindowBackgroundAppearance,
     display_link: Option<DisplayLink>,
-    renderer: renderer::Renderer,
+    renderer: WgpuRenderer,
     request_frame_callback: Option<Box<dyn FnMut(RequestFrameOptions)>>,
     event_callback: Option<Box<dyn FnMut(PlatformInput) -> crate::DispatchEventResult>>,
     activate_callback: Option<Box<dyn FnMut(bool)>>,
@@ -570,6 +576,28 @@ unsafe impl Send for MacWindowState {}
 
 pub(crate) struct MacWindow(Arc<Mutex<MacWindowState>>);
 
+struct RawWindow {
+    view: id,
+}
+
+unsafe impl Send for RawWindow {}
+unsafe impl Sync for RawWindow {}
+
+impl rwh::HasWindowHandle for RawWindow {
+    fn window_handle(&self) -> Result<rwh::WindowHandle<'_>, rwh::HandleError> {
+        let view = NonNull::<c_void>::new(self.view as *mut c_void).unwrap();
+        let handle = rwh::AppKitWindowHandle::new(view);
+        Ok(unsafe { rwh::WindowHandle::borrow_raw(handle.into()) })
+    }
+}
+
+impl rwh::HasDisplayHandle for RawWindow {
+    fn display_handle(&self) -> Result<rwh::DisplayHandle<'_>, rwh::HandleError> {
+        let handle = rwh::RawDisplayHandle::AppKit(rwh::AppKitDisplayHandle::new());
+        Ok(unsafe { rwh::DisplayHandle::borrow_raw(handle) })
+    }
+}
+
 impl MacWindow {
     pub fn open(
         handle: AnyWindowHandle,
@@ -587,7 +615,7 @@ impl MacWindow {
             tabbing_identifier,
         }: WindowParams,
         executor: ForegroundExecutor,
-        renderer_context: renderer::Context,
+        renderer_context: &WgpuContext,
     ) -> Self {
         unsafe {
             let pool = NSAutoreleasePool::new(nil);
@@ -685,6 +713,20 @@ impl MacWindow {
             let native_view = NSView::initWithFrame_(native_view, NSView::bounds(content_view));
             assert!(!native_view.is_null());
 
+            let renderer = {
+                let raw_window = RawWindow { view: native_view };
+                let surface_config = WgpuSurfaceConfig {
+                    size: Size {
+                        width: DevicePixels(bounds.size.width.0 as i32),
+                        height: DevicePixels(bounds.size.height.0 as i32),
+                    },
+                    transparent: false,
+                    preferred_present_mode: Some(PresentMode::Fifo),
+                };
+
+                WgpuRenderer::new(renderer_context, &raw_window, surface_config).unwrap()
+            };
+
             let mut window = Self(Arc::new(Mutex::new(MacWindowState {
                 handle,
                 executor,
@@ -693,13 +735,7 @@ impl MacWindow {
                 blurred_view: None,
                 background_appearance: WindowBackgroundAppearance::Opaque,
                 display_link: None,
-                renderer: renderer::new_renderer(
-                    renderer_context,
-                    native_window as *mut _,
-                    native_view as *mut _,
-                    bounds.size.map(|pixels| pixels.0),
-                    false,
-                ),
+                renderer,
                 request_frame_callback: None,
                 event_callback: None,
                 activate_callback: None,
@@ -1491,7 +1527,7 @@ impl PlatformWindow for MacWindow {
     }
 
     fn gpu_specs(&self) -> Option<crate::GpuSpecs> {
-        None
+        self.0.lock().renderer.gpu_specs().into()
     }
 
     fn update_ime_position(&self, _bounds: Bounds<Pixels>) {
@@ -1996,11 +2032,20 @@ fn update_window_scale_factor(window_state: &Arc<Mutex<MacWindowState>>) {
     let scale_factor = lock.scale_factor();
     let size = lock.content_size();
     let drawable_size = size.to_device_pixels(scale_factor);
+    // unsafe {
+    //     let _: () = msg_send![
+    //         lock.renderer.layer(),
+    //         setContentsScale: scale_factor as f64
+    //     ];
+    // }
     unsafe {
-        let _: () = msg_send![
-            lock.renderer.layer(),
-            setContentsScale: scale_factor as f64
-        ];
+        let layer: id = msg_send![lock.native_view.as_ptr(), layer];
+        if !layer.is_null() {
+            let _: () = msg_send![
+                layer,
+                setContentsScale: scale_factor as f64
+            ];
+        }
     }
 
     lock.renderer.update_drawable_size(drawable_size);
@@ -2058,14 +2103,14 @@ extern "C" fn window_did_change_key_status(this: &Object, selector: Sel, _: id) 
 
         if lock.activated_least_once {
             if let Some(mut callback) = lock.request_frame_callback.take() {
-                lock.renderer.set_presents_with_transaction(true);
+                // lock.renderer.set_presents_with_transaction(true);
                 lock.stop_display_link();
                 drop(lock);
                 callback(Default::default());
 
                 let mut lock = window_state.lock();
                 lock.request_frame_callback = Some(callback);
-                lock.renderer.set_presents_with_transaction(false);
+                // lock.renderer.set_presents_with_transaction(false);
                 lock.start_display_link();
             }
         } else {
@@ -2118,11 +2163,11 @@ extern "C" fn close_window(this: &Object, _: Sel) {
     }
 }
 
-extern "C" fn make_backing_layer(this: &Object, _: Sel) -> id {
-    let window_state = unsafe { get_window_state(this) };
-    let window_state = window_state.as_ref().lock();
-    window_state.renderer.layer_ptr() as id
-}
+// extern "C" fn make_backing_layer(this: &Object, _: Sel) -> id {
+//     let window_state = unsafe { get_window_state(this) };
+//     let window_state = window_state.as_ref().lock();
+//     window_state.renderer.layer_ptr() as id
+// }
 
 extern "C" fn view_did_change_backing_properties(this: &Object, _: Sel) {
     let window_state = unsafe { get_window_state(this) };
@@ -2164,14 +2209,14 @@ extern "C" fn display_layer(this: &Object, _: Sel, _: id) {
     let window_state = unsafe { get_window_state(this) };
     let mut lock = window_state.lock();
     if let Some(mut callback) = lock.request_frame_callback.take() {
-        lock.renderer.set_presents_with_transaction(true);
+        // lock.renderer.set_presents_with_transaction(true);
         lock.stop_display_link();
         drop(lock);
         callback(Default::default());
 
         let mut lock = window_state.lock();
         lock.request_frame_callback = Some(callback);
-        lock.renderer.set_presents_with_transaction(false);
+        // lock.renderer.set_presents_with_transaction(false);
         lock.start_display_link();
     }
 }

@@ -8,6 +8,9 @@ mod linux;
 #[cfg(target_os = "macos")]
 mod mac;
 
+#[cfg(target_os = "macos")]
+mod wgpu;
+
 #[cfg(all(
     any(target_os = "linux", target_os = "freebsd"),
     any(feature = "wayland", feature = "x11")

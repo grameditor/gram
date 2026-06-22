@@ -1,12 +1,11 @@
-use super::{
-    BoolExt, MacKeyboardLayout, MacKeyboardMapper, events::key_to_native, ns_string, renderer,
-};
+use super::{BoolExt, MacKeyboardLayout, MacKeyboardMapper, events::key_to_native, ns_string};
 use crate::{
     Action, AnyWindowHandle, BackgroundExecutor, ClipboardItem, CursorStyle, ForegroundExecutor,
     KeyContext, Keymap, MacDispatcher, MacDisplay, MacWindow, Menu, MenuItem, OsMenu, OwnedMenu,
     PathPromptOptions, Platform, PlatformDisplay, PlatformKeyboardLayout, PlatformKeyboardMapper,
     PlatformTextSystem, PlatformWindow, Result, SystemMenuType, Task, WindowAppearance,
-    WindowParams, platform::mac::pasteboard::Pasteboard,
+    WindowParams,
+    platform::{mac::pasteboard::Pasteboard, wgpu::WgpuContext},
 };
 use anyhow::{Context as _, anyhow};
 use block::ConcreteBlock;
@@ -148,7 +147,7 @@ pub(crate) struct MacPlatformState {
     background_executor: BackgroundExecutor,
     foreground_executor: ForegroundExecutor,
     text_system: Arc<dyn PlatformTextSystem>,
-    renderer_context: renderer::Context,
+    pub renderer_context: WgpuContext,
     headless: bool,
     general_pasteboard: Pasteboard,
     find_pasteboard: Pasteboard,
@@ -190,7 +189,9 @@ impl MacPlatform {
             text_system,
             background_executor: BackgroundExecutor::new(dispatcher.clone()),
             foreground_executor: ForegroundExecutor::new(dispatcher),
-            renderer_context: renderer::Context::default(),
+            renderer_context: WgpuContext::new()
+                .context("Unable to init GPU context")
+                .unwrap(),
             general_pasteboard: Pasteboard::general(),
             find_pasteboard: Pasteboard::find(),
             reopen: None,
@@ -591,13 +592,15 @@ impl Platform for MacPlatform {
         handle: AnyWindowHandle,
         options: WindowParams,
     ) -> Result<Box<dyn PlatformWindow>> {
-        let renderer_context = self.0.lock().renderer_context.clone();
-        Ok(Box::new(MacWindow::open(
+        let mut state = self.0.lock();
+
+        let window = MacWindow::open(
             handle,
             options,
-            self.foreground_executor(),
-            renderer_context,
-        )))
+            state.foreground_executor.clone(),
+            &state.renderer_context,
+        );
+        Ok(Box::new(window))
     }
 
     fn window_appearance(&self) -> WindowAppearance {
