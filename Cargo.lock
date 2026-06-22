@@ -4039,7 +4039,6 @@ dependencies = [
  "libc",
  "log",
  "lyon",
- "metal",
  "num_cpus",
  "objc",
  "open",
@@ -5966,19 +5965,6 @@ checksum = "8ea1f30cedd69f0a2954655f7188c6a834246d2bcf1e315e2ac40c4b24dc9519"
 dependencies = [
  "cfg-if",
  "rayon",
-]
-
-[[package]]
-name = "media"
-version = "2.2.0"
-dependencies = [
- "anyhow",
- "bindgen",
- "core-foundation 0.10.0",
- "core-video",
- "foreign-types 0.5.0",
- "metal",
- "objc",
 ]
 
 [[package]]

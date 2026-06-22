@@ -29,7 +29,6 @@ test-support = [
 ]
 inspector = ["gpui_macros/inspector"]
 leak-detection = ["backtrace"]
-runtime_shaders = []
 wayland = [
     "bitflags",
     "wgpu",
@@ -136,7 +135,7 @@ font-kit = { git = "https://github.com/zed-industries/font-kit", rev = "11052312
 foreign-types = "0.5"
 log.workspace = true
 objc.workspace = true
-metal.workspace = true
+wgpu = { workspace = true, optional = true }
 
 [target.'cfg(any(target_os = "linux", target_os = "freebsd", target_os = "macos"))'.dependencies]
 pathfinder_geometry = "0.5"
