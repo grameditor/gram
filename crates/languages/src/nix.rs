@@ -77,7 +77,7 @@ impl LspInstaller for NixdLspAdapter {
         _: Option<Toolchain>,
         _: &AsyncApp,
     ) -> Option<LanguageServerBinary> {
-        let path = delegate.which(with_exe("nil").as_ref()).await?;
+        let path = delegate.which(with_exe("nixd").as_ref()).await?;
         Some(LanguageServerBinary {
             path,
             arguments: vec![],

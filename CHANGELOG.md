@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump UI label line height to 1.125 (+2/16px) (#321)
 - Don't enable relative line numbers in multibuffers
 - Fix stacked borrows violation in scheduler (zed#56850)
+- Use buffer font size for outlines (since they use buffer font)
+- Fix check for nixd LSPS (#347)
 
 ## [2.2.0] - 2026-06-08
 
