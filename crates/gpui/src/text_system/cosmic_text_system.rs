@@ -24,7 +24,8 @@ use swash::{
     zeno::{Format, Transform, Vector},
 };
 
-pub(crate) struct CosmicTextSystem(RwLock<CosmicTextSystemState>);
+/// Text system using cosmic-text
+pub struct CosmicTextSystem(RwLock<CosmicTextSystemState>);
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 struct FontKey {
@@ -68,6 +69,9 @@ impl CosmicTextSystem {
             swash_scale_context: ScaleContext::new(),
             loaded_fonts: Vec::new(),
             font_ids_by_family_cache: HashMap::default(),
+            #[cfg(target_os = "macos")]
+            system_font: ".AppleSystemUIFont".into(),
+            #[cfg(not(target_os = "macos"))]
             system_font: "DejaVu Sans".into(),
         }))
     }
@@ -198,7 +202,7 @@ impl PlatformTextSystem for CosmicTextSystem {
         _font_size: Pixels,
     ) -> TextRenderingMode {
         // TODO: Ideally, we'd use fontconfig to read the user preference.
-        TextRenderingMode::Subpixel
+        TextRenderingMode::PlatformDefault
     }
 }
 

@@ -176,7 +176,7 @@ impl MacPlatform {
         let dispatcher = Arc::new(MacDispatcher);
 
         #[cfg(feature = "font-kit")]
-        let text_system = Arc::new(crate::MacTextSystem::new());
+        let text_system = Arc::new(crate::CosmicTextSystem::new());
 
         #[cfg(not(feature = "font-kit"))]
         let text_system = Arc::new(crate::NoopTextSystem::new());
