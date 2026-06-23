@@ -18608,13 +18608,15 @@ impl Editor {
 
     pub fn relative_line_numbers(&self, cx: &App) -> RelativeLineNumbers {
         match (
+            self.buffer.read(cx).is_singleton(),
             self.use_relative_line_numbers,
             EditorSettings::get_global(cx).relative_line_numbers,
         ) {
-            (None, setting) => setting,
-            (Some(false), _) => RelativeLineNumbers::Disabled,
-            (Some(true), RelativeLineNumbers::Wrapped) => RelativeLineNumbers::Wrapped,
-            (Some(true), _) => RelativeLineNumbers::Enabled,
+            (false, _, _) => RelativeLineNumbers::Disabled,
+            (_, None, setting) => setting,
+            (_, Some(false), _) => RelativeLineNumbers::Disabled,
+            (_, Some(true), RelativeLineNumbers::Wrapped) => RelativeLineNumbers::Wrapped,
+            (_, Some(true), _) => RelativeLineNumbers::Enabled,
         }
     }
 
