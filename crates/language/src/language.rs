@@ -387,7 +387,7 @@ pub trait LspAdapterDelegate: Send + Sync {
 
 /// Context provided to LSP adapters when a user responds to a ShowMessageRequest prompt.
 /// This allows adapters to intercept preference selections (like "Always" or "Never")
-/// and potentially persist them to Zed's settings.
+/// and potentially persist them to Gram's settings.
 #[derive(Debug, Clone)]
 pub struct PromptResponseContext {
     /// The original message shown to the user
@@ -565,7 +565,7 @@ pub trait LspAdapter: 'static + Send + Sync + DynLspInstaller {
 
     /// Called when a user responds to a ShowMessageRequest from this language server.
     /// This allows adapters to intercept preference selections (like "Always" or "Never")
-    /// for settings that should be persisted to Zed's settings file.
+    /// for settings that should be persisted to Gram's settings file.
     fn process_prompt_response(&self, _context: &PromptResponseContext, _cx: &mut AsyncApp) {}
 }
 

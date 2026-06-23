@@ -7,7 +7,7 @@
 # Reference: https://git-scm.com/docs/gitmailmap
 
 # Keep these entries sorted alphabetically.
-# In Zed: `editor: sort lines case insensitive`
+# In Gram: `editor: sort lines case insensitive`
 
 Agus Zubiaga <agus@zed.dev>
 Agus Zubiaga <agus@zed.dev> <hi@aguz.me>
