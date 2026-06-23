@@ -8,9 +8,6 @@ mod keyboard;
 mod pasteboard;
 
 #[cfg(feature = "font-kit")]
-mod open_type;
-
-#[cfg(feature = "font-kit")]
 mod text_system;
 
 mod platform;
