@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Drop git2-rs dependency (zed#53453) (#331)
 - Actually toggle terminal on Toggle action
 - Don't generate minidumps unless GRAM_GENERATE_MINIDUMPS is set
+- Update to rust 1.96
+- Bump UI label line height to 1.125 (+2/16px) (#321)
+- Don't enable relative line numbers in multibuffers
+- Fix stacked borrows violation in scheduler (zed#56850)
 
 ## [2.2.0] - 2026-06-08
 
