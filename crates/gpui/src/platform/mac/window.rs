@@ -1355,6 +1355,7 @@ impl PlatformWindow for MacWindow {
     }
 
     fn is_subpixel_rendering_supported(&self) -> bool {
+        // TODO: we could ask wgpu here but we need access to WgpuContext
         false
     }
 
