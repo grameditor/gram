@@ -542,7 +542,11 @@ fn prompt_and_open_paths(app_state: Arc<AppState>, options: PathPromptOptions, c
         async move |cx| match paths.await.anyhow().and_then(|res| res) {
             Ok(Some(paths)) => {
                 cx.update(|cx| {
-                    open_paths(&paths, app_state, OpenOptions::default(), cx).detach_and_log_err(cx)
+                    let options = OpenOptions {
+                        prefer_focused_window: true,
+                        ..OpenOptions::default()
+                    };
+                    open_paths(&paths, app_state, options, cx).detach_and_log_err(cx)
                 })
                 .ok();
             }

@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix stacked borrows violation in scheduler (zed#56850)
 - Use buffer font size for outlines (since they use buffer font)
 - Fix check for nixd LSPS (#347)
+- Prefer to open in focused window (#350)
 
 ## [2.2.0] - 2026-06-08
 
