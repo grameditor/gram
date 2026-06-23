@@ -227,7 +227,7 @@ impl RenderOnce for LabelLike {
                 LabelSize::XSmall => this.text_ui_xs(cx),
             })
             .when(self.line_height_style == LineHeightStyle::UiLabel, |this| {
-                this.line_height(relative(1.))
+                this.line_height(relative(1.125))
             })
             .when(self.italic, |this| this.italic())
             .when(self.underline, |mut this| {
