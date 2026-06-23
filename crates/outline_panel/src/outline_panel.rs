@@ -2627,7 +2627,7 @@ impl OutlinePanel {
     ) -> Stateful<Div> {
         let settings = OutlinePanelSettings::get_global(cx);
         div()
-            .text_ui(cx)
+            .text_buffer(cx)
             .id(item_id.clone())
             .on_click({
                 let clicked_entry = rendered_entry.clone();
