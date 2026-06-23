@@ -1370,17 +1370,19 @@ impl RenderingParameters {
     fn from_env(adapter: &wgpu::Adapter) -> Self {
         use std::env;
 
-        let sample_count_mask = adapter
+        let sample_count_supported_4 = adapter
             .get_texture_format_features(wgpu::TextureFormat::Bgra8Unorm)
             .flags
             .sample_count_supported(4) as u32
-            * 4
-            | adapter
-                .get_texture_format_features(wgpu::TextureFormat::Bgra8Unorm)
-                .flags
-                .sample_count_supported(2) as u32
-                * 2
-            | 1;
+            * 4;
+
+        let sample_count_supported_2 = adapter
+            .get_texture_format_features(wgpu::TextureFormat::Bgra8Unorm)
+            .flags
+            .sample_count_supported(2) as u32
+            * 2;
+
+        let sample_count_mask = sample_count_supported_4 | sample_count_supported_2 | 1;
 
         let path_sample_count = env::var("GRAM_PATH_SAMPLE_COUNT")
             .ok()
