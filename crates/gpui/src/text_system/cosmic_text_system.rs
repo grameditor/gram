@@ -54,10 +54,9 @@ struct CosmicTextSystemState {
     font_system: FontSystem,
     scratch: ShapeBuffer,
     swash_scale_context: ScaleContext,
-    /// Contains all already loaded fonts, including all faces. Indexed by `FontId`.
+    /// FIXME: FontId is an index into this array, so unloading fonts is annoying
     loaded_fonts: Vec<LoadedFont>,
-    /// Caches the `FontId`s associated with a specific family to avoid iterating the font database
-    /// for every font face in a family.
+    /// Fast lookup cache for family -> FontId
     font_ids_by_family_cache: HashMap<FontKey, SmallVec<[FontId; 4]>>,
     system_font_fallback: String,
 }
@@ -67,9 +66,7 @@ struct LoadedFont {
     weight: cosmic_text::Weight,
     features: CosmicFontFeatures,
     is_known_emoji_font: bool,
-    /// resolved at load time so `layout_line` shares one chain across faces.
-    /// `Arc` keeps clone cheap on the per-run hot path.
-    user_fallback_chain: Arc<[(FontId, SharedString)]>,
+    fallbacks: Arc<[(FontId, SharedString)]>,
 }
 
 impl CosmicTextSystem {
@@ -233,10 +230,8 @@ impl CosmicTextSystemState {
         weight: &FontWeight,
         fallbacks: Option<&FontFallbacks>,
     ) -> Result<SmallVec<[FontId; 4]>> {
-        // recurse with `fallbacks = None` so a fallback family cannot pull in
-        // another chain. missing fallback families are dropped so a typo in
-        // settings still lets the primary family load.
-        let user_fallback_chain: Arc<[(FontId, SharedString)]> = match fallbacks {
+        // FIXME: This whole thing is so convoluted, what the hell is going on here...
+        let fallbacks: Arc<[(FontId, SharedString)]> = match fallbacks {
             Some(fallbacks) if !fallbacks.fallback_list().is_empty() => {
                 let mut chain: Vec<(FontId, SharedString)> = Vec::new();
                 for fallback_name in fallbacks.fallback_list() {
@@ -309,7 +304,7 @@ impl CosmicTextSystemState {
                 features: cosmic_features.clone(),
                 weight: cosmic_text::Weight(weight.0 as u16),
                 is_known_emoji_font: check_is_known_emoji_font(&postscript_name),
-                user_fallback_chain: Arc::clone(&user_fallback_chain),
+                fallbacks: Arc::clone(&fallbacks),
             });
         }
 
@@ -459,7 +454,7 @@ impl CosmicTextSystemState {
                 features: CosmicFontFeatures::new(),
                 weight: face.weight.clone(),
                 is_known_emoji_font: check_is_known_emoji_font(&face.post_script_name),
-                user_fallback_chain: Arc::from(Vec::new()),
+                fallbacks: Arc::from(Vec::new()),
             });
 
             Ok(font_id)
@@ -496,10 +491,8 @@ impl CosmicTextSystemState {
             let primary_style = face.style;
             let primary_weight = face.weight;
             let primary_features = loaded_font.features.clone();
-            let fallback_chain = Arc::clone(&loaded_font.user_fallback_chain);
+            let fallback_chain = Arc::clone(&loaded_font.fallbacks);
 
-            // build one `Attrs` per slot up front. each clone of span attrs
-            // would otherwise re-allocate the `font_features` Vec.
             let primary_attrs = Attrs::new()
                 .metadata(run.font_id.0)
                 .family(Family::Name(&primary_family_name))
@@ -706,12 +699,12 @@ fn find_best_match(
     Ok(best_index)
 }
 
-/// one contiguous slice of a `FontRun` that maps to a single slot. `slot` is
-/// `None` for the primary font and `Some(ix)` for `fallback_chain[ix]`.
+/// A contiguous run using a single font.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct RunSpan {
     start: usize,
     end: usize,
+    /// Used for fallback fonts: Some(ix) => fallback[ix]
     slot: Option<usize>,
     font_id: FontId,
 }
@@ -884,7 +877,7 @@ mod tests {
         FontId(i)
     }
 
-    fn chain(ids: &[usize]) -> SmallVec<[(FontId, SharedString); 4]> {
+    fn fallback_fonts(ids: &[usize]) -> SmallVec<[(FontId, SharedString); 4]> {
         ids.iter()
             .map(|&i| (fid(i), SharedString::from(format!("fb{i}"))))
             .collect()
@@ -902,7 +895,7 @@ mod tests {
     #[test]
     fn primary_wins_over_current_fallback_when_primary_covers() {
         let primary = fid(0);
-        let fb = chain(&[1, 2]);
+        let fb = fallback_fonts(&[1, 2]);
         let covers = |id: FontId, _: char| id == fid(0) || id == fid(1);
         assert_eq!(
             pick_covering_slot('a', Some(0), primary, &fb, &covers),
@@ -913,15 +906,15 @@ mod tests {
     #[test]
     fn primary_preferred_over_fallback_when_both_cover() {
         let primary = fid(0);
-        let fb = chain(&[1]);
+        let fb = fallback_fonts(&[1]);
         let covers = |_: FontId, _: char| true;
         assert_eq!(pick_covering_slot('a', None, primary, &fb, &covers), None);
     }
 
     #[test]
-    fn falls_through_chain_in_order() {
+    fn falls_through_fallbacks_in_order() {
         let primary = fid(0);
-        let fb = chain(&[1, 2, 3]);
+        let fb = fallback_fonts(&[1, 2, 3]);
         // only fallback 2 at index 1 covers.
         let covers = |id: FontId, _: char| id == fid(2);
         assert_eq!(
@@ -931,12 +924,10 @@ mod tests {
     }
 
     #[test]
-    fn no_coverage_returns_primary() {
+    fn no_coverage() {
         let primary = fid(0);
-        let fb = chain(&[1, 2]);
+        let fb = fallback_fonts(&[1, 2]);
         let covers = |_: FontId, _: char| false;
-        // nothing covers. return `None` so the `cosmic-text` built in script
-        // fallback can take over during shaping.
         assert_eq!(
             pick_covering_slot('\u{1F600}', Some(1), primary, &fb, &covers),
             None
@@ -944,20 +935,11 @@ mod tests {
     }
 
     #[test]
-    fn empty_chain_always_returns_primary() {
+    fn no_fallbacks() {
         let primary = fid(0);
         let fb: SmallVec<[(FontId, SharedString); 4]> = SmallVec::new();
         let covers = |_: FontId, _: char| false;
         assert_eq!(pick_covering_slot('a', None, primary, &fb, &covers), None);
-    }
-
-    #[test]
-    fn slot_font_id_resolution() {
-        let primary = fid(7);
-        let fb = chain(&[10, 20]);
-        assert_eq!(slot_font_id(None, primary, &fb), fid(7));
-        assert_eq!(slot_font_id(Some(0), primary, &fb), fid(10));
-        assert_eq!(slot_font_id(Some(1), primary, &fb), fid(20));
     }
 
     #[test]
@@ -973,7 +955,7 @@ mod tests {
     #[test]
     fn run_spans_use_byte_offsets_for_multibyte_chars() {
         let primary = fid(0);
-        let fb = chain(&[1]);
+        let fb = fallback_fonts(&[1]);
         // primary covers ascii. fallback covers cjk.
         let covers = |id: FontId, ch: char| {
             if id == primary {
@@ -998,7 +980,7 @@ mod tests {
     #[test]
     fn run_spans_respect_run_offset() {
         let primary = fid(0);
-        let fb = chain(&[1]);
+        let fb = fallback_fonts(&[1]);
         let covers = |id: FontId, ch: char| {
             if id == primary {
                 ch.is_ascii()
@@ -1020,7 +1002,7 @@ mod tests {
     #[test]
     fn run_spans_keep_combining_marks_with_base_in_fallback() {
         let primary = fid(0);
-        let fb = chain(&[1]);
+        let fb = fallback_fonts(&[1]);
         // primary covers ascii only. fallback covers the base char.
         // combining mark must stay in the fallback span even when fallback
         // does not advertise coverage of it.
@@ -1040,7 +1022,7 @@ mod tests {
     #[test]
     fn run_spans_keep_zwj_inside_emoji_cluster() {
         let primary = fid(0);
-        let fb = chain(&[1]);
+        let fb = fallback_fonts(&[1]);
         // only fallback covers the emoji codepoints. zwj must not split.
         let covers = |id: FontId, ch: char| id == fid(1) && ch != '\u{200D}';
         // family zwj sequence woman zwj girl.
@@ -1052,7 +1034,7 @@ mod tests {
     #[test]
     fn run_spans_collapse_adjacent_same_slot() {
         let primary = fid(0);
-        let fb = chain(&[1]);
+        let fb = fallback_fonts(&[1]);
         let covers = |id: FontId, ch: char| {
             if id == primary {
                 ch.is_ascii()
@@ -1068,7 +1050,7 @@ mod tests {
     #[test]
     fn run_spans_empty_run_returns_no_spans() {
         let primary = fid(0);
-        let fb = chain(&[1]);
+        let fb = fallback_fonts(&[1]);
         let covers = |_: FontId, _: char| true;
         let spans = compute_run_spans("anything", 3, 0, primary, &fb, &covers);
         assert!(spans.is_empty());
