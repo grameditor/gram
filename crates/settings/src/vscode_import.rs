@@ -283,6 +283,7 @@ impl VsCodeSettings {
             completion_menu_scrollbar: None,
             supertab_fallback: None,
             sync_kill_ring: None,
+            line_number_scale: None,
         }
     }
 

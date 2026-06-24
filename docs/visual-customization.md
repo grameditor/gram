@@ -389,6 +389,8 @@ TBD: Centered layout related settings
   "supertab_fallback": "tab", // tab, indent
   // Sync the kill ring (emacs mode)
   "sync_kill_ring": "clipboard", // clipboard, primary or none
+  // Line number scale
+  "line_number_scale": "default", // default, small, xsmall
   // Turn on colorization of brackets in editors (configurable per language)
   "colorize_brackets": true,
 ```

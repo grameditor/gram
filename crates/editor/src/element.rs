@@ -3198,7 +3198,7 @@ impl EditorElement {
                 })
                 .unwrap_or_else(|| cx.theme().colors().editor_line_number);
             let shaped_line =
-                self.shape_line_number(SharedString::from(&line_number), color, window);
+                self.shape_line_number(SharedString::from(&line_number), color, window, cx);
             let scroll_top = scroll_position.y * ScrollPixelOffset::from(line_height);
             let line_origin = gutter_hitbox.map(|hitbox| {
                 hitbox.origin
@@ -4531,7 +4531,7 @@ impl EditorElement {
                     .map(|delta| delta.unsigned_abs() as u32)
                     .unwrap_or(start_point.row + 1);
                 let color = cx.theme().colors().editor_line_number;
-                self.shape_line_number(SharedString::from(number.to_string()), color, window)
+                self.shape_line_number(SharedString::from(number.to_string()), color, window, cx)
             });
 
             lines.push(StickyHeaderLine::new(
@@ -6035,7 +6035,7 @@ impl EditorElement {
                 let Some(()) = (if !is_singleton && hitbox.is_hovered(window) {
                     let color = cx.theme().colors().editor_hover_line_number;
 
-                    let line = self.shape_line_number(shaped_line.text.clone(), color, window);
+                    let line = self.shape_line_number(shaped_line.text.clone(), color, window, cx);
                     line.paint(
                         hitbox.origin,
                         line_height,
@@ -7666,6 +7666,7 @@ impl EditorElement {
         text: SharedString,
         color: Hsla,
         window: &mut Window,
+        cx: &mut App,
     ) -> ShapedLine {
         let run = TextRun {
             len: text.len(),
@@ -7673,9 +7674,15 @@ impl EditorElement {
             color,
             ..Default::default()
         };
+        let line_number_scale = EditorSettings::get_global(cx).line_number_scale;
+        let line_number_size = DefiniteLength::Fraction(match line_number_scale {
+            settings::LineNumberScale::Default => 1.0,
+            settings::LineNumberScale::Small => 0.875,
+            settings::LineNumberScale::XSmall => 0.75,
+        });
         window.text_system().shape_line(
             text,
-            self.style.text.font_size.to_pixels(window.rem_size()),
+            line_number_size.to_pixels(self.style.text.font_size, window.rem_size()),
             &[run],
             None,
         )

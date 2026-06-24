@@ -1545,6 +1545,19 @@ pub(crate) fn settings_data(cx: &App) -> Vec<SettingsPage> {
                         files: USER,
                     }),
                     SettingsPageItem::SettingItem(SettingItem {
+                        title: "Line Number Scale",
+                        description: "Relative size of line numbers displayed in the editor.",
+                        field: Box::new(SettingField {
+                            json_path: Some("editor.line_number_scale"),
+                            pick: |settings_content| settings_content.editor.line_number_scale.as_ref(),
+                            write: |settings_content, value| {
+                                settings_content.editor.line_number_scale = value;
+                            },
+                        }),
+                        metadata: None,
+                        files: USER,
+                    }),
+                    SettingsPageItem::SettingItem(SettingItem {
                         title: "Show Runnables",
                         description: "Show runnable buttons in the gutter.",
                         field: Box::new(SettingField {

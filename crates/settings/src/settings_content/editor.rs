@@ -232,6 +232,13 @@ pub struct EditorSettingsContent {
     /// 2. Primary: Sync with primary selection (Emacs <24, Linux only)
     /// 3. None: Do not sync kill ring (Old Gram behaviour)
     pub sync_kill_ring: Option<SyncKillRing>,
+
+    // Line number scale
+    //
+    // 1. Default
+    // 2. Small
+    // 3. XSmall
+    pub line_number_scale: Option<LineNumberScale>,
 }
 
 #[derive(
@@ -1058,4 +1065,30 @@ impl schemars::JsonSchema for CenteredPaddingSettings {
             "description": "Centered layout related setting (left/right)."
         })
     }
+}
+
+/// Line number rendering scale
+#[derive(
+    Copy,
+    Clone,
+    Debug,
+    Default,
+    Serialize,
+    Deserialize,
+    PartialEq,
+    Eq,
+    JsonSchema,
+    MergeFrom,
+    strum::VariantArray,
+    strum::VariantNames,
+)]
+#[serde(rename_all = "lowercase")]
+pub enum LineNumberScale {
+    /// Same as editor
+    #[default]
+    Default,
+    /// 0.875 * buffer font size
+    Small,
+    /// 0.75 * buffer font size
+    XSmall,
 }

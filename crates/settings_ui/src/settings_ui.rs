@@ -521,6 +521,7 @@ fn init_renderers(cx: &mut App) {
         .add_basic_renderer::<settings::Decoration>(render_editable_number_field)
         .add_basic_renderer::<settings::SupertabFallback>(render_dropdown)
         .add_basic_renderer::<settings::SyncKillRing>(render_dropdown)
+        .add_basic_renderer::<settings::LineNumberScale>(render_dropdown)
         // please semicolon stay on next line
         ;
 }
