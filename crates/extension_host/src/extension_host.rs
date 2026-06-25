@@ -982,6 +982,9 @@ impl ExtensionStore {
                     let context_provider =
                         std::fs::read_to_string(language_path.join("tasks.jsonc"))
                             .ok()
+                            .or_else(|| {
+                                std::fs::read_to_string(language_path.join("tasks.json")).ok()
+                            })
                             .and_then(|contents| {
                                 let definitions =
                                     serde_json_lenient::from_str(&contents).log_err()?;

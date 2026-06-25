@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix check for nixd LSPS (#347)
 - Prefer to open in focused window (#350)
 - Fix LSP provided by extensions not working in remote sessions (zed#56487)
+- Fix loading tasks from extensions
 
 ## [2.2.0] - 2026-06-08
 
