@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Build system / CI improvements (#335) by @koru
 - Add installation instructions for MSYS2 (#337) by @ognevny
 - Fix potential hang when using clipboard on Linux / Wayland (zed#58826) by @dantai
+- Handle macOS file open events (#353) by @pixelkarma
 - Update settings immediately without relying on FS watcher notification (#334)
 - Watch files that don't exist yet by polling (like settings.jsonc) (#334)
 - Trigger full rescan when focusing project panel
