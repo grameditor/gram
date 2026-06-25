@@ -27,6 +27,7 @@ const NODE_CA_CERTS_ENV_VAR: &str = "NODE_EXTRA_CA_CERTS";
 pub struct NodeBinaryOptions {
     pub allow_path_lookup: bool,
     pub allow_binary_download: bool,
+    pub allow_prettier_download: bool,
     pub use_paths: Option<(PathBuf, PathBuf)>,
 }
 
@@ -286,6 +287,23 @@ impl NodeRuntime {
         self.run_npm_subcommand(directory, "install", &arguments)
             .await?;
         Ok(())
+    }
+
+    pub async fn get_options(&self) -> Option<NodeBinaryOptions> {
+        let mut state = self.0.lock().await;
+        let options = loop {
+            if let Some(options) = state.options.borrow().as_ref() {
+                break options.clone();
+            }
+            match state.options.changed().await {
+                Ok(()) => {}
+                // failure case not cached
+                Err(..) => {
+                    return None;
+                }
+            }
+        };
+        Some(options)
     }
 
     pub async fn should_install_npm_package(

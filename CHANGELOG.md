@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Added
 
 - Add `editor.line_number_scale` setting for smaller line numbers
+- Gate Prettier download behind allow option in LSP configuration
 
 ## Fixed
 

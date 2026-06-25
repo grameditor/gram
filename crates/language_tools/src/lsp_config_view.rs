@@ -207,6 +207,19 @@ impl LspConfigView {
         cx.notify();
     }
 
+    fn toggle_allow_download_prettier(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        cx.update_global(|store: &mut SettingsStore, cx| {
+            store.update_settings_file(<dyn Fs>::global(cx), move |settings, _cx| {
+                let node = settings.node.get_or_insert_with(Default::default);
+                node.allow_prettier_download =
+                    Some(!node.allow_prettier_download.unwrap_or_default());
+            });
+        });
+
+        window.refresh();
+        cx.notify();
+    }
+
     fn update_binary_setting<F>(
         &mut self,
         server_name: LanguageServerName,
@@ -467,10 +480,34 @@ impl LspConfigView {
                 .child(
                     v_flex()
                         .gap_1p5()
-                        .child(Label::new("Allow download"))
+                        .child(Label::new("Download Node.js"))
                         .child(
                         Label::new(
-                            "Allow the editor to download a Node.js binary if it can't find one",
+                            "Allow the editor to download a Node.js binary if it can't find one.",
+                        )
+                        .size(LabelSize::Small)
+                        .color(Color::Muted),
+                    ),
+                ),
+        )
+        .child(
+            h_flex()
+                .gap_2()
+                .items_center()
+                .child(
+                    Switch::new("allow-binary-download-prettier", ToggleState::from(allow)).on_click(
+                        cx.listener(move |this, _, window, cx| {
+                            this.toggle_allow_download_prettier(window, cx);
+                        }),
+                    ),
+                )
+                .child(
+                    v_flex()
+                        .gap_1p5()
+                        .child(Label::new("Download Prettier"))
+                        .child(
+                        Label::new(
+                            "Allow the editor to download the Prettier formatter unless already available.",
                         )
                         .size(LabelSize::Small)
                         .color(Color::Muted),
