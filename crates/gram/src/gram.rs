@@ -1769,18 +1769,26 @@ fn reload_keymaps(cx: &mut App, mut user_key_bindings: Vec<KeyBinding>) {
 
 pub fn load_default_keymap(cx: &mut App) {
     let base_keymap = *BaseKeymap::get_global(cx);
-    if base_keymap != BaseKeymap::None {
-        if base_keymap != BaseKeymap::Minimal {
+
+    match base_keymap {
+        BaseKeymap::None => {}
+        BaseKeymap::Minimal => {
+            if let Some(asset_path) = base_keymap.asset_path() {
+                cx.bind_keys(
+                    KeymapFile::load_asset(asset_path, Some(KeybindSource::Base), cx).unwrap(),
+                );
+            }
+        }
+        _ => {
             cx.bind_keys(
                 KeymapFile::load_asset(DEFAULT_KEYMAP_PATH, Some(KeybindSource::Default), cx)
                     .unwrap(),
             );
-        }
-
-        if let Some(asset_path) = base_keymap.asset_path() {
-            cx.bind_keys(
-                KeymapFile::load_asset(asset_path, Some(KeybindSource::Base), cx).unwrap(),
-            );
+            if let Some(asset_path) = base_keymap.asset_path() {
+                cx.bind_keys(
+                    KeymapFile::load_asset(asset_path, Some(KeybindSource::Base), cx).unwrap(),
+                );
+            }
         }
     }
 

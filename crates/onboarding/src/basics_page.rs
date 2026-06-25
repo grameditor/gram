@@ -259,7 +259,7 @@ fn render_base_keymap_section(tab_index: &mut isize, cx: &mut App) -> impl IntoE
                 }),
             ],
             [
-                ToggleButtonWithIcon::new("Minimal (for vim/helix)", IconName::Code, |_, _, cx| {
+                ToggleButtonWithIcon::new("Minimal", IconName::Code, |_, _, cx| {
                     write_keymap_base(BaseKeymap::Minimal, cx);
                 }),
                 ToggleButtonWithIcon::new("", IconName::Blank, |_, _, _cx| {}),

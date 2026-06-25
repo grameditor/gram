@@ -843,7 +843,6 @@
       "shift-tab": "git_panel::FocusChanges",
       "alt-up": "git_panel::FocusChanges",
       "shift-escape": "git::ExpandCommitEditor",
-      "alt-tab": "git::GenerateCommitMessage",
     },
   },
   {
@@ -872,7 +871,6 @@
       "escape": "menu::Cancel",
       "cmd-enter": "git::Commit",
       "cmd-shift-enter": "git::Amend",
-      "alt-tab": "git::GenerateCommitMessage",
     },
   },
   {
