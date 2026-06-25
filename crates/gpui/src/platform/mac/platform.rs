@@ -130,6 +130,14 @@ unsafe fn build_classes() {
                 sel!(application:openURLs:),
                 open_urls as extern "C" fn(&mut Object, Sel, id, id),
             );
+            decl.add_method(
+                sel!(application:openFiles:),
+                open_files as extern "C" fn(&mut Object, Sel, id, id),
+            );
+            decl.add_method(
+                sel!(application:openFile:),
+                open_file as extern "C" fn(&mut Object, Sel, id, id) -> BOOL,
+            );
 
             decl.add_method(
                 sel!(onKeyboardLayoutChange:),
@@ -1122,6 +1130,45 @@ extern "C" fn open_urls(this: &mut Object, _: Sel, _: id, urls: id) {
             })
             .collect::<Vec<_>>()
     };
+    dispatch_open_urls(this, urls);
+}
+
+extern "C" fn open_files(this: &mut Object, _: Sel, app: id, files: id) {
+    let urls = unsafe {
+        (0..files.count())
+            .filter_map(|i| {
+                let file = files.objectAtIndex(i);
+                file_path_to_url_string(file)
+            })
+            .collect::<Vec<_>>()
+    };
+    dispatch_open_urls(this, urls);
+    unsafe {
+        let _: () = msg_send![app, replyToOpenOrPrint: 0];
+    }
+}
+
+extern "C" fn open_file(this: &mut Object, _: Sel, _: id, file: id) -> BOOL {
+    if let Some(url) = unsafe { file_path_to_url_string(file) } {
+        dispatch_open_urls(this, vec![url]);
+        YES
+    } else {
+        NO
+    }
+}
+
+unsafe fn file_path_to_url_string(file: id) -> Option<String> {
+    let url = unsafe { NSURL::fileURLWithPath_(nil, file) };
+    match unsafe { CStr::from_ptr(url.absoluteString().UTF8String() as *mut c_char) }.to_str() {
+        Ok(string) => Some(string.to_string()),
+        Err(err) => {
+            log::error!("error converting file path to url: {}", err);
+            None
+        }
+    }
+}
+
+fn dispatch_open_urls(this: &mut Object, urls: Vec<String>) {
     let platform = unsafe { get_mac_platform(this) };
     let mut lock = platform.0.lock();
     if let Some(mut callback) = lock.open_urls.take() {
