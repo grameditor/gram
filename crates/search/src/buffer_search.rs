@@ -71,7 +71,9 @@ actions!(
         /// Dismisses the search bar.
         Dismiss,
         /// Focuses back on the editor.
-        FocusEditor
+        FocusEditor,
+        /// Sets the search query to the current selection without opening the search bar or running a search.
+        UseSelectionForFind,
     ]
 );
 
@@ -662,6 +664,16 @@ impl BufferSearchBar {
                 this.deploy(&Deploy::replace(), window, cx);
             }
         }));
+        registrar.register_handler(ForDeployed(
+            |this, action: &UseSelectionForFind, window, cx| {
+                this.use_selection_for_find(action, window, cx);
+            },
+        ));
+        registrar.register_handler(ForDismissed(
+            |this, action: &UseSelectionForFind, window, cx| {
+                this.use_selection_for_find(action, window, cx);
+            },
+        ));
     }
 
     pub fn new(
@@ -863,7 +875,7 @@ impl BufferSearchBar {
     }
 
     pub fn search_suggested(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let search = self.query_suggestion(window, cx).map(|suggestion| {
+        let search = self.query_suggestion(false, window, cx).map(|suggestion| {
             self.search(&suggestion, Some(self.default_options), true, window, cx)
         });
 
@@ -917,12 +929,13 @@ impl BufferSearchBar {
 
     pub fn query_suggestion(
         &mut self,
+        ignore_settings: bool,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> Option<String> {
         self.active_searchable_item
             .as_ref()
-            .map(|searchable_item| searchable_item.query_suggestion(window, cx))
+            .map(|searchable_item| searchable_item.query_suggestion(ignore_settings, window, cx))
             .filter(|suggestion| !suggestion.is_empty())
     }
 
@@ -1682,6 +1695,28 @@ impl BufferSearchBar {
         if let Some(active_searchable_item) = self.active_searchable_item.as_ref() {
             active_searchable_item.set_search_is_case_sensitive(case_sensitive, cx);
         }
+    }
+
+    pub fn use_selection_for_find(
+        &mut self,
+        _: &UseSelectionForFind,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let Some(search_text) = self.query_suggestion(true, window, cx) else {
+            return;
+        };
+        self.query_editor.update(cx, |query_editor, cx| {
+            query_editor.buffer().update(cx, |query_buffer, cx| {
+                let len = query_buffer.len(cx);
+                query_buffer.edit([(MultiBufferOffset(0)..len, search_text)], None, cx);
+            });
+        });
+        self.clear_matches(window, cx);
+        #[cfg(target_os = "macos")]
+        self.update_find_pasteboard(cx);
+        drop(self.update_matches(false, true, window, cx));
+        cx.notify();
     }
 }
 
