@@ -7,10 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Changed
+
+- Port Mac from custom Metal renderer to using wgpu
+- Use cosmic-text for text layout on both Linux and Mac OS
+- Upgrade cosmic-text to 0.19
+- Switch default system font to DejaVu Sans on Linux
+- Backport cosmic-text layout fixes from Zed
+- Add bold & italic variants to default monospace font (Myna)
+
 ## Added
 
 - Add `editor.line_number_scale` setting for smaller line numbers
 - Gate Prettier download behind allow option in LSP configuration
+- Add support for variable weight fonts to cosmic text system
 
 ## Fixed
 
