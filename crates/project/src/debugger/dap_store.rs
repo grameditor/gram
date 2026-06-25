@@ -240,6 +240,8 @@ impl DapStore {
         }
     }
 
+    /// TODO: Permissions for DAP binary download
+    /// Settings for debug adapters
     pub fn get_debug_adapter_binary(
         &mut self,
         definition: DebugTaskDefinition,
