@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Switch default system font to DejaVu Sans on Linux
 - Backport cosmic-text layout fixes from Zed
 - Add bold & italic variants to default monospace font (Myna)
+- Always display "Return to Onboarding" on Welcome screen
 
 ## Added
 

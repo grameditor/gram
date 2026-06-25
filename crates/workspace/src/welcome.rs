@@ -427,22 +427,18 @@ impl Render for WelcomePage {
                             )
                             .child(first_section.render(Default::default(), &self.focus_handle, cx))
                             .child(second_section)
-                            .when(!self.fallback_to_recent_projects, |this| {
-                                this.child(
-                                    v_flex().gap_1().child(Divider::horizontal()).child(
-                                        Button::new("welcome-exit", "Return to Onboarding")
-                                            .tab_index(last_index as isize)
-                                            .full_width()
-                                            .label_size(LabelSize::XSmall)
-                                            .on_click(|_, window, cx| {
-                                                window.dispatch_action(
-                                                    OpenOnboarding.boxed_clone(),
-                                                    cx,
-                                                );
-                                            }),
-                                    ),
-                                )
-                            }),
+                            .child(
+                                v_flex().gap_1().child(Divider::horizontal()).child(
+                                    Button::new("welcome-exit", "Return to Onboarding")
+                                        .tab_index(last_index as isize)
+                                        .full_width()
+                                        .label_size(LabelSize::XSmall)
+                                        .on_click(|_, window, cx| {
+                                            window
+                                                .dispatch_action(OpenOnboarding.boxed_clone(), cx);
+                                        }),
+                                ),
+                            ),
                     ),
             )
     }
