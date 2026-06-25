@@ -384,7 +384,7 @@ fn render_setting_import_button(
 fn render_import_settings_section(tab_index: &mut isize, cx: &mut App) -> impl IntoElement {
     let import_state = SettingsImportState::global(cx);
     let imports: [(SharedString, &dyn Action, bool); 1] = [(
-        "VS Code".into(),
+        "Import".into(),
         &ImportVsCodeSettings { skip_prompt: false },
         import_state.vscode,
     )];
@@ -404,7 +404,7 @@ fn render_import_settings_section(tab_index: &mut isize, cx: &mut App) -> impl I
                 .max_w_5_6()
                 .child(Label::new("Import Settings"))
                 .child(
-                    Label::new("Automatically pull your settings from other editors")
+                    Label::new("Read compatible settings from your Codium / VS Code configuration, if available.")
                         .color(Color::Muted),
                 ),
         )
