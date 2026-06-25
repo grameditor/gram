@@ -195,11 +195,16 @@ impl LspConfigView {
         this
     }
 
-    fn toggle_allow_download_node(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+    fn toggle_node_setting(
+        &mut self,
+        f: impl FnOnce(&mut settings::NodeBinarySettings) -> () + std::marker::Send + 'static,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
         cx.update_global(|store: &mut SettingsStore, cx| {
             store.update_settings_file(<dyn Fs>::global(cx), move |settings, _cx| {
                 let node = settings.node.get_or_insert_with(Default::default);
-                node.allow_binary_download = Some(!node.allow_binary_download.unwrap_or_default());
+                f(node);
             });
         });
 
@@ -207,17 +212,35 @@ impl LspConfigView {
         cx.notify();
     }
 
+    fn toggle_allow_download_node(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.toggle_node_setting(
+            |node| {
+                node.allow_binary_download = Some(!node.allow_binary_download.unwrap_or_default());
+            },
+            window,
+            cx,
+        )
+    }
+
     fn toggle_allow_download_prettier(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        cx.update_global(|store: &mut SettingsStore, cx| {
-            store.update_settings_file(<dyn Fs>::global(cx), move |settings, _cx| {
-                let node = settings.node.get_or_insert_with(Default::default);
+        self.toggle_node_setting(
+            |node| {
                 node.allow_prettier_download =
                     Some(!node.allow_prettier_download.unwrap_or_default());
-            });
-        });
+            },
+            window,
+            cx,
+        )
+    }
 
-        window.refresh();
-        cx.notify();
+    fn toggle_allow_npm_install(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.toggle_node_setting(
+            |node| {
+                node.allow_npm_install = Some(!node.allow_npm_install.unwrap_or_default());
+            },
+            window,
+            cx,
+        )
     }
 
     fn update_binary_setting<F>(
@@ -508,6 +531,30 @@ impl LspConfigView {
                         .child(
                         Label::new(
                             "Allow the editor to download the Prettier formatter unless already available.",
+                        )
+                        .size(LabelSize::Small)
+                        .color(Color::Muted),
+                    ),
+                ),
+        )
+        .child(
+            h_flex()
+                .gap_2()
+                .items_center()
+                .child(
+                    Switch::new("allow-npm-install", ToggleState::from(allow)).on_click(
+                        cx.listener(move |this, _, window, cx| {
+                            this.toggle_allow_npm_install(window, cx);
+                        }),
+                    ),
+                )
+                .child(
+                    v_flex()
+                        .gap_1p5()
+                        .child(Label::new("Allow npm install"))
+                        .child(
+                        Label::new(
+                            "Allow the editor to install NPM packages.",
                         )
                         .size(LabelSize::Small)
                         .color(Color::Muted),

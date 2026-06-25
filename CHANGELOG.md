@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add `editor.line_number_scale` setting for smaller line numbers
 - Gate Prettier download behind allow option in LSP configuration
+- Gate NPM package installation behind allow option in LSP configuration
 - Add support for variable weight fonts to cosmic text system
 
 ## Fixed

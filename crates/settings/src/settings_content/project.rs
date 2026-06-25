@@ -440,6 +440,8 @@ pub struct NodeBinarySettings {
     pub allow_binary_download: Option<bool>,
     /// If disabled, Gram will not download its own copy of Prettier.
     pub allow_prettier_download: Option<bool>,
+    /// If disabled, Gram will not try to install language servers using NPM.
+    pub allow_npm_install: Option<bool>,
 }
 
 #[derive(Clone, PartialEq, Debug, Default, Serialize, Deserialize, JsonSchema, MergeFrom)]

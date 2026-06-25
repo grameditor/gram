@@ -460,6 +460,7 @@ pub fn main() {
                 allow_path_lookup: !settings.ignore_system_version,
                 allow_binary_download: settings.allow_binary_download,
                 allow_prettier_download: settings.allow_prettier_download,
+                allow_npm_install: settings.allow_npm_install,
                 use_paths: settings.path.as_ref().map(|node_path| {
                     let node_path = PathBuf::from(shellexpand::tilde(node_path).as_ref());
                     let npm_path = settings

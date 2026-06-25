@@ -28,6 +28,7 @@ pub struct NodeBinaryOptions {
     pub allow_path_lookup: bool,
     pub allow_binary_download: bool,
     pub allow_prettier_download: bool,
+    pub allow_npm_install: bool,
     pub use_paths: Option<(PathBuf, PathBuf)>,
 }
 
@@ -282,6 +283,18 @@ impl NodeRuntime {
             "--fetch-timeout",
             "5000",
         ]);
+
+        if !self
+            .get_options()
+            .await
+            .context("Could not read node settings")?
+            .allow_npm_install
+        {
+            anyhow::bail!(
+                "npm install disabled in Language Server settings: {:?}",
+                packages,
+            );
+        }
 
         // This is also wrong because the directory is wrong.
         self.run_npm_subcommand(directory, "install", &arguments)

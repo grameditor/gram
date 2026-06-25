@@ -880,6 +880,7 @@ fn initialize_settings(
                 allow_path_lookup: !new_node_settings.ignore_system_version,
                 allow_binary_download: new_node_settings.allow_binary_download,
                 allow_prettier_download: new_node_settings.allow_prettier_download,
+                allow_npm_install: new_node_settings.allow_npm_install,
                 use_paths: new_node_settings.path.as_ref().map(|node_path| {
                     let node_path = PathBuf::from(shellexpand::tilde(node_path).as_ref());
                     let npm_path = new_node_settings

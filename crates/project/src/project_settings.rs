@@ -94,6 +94,8 @@ pub struct NodeBinarySettings {
     pub allow_binary_download: bool,
     /// If disabled, Gram will not download its own copy of Prettier.
     pub allow_prettier_download: bool,
+    /// If disabled, Gram will not try to install language servers using NPM.
+    pub allow_npm_install: bool,
 }
 
 impl From<settings::NodeBinarySettings> for NodeBinarySettings {
@@ -104,6 +106,7 @@ impl From<settings::NodeBinarySettings> for NodeBinarySettings {
             ignore_system_version: settings.ignore_system_version.unwrap_or(false),
             allow_binary_download: settings.allow_binary_download.unwrap_or(false),
             allow_prettier_download: settings.allow_prettier_download.unwrap_or(false),
+            allow_npm_install: settings.allow_npm_install.unwrap_or(false),
         }
     }
 }
