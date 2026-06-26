@@ -52,6 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix loading tasks from extensions
 - Make the Minimal keymap a bit less minimal to reduce confusion (#346)
 - Fix cmd-e on macOS to behave more like it should (zed#54451)
+- Save buffers before debug run (#338)
 
 ## [2.2.0] - 2026-06-08
 
