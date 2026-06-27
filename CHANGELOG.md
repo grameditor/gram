@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add installation instructions for MSYS2 (#337) by @ognevny
 - Fix potential hang when using clipboard on Linux / Wayland (zed#58826) by @dantai
 - Handle macOS file open events (#353) by @pixelkarma
+- Normalize line endings (#354) by @gluca
 - Update settings immediately without relying on FS watcher notification (#334)
 - Watch files that don't exist yet by polling (like settings.jsonc) (#334)
 - Trigger full rescan when focusing project panel
@@ -53,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Make the Minimal keymap a bit less minimal to reduce confusion (#346)
 - Fix cmd-e on macOS to behave more like it should (zed#54451)
 - Save buffers before debug run (#338)
+- Use objc2 for window prompts (zed#59572)
 
 ## [2.2.0] - 2026-06-08
 
