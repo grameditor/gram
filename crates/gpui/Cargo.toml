@@ -144,6 +144,8 @@ bytemuck = { version = "1" }
 objc2.workspace = true
 objc2-foundation.workspace = true
 objc2-app-kit.workspace = true
+objc2-color-sync.workspace = true
+objc2-core-graphics.workspace = true
 
 [target.'cfg(any(target_os = "linux", target_os = "freebsd", target_os = "macos"))'.dependencies]
 pathfinder_geometry = "0.5"

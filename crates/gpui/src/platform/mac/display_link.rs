@@ -7,7 +7,7 @@ use crate::{
     },
 };
 use anyhow::Result;
-use core_graphics::display::CGDirectDisplayID;
+use objc2_core_graphics::CGDirectDisplayID;
 use std::ffi::c_void;
 use util::ResultExt;
 
@@ -110,8 +110,8 @@ mod sys {
     #![allow(dead_code, non_upper_case_globals)]
 
     use anyhow::Result;
-    use core_graphics::display::CGDirectDisplayID;
     use foreign_types::{ForeignType, foreign_type};
+    use objc2_core_graphics::CGDirectDisplayID;
     use std::{
         ffi::c_void,
         fmt::{self, Debug, Formatter},
