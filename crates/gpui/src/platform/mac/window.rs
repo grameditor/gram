@@ -1092,7 +1092,7 @@ impl PlatformWindow for MacWindow {
     fn appearance(&self) -> WindowAppearance {
         unsafe {
             let appearance: id = msg_send![self.0.lock().native_window, effectiveAppearance];
-            WindowAppearance::from_native(appearance)
+            WindowAppearance::from_native(appearance as *mut objc2::runtime::AnyObject)
         }
     }
 
