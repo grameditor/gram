@@ -7,6 +7,8 @@ mod events;
 mod keyboard;
 mod pasteboard;
 
+mod gpui_panel;
+mod gpui_view;
 mod platform;
 mod window;
 mod window_appearance;
@@ -14,7 +16,7 @@ mod window_appearance;
 use crate::{DevicePixels, Pixels, Size, px, size};
 use cocoa::{
     base::{id, nil},
-    foundation::{NSAutoreleasePool, NSNotFound, NSRect, NSSize, NSString, NSUInteger},
+    foundation::{NSAutoreleasePool, NSRect, NSSize, NSString, NSUInteger},
 };
 
 use objc::runtime::{BOOL, NO, YES};
@@ -64,29 +66,6 @@ struct NSRange {
     pub length: NSUInteger,
 }
 
-impl NSRange {
-    fn invalid() -> Self {
-        Self {
-            location: NSNotFound as NSUInteger,
-            length: 0,
-        }
-    }
-
-    fn is_valid(&self) -> bool {
-        self.location != NSNotFound as NSUInteger
-    }
-
-    fn to_range(self) -> Option<Range<usize>> {
-        if self.is_valid() {
-            let start = self.location as usize;
-            let end = start + self.length as usize;
-            Some(start..end)
-        } else {
-            None
-        }
-    }
-}
-
 impl From<Range<usize>> for NSRange {
     fn from(range: Range<usize>) -> Self {
         NSRange {
@@ -132,6 +111,29 @@ impl From<NSRect> for Size<Pixels> {
 impl From<NSRect> for Size<DevicePixels> {
     fn from(rect: NSRect) -> Self {
         let NSSize { width, height } = rect.size;
+        size(DevicePixels(width as i32), DevicePixels(height as i32))
+    }
+}
+
+impl From<objc2_foundation::NSSize> for Size<Pixels> {
+    fn from(value: objc2_foundation::NSSize) -> Self {
+        Size {
+            width: px(value.width as f32),
+            height: px(value.height as f32),
+        }
+    }
+}
+
+impl From<objc2_foundation::NSRect> for Size<Pixels> {
+    fn from(rect: objc2_foundation::NSRect) -> Self {
+        let objc2_foundation::NSSize { width, height } = rect.size;
+        size(width.into(), height.into())
+    }
+}
+
+impl From<objc2_foundation::NSRect> for Size<DevicePixels> {
+    fn from(rect: objc2_foundation::NSRect) -> Self {
+        let objc2_foundation::NSSize { width, height } = rect.size;
         size(DevicePixels(width as i32), DevicePixels(height as i32))
     }
 }
