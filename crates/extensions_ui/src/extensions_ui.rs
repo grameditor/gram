@@ -214,7 +214,14 @@ pub fn init(cx: &mut App) {
 
                             let url = url.clone();
                             let destination_dir = temp_dir.keep();
-                            let repo_dir = destination_dir.clone();
+                            let repo_name = url
+                                .split('/')
+                                .next_back()
+                                .map(|name| name.strip_suffix(".git").unwrap_or(name))
+                                .unwrap_or("repository")
+                                .to_owned();
+                            let mut repo_dir = destination_dir.clone();
+                            repo_dir.push(&repo_name);
                             let fs = workspace.app_state().fs.clone();
                             cx.spawn_in(window, async move |workspace, cx| {
                                 let repo_url = url.as_str();
