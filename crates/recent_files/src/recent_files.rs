@@ -160,7 +160,7 @@ impl RecentFilesDelegate {
     }
 
     fn set_paths(&mut self, paths: Vec<PathBuf>, cx: &mut Context<Picker<Self>>) {
-        self.paths = paths;
+        self.paths = paths.into_iter().filter(|path| path.exists()).collect();
         self.matches_from_paths(|(idx, path)| StringMatch {
             candidate_id: idx,
             string: homify(path),
@@ -171,13 +171,7 @@ impl RecentFilesDelegate {
     }
 
     fn matches_from_paths(&mut self, f: impl Fn((usize, &PathBuf)) -> StringMatch) {
-        self.matches = self
-            .paths
-            .iter()
-            .filter(|path| path.exists())
-            .enumerate()
-            .map(f)
-            .collect();
+        self.matches = self.paths.iter().enumerate().map(f).collect();
     }
 
     fn icon_for_file(&self, path: &Path, cx: &App) -> Option<Icon> {

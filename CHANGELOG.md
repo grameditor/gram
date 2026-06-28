@@ -55,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix cmd-e on macOS to behave more like it should (zed#54451)
 - Save buffers before debug run (#338)
 - Use objc2 for window prompts (zed#59572)
+- Fix recent files picker out of sync when containing paths that no longer exist
 
 ## [2.2.0] - 2026-06-08
 
