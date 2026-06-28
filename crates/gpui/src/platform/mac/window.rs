@@ -1202,7 +1202,7 @@ impl PlatformWindow for MacWindow {
                             | objc2_app_kit::NSAutoresizingMaskOptions::ViewHeightSizable,
                     );
 
-                    let blur_view_ptr = Retained::into_raw(blur_view.clone()) as cocoa::base::id;
+                    let blur_view_ptr = Retained::into_raw(blur_view) as cocoa::base::id;
 
                     let _: () = msg_send![
                         content_view,

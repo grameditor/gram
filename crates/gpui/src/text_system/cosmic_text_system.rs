@@ -108,7 +108,7 @@ impl PlatformTextSystem for CosmicTextSystem {
         let mut state = self.0.write();
         let key = FontKey::new(
             font.family.clone(),
-            font.weight.clone(),
+            font.weight,
             font.features.clone(),
             font.fallbacks.clone(),
         );
@@ -237,7 +237,7 @@ impl CosmicTextSystemState {
                 for fallback_name in fallbacks.fallback_list() {
                     let fb_key = FontKey::new(
                         SharedString::from(fallback_name.clone()),
-                        weight.clone(),
+                        *weight,
                         features.clone(),
                         None,
                     );
@@ -452,7 +452,7 @@ impl CosmicTextSystemState {
             self.loaded_fonts.push(LoadedFont {
                 font,
                 features: CosmicFontFeatures::new(),
-                weight: face.weight.clone(),
+                weight: face.weight,
                 is_known_emoji_font: check_is_known_emoji_font(&face.post_script_name),
                 fallbacks: Arc::from(Vec::new()),
             });

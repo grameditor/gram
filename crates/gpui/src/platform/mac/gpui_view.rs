@@ -162,7 +162,7 @@ define_class!(
                 let selected_text = NSString::from_str(&selected_text);
                 let string = NSAttributedString::initWithString(
                     NSAttributedString::alloc(),
-                    &*selected_text,
+                    &selected_text,
                 );
                 Some(Retained::autorelease_return(string))
             })
@@ -692,8 +692,8 @@ fn nsrange_is_valid(range: &NSRange) -> bool {
 
 fn nsrange_to_range(range: &NSRange) -> Option<Range<usize>> {
     if nsrange_is_valid(range) {
-        let start = range.location as usize;
-        let end = start + range.length as usize;
+        let start = range.location;
+        let end = start + range.length;
         Some(start..end)
     } else {
         None
