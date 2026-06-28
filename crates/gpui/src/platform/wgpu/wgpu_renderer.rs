@@ -107,6 +107,8 @@ pub struct WgpuRenderer {
     surface_format: wgpu::TextureFormat,
     present_mode: wgpu::PresentMode,
     alpha_mode: wgpu::CompositeAlphaMode,
+    transparent_alpha_mode: wgpu::CompositeAlphaMode,
+    opaque_alpha_mode: wgpu::CompositeAlphaMode,
     pipelines: WgpuPipelines,
     bind_group_layouts: WgpuBindGroupLayouts,
     atlas: Arc<WgpuAtlas>,
@@ -168,17 +170,46 @@ impl WgpuRenderer {
             .find(|f| surface_caps.formats.contains(f))
             .copied()
             .or_else(|| surface_caps.formats.iter().find(|f| !f.is_srgb()).copied())
-            .unwrap_or(surface_caps.formats[0]);
+            .or_else(|| surface_caps.formats.first().copied())
+            .ok_or_else(|| {
+                anyhow::anyhow!(
+                    "Surface reports no supported texture formats for adapter {:?}",
+                    context.adapter.get_info().name
+                )
+            })?;
+
+        let pick_alpha_mode =
+            |preferences: &[wgpu::CompositeAlphaMode]| -> anyhow::Result<wgpu::CompositeAlphaMode> {
+                preferences
+                    .iter()
+                    .find(|p| surface_caps.alpha_modes.contains(p))
+                    .copied()
+                    .or_else(|| surface_caps.alpha_modes.first().copied())
+                    .ok_or_else(|| {
+                        anyhow::anyhow!(
+                            "Surface reports no supported alpha modes for adapter {:?}",
+                            context.adapter.get_info().name
+                        )
+                    })
+            };
+
+        #[cfg(target_os = "macos")]
+        let preferred_alpha = wgpu::CompositeAlphaMode::PostMultiplied;
+        #[cfg(not(target_os = "macos"))]
+        let preferred_alpha = wgpu::CompositeAlphaMode::PreMultiplied;
+
+        let transparent_alpha_mode =
+            pick_alpha_mode(&[preferred_alpha, wgpu::CompositeAlphaMode::Inherit])?;
+
+        let opaque_alpha_mode = pick_alpha_mode(&[
+            wgpu::CompositeAlphaMode::Opaque,
+            wgpu::CompositeAlphaMode::Inherit,
+        ])?;
 
         let alpha_mode = if config.transparent {
-            surface_caps
-                .alpha_modes
-                .iter()
-                .find(|m| **m == wgpu::CompositeAlphaMode::PreMultiplied)
-                .copied()
-                .unwrap_or(surface_caps.alpha_modes[0])
+            transparent_alpha_mode
         } else {
-            wgpu::CompositeAlphaMode::Auto
+            opaque_alpha_mode
         };
 
         let size = PhysicalSize {
@@ -267,6 +298,8 @@ impl WgpuRenderer {
             surface_format,
             present_mode,
             alpha_mode,
+            transparent_alpha_mode,
+            opaque_alpha_mode,
             pipelines,
             bind_group_layouts,
             atlas,
@@ -783,9 +816,9 @@ impl WgpuRenderer {
 
     pub fn update_transparency(&mut self, transparent: bool) {
         let new_alpha_mode = if transparent {
-            wgpu::CompositeAlphaMode::PreMultiplied
+            self.transparent_alpha_mode
         } else {
-            wgpu::CompositeAlphaMode::Auto
+            self.opaque_alpha_mode
         };
 
         if new_alpha_mode != self.alpha_mode {
