@@ -7,6 +7,7 @@ mod events;
 mod keyboard;
 mod pasteboard;
 
+mod blurred_view;
 mod gpui_panel;
 mod gpui_view;
 mod platform;

@@ -19,10 +19,8 @@ use cocoa::{
     appkit::{
         NSAppKitVersionNumber, NSAppKitVersionNumber12_0, NSApplication, NSBackingStoreBuffered,
         NSColor, NSEvent, NSEventModifierFlags, NSFilenamesPboardType, NSPasteboard, NSScreen,
-        NSView, NSViewHeightSizable, NSViewWidthSizable, NSVisualEffectMaterial,
-        NSVisualEffectState, NSVisualEffectView, NSWindow, NSWindowButton,
-        NSWindowCollectionBehavior, NSWindowOcclusionState, NSWindowOrderingMode,
-        NSWindowStyleMask, NSWindowTitleVisibility,
+        NSView, NSWindow, NSWindowButton, NSWindowCollectionBehavior, NSWindowOcclusionState,
+        NSWindowOrderingMode, NSWindowStyleMask, NSWindowTitleVisibility,
     },
     base::{id, nil},
     foundation::{
@@ -65,7 +63,6 @@ const WINDOW_STATE_IVAR: &str = "windowState";
 
 static mut WINDOW_CLASS: *const Class = ptr::null();
 static mut PANEL_CLASS: *const Class = ptr::null();
-static mut BLURRED_VIEW_CLASS: *const Class = ptr::null();
 
 #[allow(non_upper_case_globals)]
 const NSWindowStyleMaskNonactivatingPanel: NSWindowStyleMask =
@@ -123,18 +120,6 @@ unsafe fn build_classes() {
     unsafe {
         WINDOW_CLASS = build_window_class("GPUIWindow", class!(NSWindow));
         PANEL_CLASS = build_window_class("GPUIPanel", class!(NSPanel));
-        BLURRED_VIEW_CLASS = {
-            let mut decl = ClassDecl::new("BlurredView", class!(NSVisualEffectView)).unwrap();
-            decl.add_method(
-                sel!(initWithFrame:),
-                blurred_view_init_with_frame as extern "C" fn(&Object, Sel, NSRect) -> id,
-            );
-            decl.add_method(
-                sel!(updateLayer),
-                blurred_view_update_layer as extern "C" fn(&Object, Sel),
-            );
-            decl.register()
-        };
     }
 }
 
@@ -573,17 +558,7 @@ impl MacWindow {
             let native_view = {
                 let mtm = MainThreadMarker::new().expect("Must be called from the main thread");
                 let bounds = NSView::bounds(content_view);
-                let bounds = objc2_foundation::NSRect::new(
-                    objc2_foundation::NSPoint {
-                        x: bounds.origin.x,
-                        y: bounds.origin.y,
-                    },
-                    objc2_foundation::NSSize {
-                        width: bounds.size.width,
-                        height: bounds.size.height,
-                    },
-                );
-                crate::platform::mac::gpui_view::GPUIView::new(mtm, bounds)
+                crate::platform::mac::gpui_view::GPUIView::new(mtm, to_objc2_rect(bounds))
             };
 
             let renderer = {
@@ -1219,17 +1194,23 @@ impl PlatformWindow for MacWindow {
                 } else if this.blurred_view.is_none() {
                     let content_view = this.native_window.contentView();
                     let frame = NSView::bounds(content_view);
-                    let mut blur_view: id = msg_send![BLURRED_VIEW_CLASS, alloc];
-                    blur_view = NSView::initWithFrame_(blur_view, frame);
-                    blur_view.setAutoresizingMask_(NSViewWidthSizable | NSViewHeightSizable);
+                    let mtm = MainThreadMarker::new().expect("Must run on the main thread");
+                    let blur_view =
+                        super::blurred_view::BlurredView::new(mtm, to_objc2_rect(frame));
+                    blur_view.setAutoresizingMask(
+                        objc2_app_kit::NSAutoresizingMaskOptions::ViewWidthSizable
+                            | objc2_app_kit::NSAutoresizingMaskOptions::ViewHeightSizable,
+                    );
+
+                    let blur_view_ptr = Retained::into_raw(blur_view.clone()) as cocoa::base::id;
 
                     let _: () = msg_send![
                         content_view,
-                        addSubview: blur_view
+                        addSubview: blur_view_ptr
                         positioned: NSWindowOrderingMode::NSWindowBelow
                         relativeTo: nil
                     ];
-                    this.blurred_view = Some(blur_view.autorelease());
+                    this.blurred_view = Some(blur_view_ptr);
                 }
             }
         }
@@ -1889,28 +1870,7 @@ unsafe fn display_id_for_screen(screen: id) -> CGDirectDisplayID {
     }
 }
 
-extern "C" fn blurred_view_init_with_frame(this: &Object, _: Sel, frame: NSRect) -> id {
-    unsafe {
-        let view = msg_send![super(this, class!(NSVisualEffectView)), initWithFrame: frame];
-        // Use a colorless semantic material. The default value `AppearanceBased`, though not
-        // manually set, is deprecated.
-        NSVisualEffectView::setMaterial_(view, NSVisualEffectMaterial::Selection);
-        NSVisualEffectView::setState_(view, NSVisualEffectState::Active);
-        view
-    }
-}
-
-extern "C" fn blurred_view_update_layer(this: &Object, _: Sel) {
-    unsafe {
-        let _: () = msg_send![super(this, class!(NSVisualEffectView)), updateLayer];
-        let layer: id = msg_send![this, layer];
-        if !layer.is_null() {
-            remove_layer_background(layer);
-        }
-    }
-}
-
-unsafe fn remove_layer_background(layer: id) {
+pub(crate) unsafe fn remove_layer_background(layer: id) {
     unsafe {
         let _: () = msg_send![layer, setBackgroundColor:nil];
 
@@ -2036,4 +1996,17 @@ extern "C" fn toggle_tab_bar(this: &Object, _sel: Sel, _id: id) {
             window_state.lock().toggle_tab_bar_callback = Some(callback);
         }
     }
+}
+
+fn to_objc2_rect(rect: NSRect) -> objc2_foundation::NSRect {
+    objc2_foundation::NSRect::new(
+        objc2_foundation::NSPoint {
+            x: rect.origin.x,
+            y: rect.origin.y,
+        },
+        objc2_foundation::NSSize {
+            width: rect.size.width,
+            height: rect.size.height,
+        },
+    )
 }
