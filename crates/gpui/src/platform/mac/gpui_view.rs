@@ -289,12 +289,15 @@ define_class!(
         #[unsafe(method(viewDidChangeBackingProperties))]
         fn view_did_change_backing_properties(&self) {
             let state = self.window_state();
-            let mut lock = state.as_ref().lock();
-            if let Some(mut callback) = lock.appearance_changed_callback.take() {
-                drop(lock);
+            let appearance_changed_callback = {
+                let mut lock = state.as_ref().lock();
+                lock.appearance_changed_callback.take()
+            };
+            if let Some(mut callback) = appearance_changed_callback {
                 callback();
                 state.lock().appearance_changed_callback = Some(callback);
             }
+            state.lock().move_traffic_light();
         }
 
         #[unsafe(method(setFrameSize:))]
