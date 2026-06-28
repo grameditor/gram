@@ -724,7 +724,7 @@ impl MacWindow {
                         width: DevicePixels(bounds.size.width.0 as i32),
                         height: DevicePixels(bounds.size.height.0 as i32),
                     },
-                    transparent: false,
+                    transparent: true,
                     preferred_present_mode: Some(PresentMode::Fifo),
                 };
 
