@@ -1047,6 +1047,11 @@ fn initialize_pane(
 }
 
 fn open_about(cx: &mut App) {
+    const GRAM_UPDATE_EXPLANATION: &str = match option_env!("GRAM_UPDATE_EXPLANATION") {
+        Some(text) => text,
+        None => "What cannot be mended\nmust be transcended.",
+    };
+
     struct AboutWindow {
         focus_handle: FocusHandle,
         ok: NavigableEntry,
@@ -1113,12 +1118,12 @@ fn open_about(cx: &mut App) {
                             .child(Vector::square(image, rems(4.)))
                             .child(Headline::new(self.headline.clone()).size(HeadlineSize::Small))
                             .child(
-                                Label::new("What cannot be mended\nmust be transcended.")
+                                Label::new(GRAM_UPDATE_EXPLANATION)
                                     .italic()
                                     .size(LabelSize::XSmall),
                             )
                             .child(
-                                ButtonLink::new("gram-editor.com", "https://gram-editor.com/")
+                                ButtonLink::new("gram-editor.com", "https://gram-editor.com")
                                     .label_size(LabelSize::XSmall),
                             )
                             .when_some(self.commit.clone(), |this, commit| {
