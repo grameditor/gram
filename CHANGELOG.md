@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-06-29
+
 ## Changed
 
 - Port Mac from custom Metal renderer to using wgpu
@@ -14,15 +16,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Upgrade cosmic-text to 0.19
 - Switch default system font to DejaVu Sans on Linux
 - Backport cosmic-text layout fixes from Zed
-- Add bold & italic variants to default monospace font (Myna)
 - Always display "Return to Onboarding" on Welcome screen
+- Gate Prettier download behind allow option in LSP configuration
+- Gate NPM package installation behind allow option in LSP configuration
 
 ## Added
 
 - Add `editor.line_number_scale` setting for smaller line numbers
-- Gate Prettier download behind allow option in LSP configuration
-- Gate NPM package installation behind allow option in LSP configuration
 - Add support for variable weight fonts to cosmic text system
+- Add bold & italic variants to default monospace font (Myna)
 
 ## Fixed
 
@@ -56,6 +58,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Save buffers before debug run (#338)
 - Use objc2 for window prompts (zed#59572)
 - Fix recent files picker out of sync when containing paths that no longer exist
+- Fix traffic light position after appearance changes (Mac) (zed#59712)
+- Roto has moved to // for comments in 0.11
 
 ## [2.2.0] - 2026-06-08
 
