@@ -573,7 +573,7 @@ impl MacWindow {
                         height: DevicePixels(bounds.size.height.0 as i32),
                     },
                     transparent: true,
-                    preferred_present_mode: Some(PresentMode::Fifo),
+                    preferred_present_mode: Some(PresentMode::Immediate),
                 };
 
                 WgpuRenderer::new(renderer_context, &raw_window, surface_config).unwrap()

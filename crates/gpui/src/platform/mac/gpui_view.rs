@@ -36,14 +36,14 @@ define_class!(
             let window_state = self.window_state();
             let mut lock = window_state.lock();
             if let Some(mut callback) = lock.request_frame_callback.take() {
-                // lock.renderer.set_presents_with_transaction(true);
+                lock.renderer.set_presents_with_transaction(true);
                 lock.stop_display_link();
                 drop(lock);
                 callback(Default::default());
 
                 let mut lock = window_state.lock();
                 lock.request_frame_callback = Some(callback);
-                // lock.renderer.set_presents_with_transaction(false);
+                lock.renderer.set_presents_with_transaction(false);
                 lock.start_display_link();
             }
         }

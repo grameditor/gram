@@ -856,6 +856,19 @@ impl WgpuRenderer {
         }
     }
 
+    #[allow(unused)]
+    #[cfg(not(target_os = "macos"))]
+    pub fn set_presents_with_transaction(&self, _: bool) {}
+
+    #[cfg(target_os = "macos")]
+    pub fn set_presents_with_transaction(&self, enable: bool) {
+        if let Some(hal_surface) = unsafe { self.surface.as_hal::<wgpu::hal::api::Metal>() } {
+            let guard = hal_surface.render_layer().lock();
+            guard.setPresentsWithTransaction(enable);
+            self.configure_surface();
+        }
+    }
+
     fn create_storage_buffer(&self, data: &[u8]) -> wgpu::Buffer {
         let buffer = self.device.create_buffer(&wgpu::BufferDescriptor {
             label: Some("instance_buffer"),
