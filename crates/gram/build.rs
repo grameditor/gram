@@ -2,6 +2,12 @@
 use std::process::Command;
 
 fn main() {
+println!("cargo:rerun-if-env-changed=GRAM_UPDATE_EXPLANATION");
+
+    if let Ok(explanation) = std::env::var("GRAM_UPDATE_EXPLANATION") {
+        println!("cargo:rustc-env=GRAM_UPDATE_EXPLANATION={explanation}");
+        println!(r#"cargo:rustc-cfg=feature="no-bundled-uninstall""#);
+    }
     if cfg!(target_os = "macos") {
         println!("cargo:rustc-env=MACOSX_DEPLOYMENT_TARGET=10.15.7");
 
