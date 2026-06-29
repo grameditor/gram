@@ -2558,7 +2558,7 @@ impl GitRepository for RealGitRepository {
             git_log_command.extend(log_source.get_args()?);
             let mut command = git.build_command(&git_log_command);
             command.stdout(Stdio::piped());
-            command.stderr(Stdio::null());
+            command.stderr(Stdio::piped());
 
             let mut child = command.spawn()?;
             let stdout = child.stdout.take().context("failed to get stdout")?;
