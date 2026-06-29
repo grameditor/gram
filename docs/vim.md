@@ -675,7 +675,7 @@ multiple times to indent/outdent to the desired depth:
 ```jsonc
 // keep selection during indent/outdent
 {
-  "context": "vim_mode == normal || vim_mode == visual",
+  "context": "vim_mode == visual",
   "bindings": {
     "<": ["workspace::SendKeystrokes", "< g v"],
     ">": ["workspace::SendKeystrokes", "> g v"]
