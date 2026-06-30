@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.1] - 2026-06-30
+
 ## Added
 
-- Add `GRAM_UPDATE_EXPLANATION` variable for external distributions (#357) by @koru
+- Set `GRAM_UPDATE_EXPLANATION` variable for external distributions (#357) by @koru
 
 ## Fixed
 
