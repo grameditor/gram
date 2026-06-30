@@ -6,6 +6,7 @@ use objc2_color_sync::CGDisplayCreateUUIDFromDisplayID;
 use objc2_core_graphics::{
     CGDirectDisplayID, CGDisplayBounds, CGError, CGGetActiveDisplayList, kCGNullDirectDisplay,
 };
+use objc2_foundation::{NSNumber, ns_string};
 use uuid::Uuid;
 
 #[derive(Debug)]
@@ -32,7 +33,7 @@ impl MacDisplay {
         let mtm = MainThreadMarker::new().expect("Must be on the main thread");
         let screens = NSScreen::screens(mtm);
         let screen = screens.objectAtIndex(0);
-        Self(screen.CGDirectDisplayID())
+        Self(screen_display_id(&screen))
     }
 
     /// Obtains an iterator over all currently active system displays.
@@ -113,7 +114,7 @@ impl MacDisplay {
 
         for i in 0..screens.count() {
             let screen = screens.objectAtIndex(i);
-            let screen_id = screen.CGDirectDisplayID();
+            let screen_id = screen_display_id(&screen);
             if screen_id == kCGNullDirectDisplay {
                 continue;
             }
@@ -123,4 +124,15 @@ impl MacDisplay {
         }
         None
     }
+}
+
+fn screen_display_id(screen: &Retained<NSScreen>) -> CGDirectDisplayID {
+    let device_description = screen.deviceDescription();
+    let Some(display_number) = device_description.objectForKey(ns_string!("NSScreenNumber")) else {
+        return kCGNullDirectDisplay;
+    };
+    let Some(number) = display_number.downcast_ref::<NSNumber>() else {
+        return kCGNullDirectDisplay;
+    };
+    number.unsignedIntValue()
 }
