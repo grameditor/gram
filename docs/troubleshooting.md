@@ -37,7 +37,7 @@ If you're running into performance issues — such as hitches, hangs, or general
 ## Minidumps
 
 If Gram is crashing you can set `GRAM_GENERATE_MINIDUMPS=1` when running Gram to get the editor to generate a crash dump file that
-can be analyzed to debug the issue. See [debugging-crashes.md](./debugging-crashes.md) for more details.
+can be analyzed to debug the issue. See [debugging-crashes.md](./development/debugging-crashes.md) for more details.
 
 ### macOS
 
