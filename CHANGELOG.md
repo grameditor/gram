@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Added
+
+- Add `GRAM_UPDATE_EXPLANATION` variable for external distributions (#357) by @koru
+
+## Fixed
+
+- Fix missing CGDirectDisplayID method on Mac OS 15 (#359)
+- docs: Fix broken link in docs
+- docs: Fix vim indent keymap tip
+
 ## [3.0.0] - 2026-06-29
 
 ## Changed
